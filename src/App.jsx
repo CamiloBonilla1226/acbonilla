@@ -6,6 +6,7 @@ import { CartaFisica } from './pages/CartaFisica'
 import { Login } from './pages/admin/Login'
 import { Dashboard } from './pages/admin/Dashboard'
 import { Productos } from './pages/admin/Productos'
+import { Categorias } from './pages/admin/Categorias'
 import { Pedidos } from './pages/admin/Pedidos'
 import { Usuarios } from './pages/admin/Usuarios'
 import { RutaProtegida } from './components/admin/RutaProtegida'
@@ -57,6 +58,14 @@ function App() {
           element={
             <RutaProtegida soloDueno>
               <Productos />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/admin/categorias"
+          element={
+            <RutaProtegida soloDueno>
+              <Categorias />
             </RutaProtegida>
           }
         />
