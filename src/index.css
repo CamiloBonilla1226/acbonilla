@@ -881,8 +881,7 @@ p {
 /* Ligera elevación al pasar el mouse sobre cualquier fila de las listas admin: un detalle
    moderno y sutil (no cambia layout, no interfiere con el tacto en móvil). */
 .producto-admin-item:hover,
-.categoria-admin-item:hover,
-.usuario-admin-item:hover {
+.categoria-admin-item:hover {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
 }
 
@@ -964,53 +963,50 @@ p {
   padding: var(--espacio-1) var(--espacio-2);
 }
 
-/* Usuarios admin */
-.lista-usuarios-admin {
-  list-style: none;
-  margin: 0 0 var(--espacio-4);
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--espacio-2);
+/* Usuarios admin: tabla real (no lista de tarjetas), con encabezado de columnas. */
+.tabla-usuarios-admin__contenedor {
+  margin-bottom: var(--espacio-4);
+  border: 1px solid var(--color-borde);
+  background: var(--color-fondo);
+  overflow-x: auto;
 }
 
-.usuario-admin-item {
+.tabla-usuarios-admin {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-usuarios-admin th,
+.tabla-usuarios-admin td {
   padding: var(--espacio-3);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--espacio-3);
-  transition: box-shadow 0.15s ease;
+  text-align: left;
+  border-bottom: 1px solid var(--color-borde);
 }
 
-.usuario-admin-item__info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espacio-1);
-}
-
-.usuario-admin-item__detalle {
-  display: flex;
-  align-items: center;
-  gap: var(--espacio-3);
-}
-
-.usuario-admin-item__numero {
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--color-texto-suave);
-}
-
-/* Insignia de rol: mismo lenguaje visual que el estado de un pedido (borde + texto en
-   mayúsculas), para que un vistazo rápido a la lista diferencie dueño de empleados. */
-.rol-badge {
-  font-size: 0.7rem;
+.tabla-usuarios-admin th {
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: 2px var(--espacio-2);
-  border: 1px solid var(--color-borde);
   color: var(--color-texto-suave);
+  background: var(--color-superficie, #f7f7f8);
+}
+
+.tabla-usuarios-admin tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla-usuarios-admin tbody tr:hover {
+  background: var(--color-superficie, #f7f7f8);
+}
+
+.tabla-usuarios-admin td:first-child {
+  font-weight: 600;
+}
+
+.tabla-usuarios-admin__acciones {
+  text-align: right;
+  white-space: nowrap;
 }
 
 .rol-badge--dueno {

@@ -146,4 +146,9 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - **`FormularioEmpleado.jsx`**: nuevo campo "Nombre" (obligatorio, primero en el formulario), validado en el cliente antes de invocar `onGuardar`.
   - **`TablaUsuarios.jsx`**: cada fila ahora muestra el nombre del empleado como título, con el número y la insignia de rol debajo.
 - Verificación: `npm run build` (109 módulos, sin errores) y `npm run lint` (5 advertencias, todas preexistentes del patrón `set-state-in-effect`).
+
+## 2026-09-24 (14)
+- **`TablaUsuarios.jsx` pasa de ser una lista de tarjetas a una tabla HTML real (`<table>`)**, con encabezado de columnas ("Nombre", "Celular" y una columna de acciones sin título visible), a pedido del dueño para que la sección de Usuarios se vea "mejor organizada". Se quitó la insignia de rol de la tabla (ya no hace falta: `Usuarios.jsx` filtra las filas de dueño antes de pasarlas a este componente, así que solo se listan empleados).
+  - Estilos nuevos en `index.css`: `.tabla-usuarios-admin__contenedor`/`.tabla-usuarios-admin` (con `border-collapse`, encabezado con fondo `--color-superficie` y texto en mayúsculas, filas separadas por `border-bottom`, resaltado sutil en hover), reemplazando `.lista-usuarios-admin`, `.usuario-admin-item*` y `.rol-badge` (eliminados por quedar sin uso).
+  - Verificación: `npm run build` (109 módulos, sin errores) y `npm run lint` (mismas 5 advertencias preexistentes).
   - Verificación: `npm run build` (109 módulos, sin errores) y `npm run lint` (mismas 5 advertencias ya conocidas, sin advertencias nuevas).
