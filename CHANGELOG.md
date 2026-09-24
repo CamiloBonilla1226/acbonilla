@@ -88,3 +88,10 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - **Micro-interacción**: las filas de las tres listas (`producto-admin-item`, `categoria-admin-item`, `usuario-admin-item`) ahora tienen una ligera elevación (`box-shadow`) al pasar el mouse, un detalle moderno y sutil que no afecta el layout ni el uso táctil en móvil.
   - Se eliminó la clase `admin-productos__encabezado`, que quedó sin uso tras sacar el botón del encabezado.
   - Verificación: `npm run build` (105 módulos, sin errores) y `npm run lint` (mismas advertencias ya conocidas, sin advertencias nuevas).
+
+## 2026-09-24 (8)
+- **Categorías ahora sigue exactamente el mismo patrón que Productos** (pedido explícito: "que la sección de categorías quede igual a la de productos"). Antes Categorías editaba en línea (el nombre se volvía un `<input>` dentro de la misma fila) mientras que Productos usaba un formulario modal aparte; quedaban con dos comportamientos distintos para la misma acción de editar.
+  - Se creó `FormularioCategoria.jsx` (modal con un solo campo `nombre`) y `TablaCategorias.jsx` (lista de solo lectura con botones "Editar"/"Eliminar"), reemplazando a `GestionCategorias.jsx` (eliminado, ya sin uso) que mezclaba lista + edición en línea + formulario de creación en un solo componente.
+  - `Categorias.jsx` se reescribió con la misma estructura que `Productos.jsx`: `admin-crear--boton` ("+ Nueva categoría") abre un modal (`superposicion`) con `FormularioCategoria`, tanto para crear como para editar — igual que "+ Nuevo producto" abre `FormularioProducto`.
+  - Se quitó la clase CSS `categoria-admin-item__input`, que ya no se usa al no haber edición en línea.
+  - Verificación: `npm run build` (106 módulos, sin errores) y `npm run lint` (mismas advertencias ya conocidas, sin advertencias nuevas).
