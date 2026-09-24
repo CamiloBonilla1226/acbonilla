@@ -44,10 +44,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { numero, contrasena, rol } = await req.json()
+    const { numero, contrasena, nombre, rol } = await req.json()
 
-    if (!numero || !contrasena || !rol) {
-      return respuesta({ error: 'Faltan datos: numero, contrasena y rol son obligatorios.' }, 400)
+    if (!numero || !contrasena || !nombre || !rol) {
+      return respuesta({ error: 'Faltan datos: numero, contrasena, nombre y rol son obligatorios.' }, 400)
     }
     if (!['dueño', 'empleado'].includes(rol)) {
       return respuesta({ error: 'Rol inválido.' }, 400)
@@ -126,6 +126,7 @@ Deno.serve(async (req) => {
     const { error: errorInsertar } = await clienteAdmin.from('usuarios_admin').insert({
       negocio_id: negocioId,
       numero: numero.replace(/\D/g, ''),
+      nombre: String(nombre).trim(),
       rol,
     })
 

@@ -10,12 +10,13 @@ export function Categorias() {
   const [categoriaEnEdicion, setCategoriaEnEdicion] = useState(null) // objeto o 'nuevo'
 
   const guardarCategoria = async (datos) => {
-    if (categoriaEnEdicion === 'nuevo') {
-      await crearCategoria(datos.nombre)
-    } else {
-      await actualizarCategoria(categoriaEnEdicion.id, datos)
-    }
-    setCategoriaEnEdicion(null)
+    const resultado =
+      categoriaEnEdicion === 'nuevo'
+        ? await crearCategoria(datos.nombre)
+        : await actualizarCategoria(categoriaEnEdicion.id, datos)
+
+    if (resultado.exito) setCategoriaEnEdicion(null)
+    return resultado
   }
 
   const confirmarEliminar = async (id) => {

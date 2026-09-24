@@ -24,6 +24,7 @@ export function FormularioAdicion({ adicionInicial, onGuardar, onCancelar }) {
   const [guardando, setGuardando] = useState(false)
   const [subiendoImagen, setSubiendoImagen] = useState(false)
   const [errorImagen, setErrorImagen] = useState(null)
+  const [errorGuardado, setErrorGuardado] = useState(null)
 
   const actualizar = (campo) => (evento) => {
     setValores((actual) => ({ ...actual, [campo]: evento.target.value }))
@@ -53,8 +54,9 @@ export function FormularioAdicion({ adicionInicial, onGuardar, onCancelar }) {
   const enviar = async (evento) => {
     evento.preventDefault()
     setGuardando(true)
+    setErrorGuardado(null)
 
-    await onGuardar({
+    const resultado = await onGuardar({
       nombre: valores.nombre.trim(),
       descripcion: valores.descripcion.trim() || null,
       precio: Number(valores.precio),
@@ -62,6 +64,9 @@ export function FormularioAdicion({ adicionInicial, onGuardar, onCancelar }) {
     })
 
     setGuardando(false)
+    if (resultado && !resultado.exito) {
+      setErrorGuardado(resultado.error?.message ?? 'No se pudo guardar la adición.')
+    }
   }
 
   return (
@@ -100,6 +105,8 @@ export function FormularioAdicion({ adicionInicial, onGuardar, onCancelar }) {
           onChange={actualizar('imagen_url')}
         />
       </div>
+
+      {errorGuardado && <p className="campo__error">{errorGuardado}</p>}
 
       <div className="opciones-producto__acciones">
         <button type="button" className="boton boton--secundario" onClick={onCancelar}>

@@ -12,12 +12,13 @@ export function Productos() {
   const [productoEnEdicion, setProductoEnEdicion] = useState(null) // objeto o 'nuevo'
 
   const guardarProducto = async (datos) => {
-    if (productoEnEdicion === 'nuevo') {
-      await crearProducto(datos)
-    } else {
-      await actualizarProducto(productoEnEdicion.id, datos)
-    }
-    setProductoEnEdicion(null)
+    const resultado =
+      productoEnEdicion === 'nuevo'
+        ? await crearProducto(datos)
+        : await actualizarProducto(productoEnEdicion.id, datos)
+
+    if (resultado.exito) setProductoEnEdicion(null)
+    return resultado
   }
 
   const confirmarEliminar = async (id) => {

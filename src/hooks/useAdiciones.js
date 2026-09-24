@@ -36,9 +36,26 @@ export function useAdiciones() {
 
   const crearAdicion = useCallback(
     async (adicion) => {
+      const nombreLimpio = adicion.nombre?.trim() ?? ''
+      if (!nombreLimpio) {
+        return { exito: false, error: new Error('El nombre es obligatorio.') }
+      }
+
+      const { data: existente, error: errorConsulta } = await supabase
+        .from('adiciones')
+        .select('id')
+        .eq('negocio_id', negocioConfig.negocioId)
+        .ilike('nombre', nombreLimpio)
+        .maybeSingle()
+
+      if (errorConsulta) return { exito: false, error: errorConsulta }
+      if (existente) {
+        return { exito: false, error: new Error('Ya existe una adición con ese nombre.') }
+      }
+
       const { error: errorCrear } = await supabase
         .from('adiciones')
-        .insert({ ...adicion, negocio_id: negocioConfig.negocioId })
+        .insert({ ...adicion, nombre: nombreLimpio, negocio_id: negocioConfig.negocioId })
 
       if (!errorCrear) await recargar()
       return { exito: !errorCrear, error: errorCrear }
@@ -47,7 +64,31 @@ export function useAdiciones() {
   )
 
   const actualizarAdicion = useCallback(
-    async (id, cambios) => {
+    async (id, cambiosOriginales) => {
+      let cambios = cambiosOriginales
+
+      if (cambios.nombre !== undefined) {
+        const nombreLimpio = cambios.nombre.trim()
+        if (!nombreLimpio) {
+          return { exito: false, error: new Error('El nombre es obligatorio.') }
+        }
+
+        const { data: existente, error: errorConsulta } = await supabase
+          .from('adiciones')
+          .select('id')
+          .eq('negocio_id', negocioConfig.negocioId)
+          .neq('id', id)
+          .ilike('nombre', nombreLimpio)
+          .maybeSingle()
+
+        if (errorConsulta) return { exito: false, error: errorConsulta }
+        if (existente) {
+          return { exito: false, error: new Error('Ya existe una adición con ese nombre.') }
+        }
+
+        cambios = { ...cambios, nombre: nombreLimpio }
+      }
+
       const { error: errorActualizar } = await supabase.from('adiciones').update(cambios).eq('id', id)
 
       if (!errorActualizar) await recargar()

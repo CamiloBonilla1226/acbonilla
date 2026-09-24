@@ -10,12 +10,13 @@ export function Adiciones() {
   const [adicionEnEdicion, setAdicionEnEdicion] = useState(null) // objeto o 'nuevo'
 
   const guardarAdicion = async (datos) => {
-    if (adicionEnEdicion === 'nuevo') {
-      await crearAdicion(datos)
-    } else {
-      await actualizarAdicion(adicionEnEdicion.id, datos)
-    }
-    setAdicionEnEdicion(null)
+    const resultado =
+      adicionEnEdicion === 'nuevo'
+        ? await crearAdicion(datos)
+        : await actualizarAdicion(adicionEnEdicion.id, datos)
+
+    if (resultado.exito) setAdicionEnEdicion(null)
+    return resultado
   }
 
   const confirmarEliminar = async (id) => {

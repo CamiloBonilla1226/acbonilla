@@ -30,6 +30,7 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
   const [guardando, setGuardando] = useState(false)
   const [subiendoImagen, setSubiendoImagen] = useState(false)
   const [errorImagen, setErrorImagen] = useState(null)
+  const [errorGuardado, setErrorGuardado] = useState(null)
 
   const actualizar = (campo) => (evento) => {
     const valor = evento.target.type === 'checkbox' ? evento.target.checked : evento.target.value
@@ -69,8 +70,9 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
     }
 
     setGuardando(true)
+    setErrorGuardado(null)
 
-    await onGuardar({
+    const resultado = await onGuardar({
       nombre: valores.nombre.trim(),
       descripcion: valores.descripcion.trim() || null,
       categoria_id: valores.categoria_id || null,
@@ -81,6 +83,9 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
     })
 
     setGuardando(false)
+    if (resultado && !resultado.exito) {
+      setErrorGuardado(resultado.error?.message ?? 'No se pudo guardar el producto.')
+    }
   }
 
   return (
@@ -141,6 +146,8 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
         <input type="checkbox" checked={valores.disponible} onChange={actualizar('disponible')} />
         <span>Disponible</span>
       </label>
+
+      {errorGuardado && <p className="campo__error">{errorGuardado}</p>}
 
       <div className="opciones-producto__acciones">
         <button type="button" className="boton boton--secundario" onClick={onCancelar}>

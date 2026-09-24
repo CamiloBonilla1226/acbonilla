@@ -13,10 +13,13 @@ export function TablaUsuarios({ usuarios, onEliminar }) {
       {usuarios.map((usuario) => (
         <li key={usuario.id} className="tarjeta usuario-admin-item">
           <div className="usuario-admin-item__info">
-            <span className="usuario-admin-item__numero">{usuario.numero}</span>
-            <span className={`rol-badge rol-badge--${usuario.rol === 'dueño' ? 'dueno' : 'empleado'}`}>
-              {ETIQUETA_ROL[usuario.rol] ?? usuario.rol}
-            </span>
+            <strong>{usuario.nombre}</strong>
+            <div className="usuario-admin-item__detalle">
+              <span className="usuario-admin-item__numero">{usuario.numero}</span>
+              <span className={`rol-badge rol-badge--${usuario.rol === 'dueño' ? 'dueno' : 'empleado'}`}>
+                {ETIQUETA_ROL[usuario.rol] ?? usuario.rol}
+              </span>
+            </div>
           </div>
           {usuario.rol !== 'dueño' && (
             <button type="button" className="carrito__quitar" onClick={() => onEliminar(usuario.id)}>

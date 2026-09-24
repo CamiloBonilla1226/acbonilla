@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 export function FormularioEmpleado({ onGuardar, onCancelar }) {
+  const [nombre, setNombre] = useState('')
   const [numero, setNumero] = useState('')
   const [contrasena, setContrasena] = useState('')
   const [mostrarContrasena, setMostrarContrasena] = useState(false)
@@ -9,14 +10,20 @@ export function FormularioEmpleado({ onGuardar, onCancelar }) {
 
   const enviar = async (evento) => {
     evento.preventDefault()
+
+    if (!nombre.trim()) {
+      setError('El nombre es obligatorio.')
+      return
+    }
+
     setGuardando(true)
     setError(null)
 
-    const { exito, error: errorCreacion } = await onGuardar(numero, contrasena)
+    const { exito, error: errorCreacion } = await onGuardar(numero, contrasena, nombre.trim())
 
     setGuardando(false)
     if (!exito) {
-      setError('No se pudo crear el empleado. Revisa el número y la contraseña.')
+      setError('No se pudo crear el empleado. Revisa el nombre, el número y la contraseña.')
       console.error(errorCreacion)
     }
   }
@@ -24,8 +31,13 @@ export function FormularioEmpleado({ onGuardar, onCancelar }) {
   return (
     <form className="checkout" onSubmit={enviar} noValidate>
       <label className="campo">
+        <span>Nombre</span>
+        <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} required maxLength={80} autoFocus />
+      </label>
+
+      <label className="campo">
         <span>Usuario (número de teléfono)</span>
-        <input type="tel" value={numero} onChange={(e) => setNumero(e.target.value)} required autoFocus />
+        <input type="tel" value={numero} onChange={(e) => setNumero(e.target.value)} required />
       </label>
 
       <label className="campo">

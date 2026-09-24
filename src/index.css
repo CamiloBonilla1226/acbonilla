@@ -985,6 +985,12 @@ p {
 
 .usuario-admin-item__info {
   display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+}
+
+.usuario-admin-item__detalle {
+  display: flex;
   align-items: center;
   gap: var(--espacio-3);
 }
@@ -992,6 +998,7 @@ p {
 .usuario-admin-item__numero {
   font-weight: 600;
   letter-spacing: 0.02em;
+  color: var(--color-texto-suave);
 }
 
 /* Insignia de rol: mismo lenguaje visual que el estado de un pedido (borde + texto en

@@ -32,9 +32,28 @@ export function useCategorias() {
 
   const crearCategoria = useCallback(
     async (nombre) => {
+      const nombreLimpio = nombre.trim()
+      if (!nombreLimpio) {
+        return { exito: false, error: new Error('El nombre es obligatorio.') }
+      }
+
+      // ilike sin comodines (%) hace una comparación exacta insensible a mayúsculas/acentos
+      // de caja, suficiente para detectar duplicados como "Bebidas" vs "bebidas".
+      const { data: existente, error: errorConsulta } = await supabase
+        .from('categorias')
+        .select('id')
+        .eq('negocio_id', negocioConfig.negocioId)
+        .ilike('nombre', nombreLimpio)
+        .maybeSingle()
+
+      if (errorConsulta) return { exito: false, error: errorConsulta }
+      if (existente) {
+        return { exito: false, error: new Error('Ya existe una categoría con ese nombre.') }
+      }
+
       const { error: errorCrear } = await supabase
         .from('categorias')
-        .insert({ nombre, negocio_id: negocioConfig.negocioId })
+        .insert({ nombre: nombreLimpio, negocio_id: negocioConfig.negocioId })
 
       if (!errorCrear) await recargar()
       return { exito: !errorCrear, error: errorCrear }
@@ -43,7 +62,31 @@ export function useCategorias() {
   )
 
   const actualizarCategoria = useCallback(
-    async (id, cambios) => {
+    async (id, cambiosOriginales) => {
+      let cambios = cambiosOriginales
+
+      if (cambios.nombre !== undefined) {
+        const nombreLimpio = cambios.nombre.trim()
+        if (!nombreLimpio) {
+          return { exito: false, error: new Error('El nombre es obligatorio.') }
+        }
+
+        const { data: existente, error: errorConsulta } = await supabase
+          .from('categorias')
+          .select('id')
+          .eq('negocio_id', negocioConfig.negocioId)
+          .neq('id', id)
+          .ilike('nombre', nombreLimpio)
+          .maybeSingle()
+
+        if (errorConsulta) return { exito: false, error: errorConsulta }
+        if (existente) {
+          return { exito: false, error: new Error('Ya existe una categoría con ese nombre.') }
+        }
+
+        cambios = { ...cambios, nombre: nombreLimpio }
+      }
+
       const { error: errorActualizar } = await supabase
         .from('categorias')
         .update(cambios)

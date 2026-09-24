@@ -16,8 +16,8 @@ export function Usuarios() {
   // (el id de usuarios_admin no es el mismo que el id de auth.users de la sesión).
   const empleados = usuarios.filter((usuario) => usuario.rol !== 'dueño')
 
-  const guardarEmpleado = async (numero, contrasena) => {
-    const resultado = await crearEmpleado(numero, contrasena)
+  const guardarEmpleado = async (numero, contrasena, nombre) => {
+    const resultado = await crearEmpleado(numero, contrasena, nombre)
     if (resultado.exito) setCreando(false)
     return resultado
   }

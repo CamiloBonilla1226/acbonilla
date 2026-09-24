@@ -16,7 +16,7 @@ export function useUsuariosAdmin() {
 
     const { data, error: errorConsulta } = await supabase
       .from('usuarios_admin')
-      .select('id, numero, rol, creado_en')
+      .select('id, numero, nombre, rol, creado_en')
       .eq('negocio_id', negocioConfig.negocioId)
       .order('creado_en', { ascending: true })
 
@@ -34,7 +34,7 @@ export function useUsuariosAdmin() {
   }, [recargar])
 
   const crearEmpleado = useCallback(
-    async (numero, contrasena) => {
+    async (numero, contrasena, nombre) => {
       // La creación de la cuenta de Auth (con su app_metadata de negocio_id/rol) y el
       // registro en usuarios_admin ya no se hacen por separado desde el navegador: ambos
       // pasos ocurren dentro de la Edge Function `crear-usuario-admin`, con el cliente
@@ -43,7 +43,7 @@ export function useUsuariosAdmin() {
       // esa tabla; cuando faltaron, el insert fallaba y dejaba un usuario "fantasma" en
       // auth.users sin fila en usuarios_admin. Ver CHANGELOG.md para el detalle completo.
       const { data, error: errorFuncion } = await supabase.functions.invoke('crear-usuario-admin', {
-        body: { numero, contrasena, rol: 'empleado' },
+        body: { numero, contrasena, nombre, rol: 'empleado' },
       })
 
       if (errorFuncion) return { exito: false, error: errorFuncion }

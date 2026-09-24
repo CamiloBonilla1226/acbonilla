@@ -49,9 +49,26 @@ export function useProductos({ categoriaId, soloDisponibles = false } = {}) {
 
   const crearProducto = useCallback(
     async (producto) => {
+      const nombreLimpio = producto.nombre?.trim() ?? ''
+      if (!nombreLimpio) {
+        return { exito: false, error: new Error('El nombre es obligatorio.') }
+      }
+
+      const { data: existente, error: errorConsulta } = await supabase
+        .from('productos')
+        .select('id')
+        .eq('negocio_id', negocioConfig.negocioId)
+        .ilike('nombre', nombreLimpio)
+        .maybeSingle()
+
+      if (errorConsulta) return { exito: false, error: errorConsulta }
+      if (existente) {
+        return { exito: false, error: new Error('Ya existe un producto con ese nombre.') }
+      }
+
       const { data, error: errorCrear } = await supabase
         .from('productos')
-        .insert({ ...producto, negocio_id: negocioConfig.negocioId })
+        .insert({ ...producto, nombre: nombreLimpio, negocio_id: negocioConfig.negocioId })
         .select()
         .single()
 
@@ -62,7 +79,31 @@ export function useProductos({ categoriaId, soloDisponibles = false } = {}) {
   )
 
   const actualizarProducto = useCallback(
-    async (id, cambios) => {
+    async (id, cambiosOriginales) => {
+      let cambios = cambiosOriginales
+
+      if (cambios.nombre !== undefined) {
+        const nombreLimpio = cambios.nombre.trim()
+        if (!nombreLimpio) {
+          return { exito: false, error: new Error('El nombre es obligatorio.') }
+        }
+
+        const { data: existente, error: errorConsulta } = await supabase
+          .from('productos')
+          .select('id')
+          .eq('negocio_id', negocioConfig.negocioId)
+          .neq('id', id)
+          .ilike('nombre', nombreLimpio)
+          .maybeSingle()
+
+        if (errorConsulta) return { exito: false, error: errorConsulta }
+        if (existente) {
+          return { exito: false, error: new Error('Ya existe un producto con ese nombre.') }
+        }
+
+        cambios = { ...cambios, nombre: nombreLimpio }
+      }
+
       const { error: errorActualizar } = await supabase.from('productos').update(cambios).eq('id', id)
 
       if (!errorActualizar) await recargar()
