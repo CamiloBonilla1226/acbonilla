@@ -6,7 +6,7 @@ import { negocioConfig } from '../config/negocio.config'
 // independiente, con su propio precio, y siempre opcional al pedir cualquier producto —
 // no hay grupos ni obligatoriedad (eso reemplazó al modelo anterior de
 // grupos_opciones/opciones, ver CHANGELOG.md).
-export function useAdiciones() {
+export function useAdiciones({ soloDisponibles = false } = {}) {
   const [adiciones, setAdiciones] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
@@ -15,11 +15,17 @@ export function useAdiciones() {
     setCargando(true)
     setError(null)
 
-    const { data, error: errorConsulta } = await supabase
+    let consulta = supabase
       .from('adiciones')
       .select('*')
       .eq('negocio_id', negocioConfig.negocioId)
       .order('nombre', { ascending: true })
+
+    if (soloDisponibles) {
+      consulta = consulta.eq('disponible', true)
+    }
+
+    const { data, error: errorConsulta } = await consulta
 
     if (errorConsulta) {
       setError(errorConsulta)
@@ -28,7 +34,7 @@ export function useAdiciones() {
       setAdiciones(data)
     }
     setCargando(false)
-  }, [])
+  }, [soloDisponibles])
 
   useEffect(() => {
     recargar()
@@ -107,5 +113,27 @@ export function useAdiciones() {
     [recargar]
   )
 
-  return { adiciones, cargando, error, recargar, crearAdicion, actualizarAdicion, eliminarAdicion }
+  const toggleDisponible = useCallback(
+    async (id, valor) => {
+      const { error: errorActualizar } = await supabase
+        .from('adiciones')
+        .update({ disponible: valor })
+        .eq('id', id)
+
+      if (!errorActualizar) await recargar()
+      return { exito: !errorActualizar, error: errorActualizar }
+    },
+    [recargar]
+  )
+
+  return {
+    adiciones,
+    cargando,
+    error,
+    recargar,
+    crearAdicion,
+    actualizarAdicion,
+    eliminarAdicion,
+    toggleDisponible,
+  }
 }

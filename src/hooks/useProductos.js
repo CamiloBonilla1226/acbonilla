@@ -122,5 +122,27 @@ export function useProductos({ categoriaId, soloDisponibles = false } = {}) {
     [recargar]
   )
 
-  return { productos, cargando, error, recargar, crearProducto, actualizarProducto, eliminarProducto }
+  const toggleDisponible = useCallback(
+    async (id, valor) => {
+      const { error: errorActualizar } = await supabase
+        .from('productos')
+        .update({ disponible: valor })
+        .eq('id', id)
+
+      if (!errorActualizar) await recargar()
+      return { exito: !errorActualizar, error: errorActualizar }
+    },
+    [recargar]
+  )
+
+  return {
+    productos,
+    cargando,
+    error,
+    recargar,
+    crearProducto,
+    actualizarProducto,
+    eliminarProducto,
+    toggleDisponible,
+  }
 }

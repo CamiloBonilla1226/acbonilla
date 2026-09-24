@@ -893,7 +893,68 @@ p {
 
 .producto-admin-item__acciones {
   display: flex;
+  align-items: center;
   gap: var(--espacio-2);
+}
+
+/* Interruptor de "Disponible": cuadrado (no píldora), acorde al lenguaje visual del
+   proyecto (border-radius: 0 en todas partes). El checkbox real queda oculto mas
+   accesible (foco de teclado, lector de pantalla) y el visual lo dibuja ::after. */
+.interruptor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.interruptor input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.interruptor__pista {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-borde);
+  background: var(--color-fondo);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.interruptor__pista::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 16px;
+  height: 16px;
+  background: var(--color-texto-suave);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.interruptor input:checked + .interruptor__pista {
+  background: var(--color-primario);
+  border-color: var(--color-primario);
+}
+
+.interruptor input:checked + .interruptor__pista::after {
+  transform: translateX(16px);
+  background: var(--color-fondo);
+}
+
+.interruptor input:focus-visible + .interruptor__pista {
+  outline: 2px solid var(--color-primario);
+  outline-offset: 2px;
+}
+
+.interruptor__etiqueta {
+  font-size: 0.8rem;
+  color: var(--color-texto-suave);
 }
 
 .formulario-producto select {

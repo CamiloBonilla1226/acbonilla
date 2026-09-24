@@ -1,10 +1,12 @@
+import { Interruptor } from './Interruptor'
+
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
   style: 'currency',
   currency: 'COP',
   maximumFractionDigits: 0,
 })
 
-export function TablaProductos({ productos, onEditar, onEliminar }) {
+export function TablaProductos({ productos, onEditar, onEliminar, onToggleDisponible }) {
   if (productos.length === 0) {
     return <p className="texto-suave">Todavía no hay productos. Crea el primero.</p>
   }
@@ -22,6 +24,10 @@ export function TablaProductos({ productos, onEditar, onEliminar }) {
             </span>
           </div>
           <div className="producto-admin-item__acciones">
+            <Interruptor
+              activo={producto.disponible}
+              onCambiar={(valor) => onToggleDisponible(producto.id, valor)}
+            />
             <button type="button" className="boton boton--secundario boton--pequeno" onClick={() => onEditar(producto)}>
               Editar
             </button>

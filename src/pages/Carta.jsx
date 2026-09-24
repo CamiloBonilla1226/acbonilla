@@ -24,8 +24,8 @@ export function Carta() {
     productos,
     cargando: cargandoProductos,
     error: errorProductos,
-  } = useProductos({ categoriaId: categoriaActivaId })
-  const { adiciones } = useAdiciones()
+  } = useProductos({ categoriaId: categoriaActivaId, soloDisponibles: true })
+  const { adiciones } = useAdiciones({ soloDisponibles: true })
 
   const carrito = useCarrito()
   const [productoSeleccionado, setProductoSeleccionado] = useState(null)

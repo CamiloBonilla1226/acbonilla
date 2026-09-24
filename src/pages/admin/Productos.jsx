@@ -7,7 +7,8 @@ import { useProductos } from '../../hooks/useProductos'
 
 export function Productos() {
   const { categorias } = useCategorias()
-  const { productos, cargando, error, crearProducto, actualizarProducto, eliminarProducto } = useProductos()
+  const { productos, cargando, error, crearProducto, actualizarProducto, eliminarProducto, toggleDisponible } =
+    useProductos()
 
   const [productoEnEdicion, setProductoEnEdicion] = useState(null) // objeto o 'nuevo'
 
@@ -43,7 +44,12 @@ export function Productos() {
         {cargando && <p className="texto-suave">Cargando productos…</p>}
         {error && <p className="campo__error">No se pudieron cargar los productos.</p>}
         {!cargando && !error && (
-          <TablaProductos productos={productos} onEditar={setProductoEnEdicion} onEliminar={confirmarEliminar} />
+          <TablaProductos
+            productos={productos}
+            onEditar={setProductoEnEdicion}
+            onEliminar={confirmarEliminar}
+            onToggleDisponible={toggleDisponible}
+          />
         )}
       </main>
 

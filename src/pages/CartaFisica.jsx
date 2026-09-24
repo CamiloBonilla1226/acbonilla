@@ -15,7 +15,7 @@ export function CartaFisica() {
     productos,
     cargando: cargandoProductos,
     error: errorProductos,
-  } = useProductos({ categoriaId: categoriaActivaId })
+  } = useProductos({ categoriaId: categoriaActivaId, soloDisponibles: true })
 
   return (
     <main className="contenedor pagina-carta">
