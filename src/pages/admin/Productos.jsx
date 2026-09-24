@@ -1,0 +1,81 @@
+import { useState } from 'react'
+import { AdminNav } from '../../components/admin/AdminNav'
+import { TablaProductos } from '../../components/admin/TablaProductos'
+import { FormularioProducto } from '../../components/admin/FormularioProducto'
+import { GestionOpciones } from '../../components/admin/GestionOpciones'
+import { useCategorias } from '../../hooks/useCategorias'
+import { useProductos } from '../../hooks/useProductos'
+
+export function Productos() {
+  const { categorias } = useCategorias()
+  const { productos, cargando, error, crearProducto, actualizarProducto, eliminarProducto } = useProductos()
+
+  const [productoEnEdicion, setProductoEnEdicion] = useState(null) // objeto o 'nuevo'
+  const [productoOpciones, setProductoOpciones] = useState(null)
+
+  const guardarProducto = async (datos) => {
+    if (productoEnEdicion === 'nuevo') {
+      await crearProducto(datos)
+    } else {
+      await actualizarProducto(productoEnEdicion.id, datos)
+    }
+    setProductoEnEdicion(null)
+  }
+
+  const confirmarEliminar = async (id) => {
+    if (window.confirm('¿Eliminar este producto? Esta acción no se puede deshacer.')) {
+      await eliminarProducto(id)
+    }
+  }
+
+  return (
+    <>
+      <AdminNav />
+      <main className="contenedor admin-productos">
+        <div className="admin-productos__encabezado">
+          <h1>Productos</h1>
+          <button type="button" className="boton" onClick={() => setProductoEnEdicion('nuevo')}>
+            Nuevo producto
+          </button>
+        </div>
+
+        {cargando && <p className="texto-suave">Cargando productos…</p>}
+        {error && <p className="campo__error">No se pudieron cargar los productos.</p>}
+        {!cargando && !error && (
+          <TablaProductos
+            productos={productos}
+            onEditar={setProductoEnEdicion}
+            onEliminar={confirmarEliminar}
+            onGestionarOpciones={setProductoOpciones}
+          />
+        )}
+      </main>
+
+      {productoEnEdicion && (
+        <div className="superposicion" role="dialog" aria-modal="true">
+          <div className="superposicion__panel">
+            <h2>{productoEnEdicion === 'nuevo' ? 'Nuevo producto' : 'Editar producto'}</h2>
+            <FormularioProducto
+              categorias={categorias}
+              productoInicial={productoEnEdicion === 'nuevo' ? null : productoEnEdicion}
+              onGuardar={guardarProducto}
+              onCancelar={() => setProductoEnEdicion(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {productoOpciones && (
+        <div className="superposicion" role="dialog" aria-modal="true">
+          <div className="superposicion__panel">
+            <button type="button" className="superposicion__cerrar" onClick={() => setProductoOpciones(null)}>
+              Cerrar
+            </button>
+            <h2>Adiciones de {productoOpciones.nombre}</h2>
+            <GestionOpciones productoId={productoOpciones.id} />
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
