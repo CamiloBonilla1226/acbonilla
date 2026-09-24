@@ -558,6 +558,26 @@ p {
   gap: var(--espacio-2);
 }
 
+/* Campo de contraseña con botón para mostrar/ocultar lo que se está escribiendo. Solo
+   tiene sentido mientras se crea la contraseña (el valor vive en el estado del formulario);
+   una vez guardada, Supabase Auth solo conserva un hash y no hay nada que "revelar" después. */
+.campo-contrasena {
+  display: flex;
+}
+
+.campo-contrasena input {
+  flex: 1;
+  border-right: none;
+}
+
+.campo-contrasena__alternar {
+  border: 1px solid var(--color-borde);
+  background: var(--color-secundario);
+  padding: 0 var(--espacio-3);
+  font-size: 1rem;
+  line-height: 1;
+}
+
 /* --- Panel admin --- */
 .admin-cargando {
   padding: var(--espacio-6) var(--espacio-3);
