@@ -32,12 +32,14 @@ export function Productos() {
     <>
       <AdminNav />
       <main className="contenedor admin-productos">
-        <div className="admin-productos__encabezado">
-          <h1>Productos</h1>
-          <button type="button" className="boton" onClick={() => setProductoEnEdicion('nuevo')}>
-            Nuevo producto
-          </button>
-        </div>
+        <h1>Productos</h1>
+
+        <button type="button" className="admin-crear admin-crear--boton" onClick={() => setProductoEnEdicion('nuevo')}>
+          <span className="admin-crear__icono" aria-hidden="true">
+            +
+          </span>
+          Nuevo producto
+        </button>
 
         {cargando && <p className="texto-suave">Cargando productos…</p>}
         {error && <p className="campo__error">No se pudieron cargar los productos.</p>}

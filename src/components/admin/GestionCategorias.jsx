@@ -43,6 +43,20 @@ export function GestionCategorias({ categorias, onCrear, onActualizar, onElimina
 
   return (
     <div className="gestion-categorias">
+      <div className="admin-crear">
+        <h2 className="admin-crear__titulo">Nueva categoría</h2>
+        <form className="admin-crear__form" onSubmit={crear} noValidate>
+          <label className="campo">
+            <span>Nombre</span>
+            <input value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+          </label>
+          <button type="submit" className="boton" disabled={enviando}>
+            {enviando ? 'Creando…' : 'Crear categoría'}
+          </button>
+        </form>
+        {error && <p className="campo__error">{error}</p>}
+      </div>
+
       <ul className="lista-categorias-admin">
         {categorias.map((categoria) => (
           <li key={categoria.id} className="tarjeta categoria-admin-item">
@@ -82,18 +96,6 @@ export function GestionCategorias({ categorias, onCrear, onActualizar, onElimina
         ))}
         {categorias.length === 0 && <p className="texto-suave">Todavía no hay categorías.</p>}
       </ul>
-
-      <form className="checkout" onSubmit={crear} noValidate>
-        <h2>Nueva categoría</h2>
-        <label className="campo">
-          <span>Nombre</span>
-          <input value={nombre} onChange={(e) => setNombre(e.target.value)} required />
-        </label>
-        {error && <p className="campo__error">{error}</p>}
-        <button type="submit" className="boton" disabled={enviando}>
-          {enviando ? 'Creando…' : 'Crear categoría'}
-        </button>
-      </form>
     </div>
   )
 }
