@@ -56,6 +56,14 @@ export function Productos() {
       {productoEnEdicion && (
         <div className="superposicion" role="dialog" aria-modal="true">
           <div className="superposicion__panel">
+            <button
+              type="button"
+              className="superposicion__cerrar-x"
+              onClick={() => setProductoEnEdicion(null)}
+              aria-label="Cerrar"
+            >
+              ×
+            </button>
             <h2>{productoEnEdicion === 'nuevo' ? 'Nuevo producto' : 'Editar producto'}</h2>
             <FormularioProducto
               categorias={categorias}

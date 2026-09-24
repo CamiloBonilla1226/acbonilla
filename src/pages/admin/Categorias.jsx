@@ -19,8 +19,11 @@ export function Categorias() {
   }
 
   const confirmarEliminar = async (id) => {
-    if (window.confirm('¿Eliminar esta categoría? Los productos asociados no se eliminan, pero quedarán sin categoría.')) {
-      await eliminarCategoria(id)
+    if (!window.confirm('¿Eliminar esta categoría?')) return
+
+    const { exito, error: errorEliminar } = await eliminarCategoria(id)
+    if (!exito) {
+      alert(errorEliminar?.message ?? 'No se pudo eliminar la categoría.')
     }
   }
 
@@ -47,6 +50,14 @@ export function Categorias() {
       {categoriaEnEdicion && (
         <div className="superposicion" role="dialog" aria-modal="true">
           <div className="superposicion__panel">
+            <button
+              type="button"
+              className="superposicion__cerrar-x"
+              onClick={() => setCategoriaEnEdicion(null)}
+              aria-label="Cerrar"
+            >
+              ×
+            </button>
             <h2>{categoriaEnEdicion === 'nuevo' ? 'Nueva categoría' : 'Editar categoría'}</h2>
             <FormularioCategoria
               categoriaInicial={categoriaEnEdicion === 'nuevo' ? null : categoriaEnEdicion}

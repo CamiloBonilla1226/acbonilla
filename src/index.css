@@ -399,6 +399,7 @@ p {
 }
 
 .superposicion__panel {
+  position: relative;
   padding: var(--espacio-3);
 }
 
@@ -407,6 +408,24 @@ p {
   border: none;
   font-weight: 600;
   padding: 0 0 var(--espacio-3);
+}
+
+/* Botón "×" para salir del formulario de crear/editar, siempre arriba a la derecha del
+   panel, sin desplazar el resto del contenido (position: absolute). */
+.superposicion__cerrar-x {
+  position: absolute;
+  top: var(--espacio-2);
+  right: var(--espacio-2);
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  padding: var(--espacio-1);
+  color: var(--color-texto-suave);
+}
+
+.superposicion__cerrar-x:hover {
+  color: var(--color-texto);
 }
 
 /* --- Opciones de producto --- */
@@ -788,9 +807,6 @@ p {
   font-weight: 600;
   color: var(--color-texto);
   background: var(--color-secundario);
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease;
 }
 
 .admin-crear--boton:hover {

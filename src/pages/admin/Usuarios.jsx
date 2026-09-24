@@ -9,6 +9,13 @@ export function Usuarios() {
 
   const [creando, setCreando] = useState(false)
 
+  // Esta pantalla es para que el dueño administre a SUS empleados: no tiene sentido que se
+  // vea a sí mismo en la lista (ni podría eliminarse ni tendría nada que hacer con su propia
+  // fila). Como cada negocio tiene un único dueño, ocultar todas las filas con rol "dueño"
+  // equivale a ocultar la del dueño que está mirando el panel, sin depender de comparar IDs
+  // (el id de usuarios_admin no es el mismo que el id de auth.users de la sesión).
+  const empleados = usuarios.filter((usuario) => usuario.rol !== 'dueño')
+
   const guardarEmpleado = async (numero, contrasena) => {
     const resultado = await crearEmpleado(numero, contrasena)
     if (resultado.exito) setCreando(false)
@@ -36,12 +43,15 @@ export function Usuarios() {
 
         {cargando && <p className="texto-suave">Cargando usuarios…</p>}
         {error && <p className="campo__error">No se pudieron cargar los usuarios.</p>}
-        {!cargando && !error && <TablaUsuarios usuarios={usuarios} onEliminar={confirmarEliminar} />}
+        {!cargando && !error && <TablaUsuarios usuarios={empleados} onEliminar={confirmarEliminar} />}
       </main>
 
       {creando && (
         <div className="superposicion" role="dialog" aria-modal="true">
           <div className="superposicion__panel">
+            <button type="button" className="superposicion__cerrar-x" onClick={() => setCreando(false)} aria-label="Cerrar">
+              ×
+            </button>
             <h2>Crear empleado</h2>
             <FormularioEmpleado onGuardar={guardarEmpleado} onCancelar={() => setCreando(false)} />
           </div>

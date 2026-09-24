@@ -59,6 +59,15 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
 
   const enviar = async (evento) => {
     evento.preventDefault()
+
+    // La imagen es obligatoria (nombre y precio ya lo son vía el atributo `required` nativo
+    // del input, pero no hay forma de marcar así un campo que se llena subiendo un archivo
+    // o pegando una URL, así que se valida a mano aquí).
+    if (!valores.imagen_url.trim()) {
+      setErrorImagen('La imagen es obligatoria: sube un archivo o pega una URL.')
+      return
+    }
+
     setGuardando(true)
 
     await onGuardar({
@@ -109,7 +118,7 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
       </label>
 
       <div className="campo campo-imagen">
-        <span>Imagen del producto</span>
+        <span>Imagen del producto (obligatoria)</span>
 
         <ImagenProducto src={valores.imagen_url} alt={valores.nombre || 'Vista previa'} relacionAspecto="4 / 3" prioridad />
 
