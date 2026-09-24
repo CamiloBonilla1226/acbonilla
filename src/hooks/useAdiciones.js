@@ -2,13 +2,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { negocioConfig } from '../config/negocio.config'
 
-// Catálogo de adiciones/variantes del NEGOCIO completo (ej. "Adiciones", "Tamaño"): ya no
-// pertenecen a un producto puntual (antes grupos_opciones.producto_id), sino al negocio
-// (grupos_opciones.negocio_id), para que cualquier producto pueda ofrecer cualquier
-// adición sin tener que asignarlas una por una. Ver CHANGELOG.md para el porqué y la
-// migración de base de datos que este cambio requirió.
+// Catálogo plano de adiciones del negocio (ej. "Gomitas", "Queso doble"): cada adición es
+// independiente, con su propio precio, y siempre opcional al pedir cualquier producto —
+// no hay grupos ni obligatoriedad (eso reemplazó al modelo anterior de
+// grupos_opciones/opciones, ver CHANGELOG.md).
 export function useAdiciones() {
-  const [grupos, setGrupos] = useState([])
+  const [adiciones, setAdiciones] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
 
@@ -17,16 +16,16 @@ export function useAdiciones() {
     setError(null)
 
     const { data, error: errorConsulta } = await supabase
-      .from('grupos_opciones')
-      .select('*, opciones(*)')
+      .from('adiciones')
+      .select('*')
       .eq('negocio_id', negocioConfig.negocioId)
       .order('nombre', { ascending: true })
 
     if (errorConsulta) {
       setError(errorConsulta)
-      setGrupos([])
+      setAdiciones([])
     } else {
-      setGrupos(data)
+      setAdiciones(data)
     }
     setCargando(false)
   }, [])
@@ -35,45 +34,37 @@ export function useAdiciones() {
     recargar()
   }, [recargar])
 
-  const crearGrupo = useCallback(
-    async (grupo) => {
+  const crearAdicion = useCallback(
+    async (adicion) => {
       const { error: errorCrear } = await supabase
-        .from('grupos_opciones')
-        .insert({ ...grupo, negocio_id: negocioConfig.negocioId })
+        .from('adiciones')
+        .insert({ ...adicion, negocio_id: negocioConfig.negocioId })
+
       if (!errorCrear) await recargar()
       return { exito: !errorCrear, error: errorCrear }
     },
     [recargar]
   )
 
-  const eliminarGrupo = useCallback(
+  const actualizarAdicion = useCallback(
+    async (id, cambios) => {
+      const { error: errorActualizar } = await supabase.from('adiciones').update(cambios).eq('id', id)
+
+      if (!errorActualizar) await recargar()
+      return { exito: !errorActualizar, error: errorActualizar }
+    },
+    [recargar]
+  )
+
+  const eliminarAdicion = useCallback(
     async (id) => {
-      const { error: errorEliminar } = await supabase.from('grupos_opciones').delete().eq('id', id)
+      const { error: errorEliminar } = await supabase.from('adiciones').delete().eq('id', id)
+
       if (!errorEliminar) await recargar()
       return { exito: !errorEliminar, error: errorEliminar }
     },
     [recargar]
   )
 
-  const crearOpcion = useCallback(
-    async (grupoOpcionesId, opcion) => {
-      const { error: errorCrear } = await supabase
-        .from('opciones')
-        .insert({ ...opcion, grupo_opciones_id: grupoOpcionesId })
-      if (!errorCrear) await recargar()
-      return { exito: !errorCrear, error: errorCrear }
-    },
-    [recargar]
-  )
-
-  const eliminarOpcion = useCallback(
-    async (id) => {
-      const { error: errorEliminar } = await supabase.from('opciones').delete().eq('id', id)
-      if (!errorEliminar) await recargar()
-      return { exito: !errorEliminar, error: errorEliminar }
-    },
-    [recargar]
-  )
-
-  return { grupos, cargando, error, recargar, crearGrupo, eliminarGrupo, crearOpcion, eliminarOpcion }
+  return { adiciones, cargando, error, recargar, crearAdicion, actualizarAdicion, eliminarAdicion }
 }

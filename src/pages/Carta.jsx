@@ -25,7 +25,7 @@ export function Carta() {
     cargando: cargandoProductos,
     error: errorProductos,
   } = useProductos({ categoriaId: categoriaActivaId })
-  const { grupos: adiciones } = useAdiciones()
+  const { adiciones } = useAdiciones()
 
   const carrito = useCarrito()
   const [productoSeleccionado, setProductoSeleccionado] = useState(null)
@@ -86,7 +86,7 @@ export function Carta() {
         <div className="superposicion" role="dialog" aria-modal="true">
           <OpcionesProducto
             producto={productoSeleccionado}
-            grupos={adiciones}
+            adiciones={adiciones}
             onConfirmar={confirmarOpciones}
             onCancelar={() => setProductoSeleccionado(null)}
           />

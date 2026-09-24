@@ -12,42 +12,32 @@ function precioEfectivo(producto) {
   return producto.precio_oferta ?? producto.precio
 }
 
-// Panel de detalle de un producto con adiciones/variantes: deja elegir opciones de
-// cada grupo (única o múltiple selección, según `grupos_opciones.seleccion`) antes de
-// agregarlo al carrito, como pide el flujo de "Detalle de producto" del contexto.
-// `grupos` ya no viene anidado en `producto`: las adiciones son del negocio completo
-// (ver useAdiciones.js), no de un producto puntual, así que se reciben aparte y son
-// las mismas para cualquier producto que se seleccione.
-export function OpcionesProducto({ producto, grupos = [], onConfirmar, onCancelar }) {
-  const [seleccion, setSeleccion] = useState({})
+// Panel de detalle de un producto con adiciones: catálogo plano del negocio completo
+// (ver useAdiciones.js), no de un producto puntual — cualquier producto puede recibir
+// cualquier adición, y todas son siempre opcionales (no hay grupos ni obligatoriedad).
+export function OpcionesProducto({ producto, adiciones = [], onConfirmar, onCancelar }) {
+  const [seleccionadas, setSeleccionadas] = useState([])
   const [cantidad, setCantidad] = useState(1)
 
-  const toggleOpcionUnica = (grupoId, opcion) => {
-    setSeleccion((actual) => ({ ...actual, [grupoId]: [opcion] }))
-  }
-
-  const toggleOpcionMultiple = (grupoId, opcion) => {
-    setSeleccion((actual) => {
-      const actuales = actual[grupoId] ?? []
-      const yaElegida = actuales.some((o) => o.id === opcion.id)
-      const nuevas = yaElegida ? actuales.filter((o) => o.id !== opcion.id) : [...actuales, opcion]
-      return { ...actual, [grupoId]: nuevas }
+  const alternarAdicion = (adicion) => {
+    setSeleccionadas((actuales) => {
+      const yaElegida = actuales.some((a) => a.id === adicion.id)
+      return yaElegida ? actuales.filter((a) => a.id !== adicion.id) : [...actuales, adicion]
     })
   }
 
-  const gruposIncompletos = useMemo(
-    () => grupos.filter((grupo) => grupo.obligatorio && !(seleccion[grupo.id]?.length > 0)),
-    [grupos, seleccion]
+  // Se traduce `precio` (campo de la tabla `adiciones`) a `precio_extra`, que es el nombre
+  // que ya esperan useCarrito.js/whatsapp.js/Checkout.jsx desde que existían las opciones
+  // agrupadas — evita tocar esos archivos por un simple cambio de nombre de columna.
+  const opcionesElegidas = useMemo(
+    () => seleccionadas.map((adicion) => ({ id: adicion.id, nombre: adicion.nombre, precio_extra: adicion.precio })),
+    [seleccionadas]
   )
-
-  const opcionesElegidas = useMemo(() => Object.values(seleccion).flat(), [seleccion])
 
   const subtotal = useMemo(() => {
     const extras = opcionesElegidas.reduce((suma, o) => suma + (o.precio_extra ?? 0), 0)
     return (precioEfectivo(producto) + extras) * cantidad
   }, [producto, opcionesElegidas, cantidad])
-
-  const puedeConfirmar = gruposIncompletos.length === 0
 
   return (
     <div className="opciones-producto">
@@ -58,36 +48,26 @@ export function OpcionesProducto({ producto, grupos = [], onConfirmar, onCancela
         {producto.descripcion && <p className="texto-suave">{producto.descripcion}</p>}
         <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
 
-        {grupos.map((grupo) => (
-          <fieldset key={grupo.id} className="grupo-opciones">
+        {adiciones.length > 0 && (
+          <fieldset className="grupo-opciones">
             <legend className="grupo-opciones__titulo">
-              {grupo.nombre}
-              {grupo.obligatorio && <span className="grupo-opciones__obligatorio"> · obligatorio</span>}
+              Adiciones <span className="grupo-opciones__obligatorio"> · opcional</span>
             </legend>
 
-            {(grupo.opciones ?? []).map((opcion) => {
-              const marcada = (seleccion[grupo.id] ?? []).some((o) => o.id === opcion.id)
+            {adiciones.map((adicion) => {
+              const marcada = seleccionadas.some((a) => a.id === adicion.id)
               return (
-                <label key={opcion.id} className="opcion-item">
-                  <input
-                    type={grupo.seleccion === 'unica' ? 'radio' : 'checkbox'}
-                    name={`grupo-${grupo.id}`}
-                    checked={marcada}
-                    onChange={() =>
-                      grupo.seleccion === 'unica'
-                        ? toggleOpcionUnica(grupo.id, opcion)
-                        : toggleOpcionMultiple(grupo.id, opcion)
-                    }
-                  />
-                  <span>{opcion.nombre}</span>
-                  {opcion.precio_extra > 0 && (
-                    <span className="texto-suave">+{formatoPrecio.format(opcion.precio_extra)}</span>
+                <label key={adicion.id} className="opcion-item">
+                  <input type="checkbox" checked={marcada} onChange={() => alternarAdicion(adicion)} />
+                  <span>{adicion.nombre}</span>
+                  {adicion.precio > 0 && (
+                    <span className="texto-suave">+{formatoPrecio.format(adicion.precio)}</span>
                   )}
                 </label>
               )
             })}
           </fieldset>
-        ))}
+        )}
 
         <div className="opciones-producto__cantidad">
           <span>Cantidad</span>
@@ -106,12 +86,7 @@ export function OpcionesProducto({ producto, grupos = [], onConfirmar, onCancela
           <button type="button" className="boton boton--secundario" onClick={onCancelar}>
             Cancelar
           </button>
-          <button
-            type="button"
-            className="boton"
-            disabled={!puedeConfirmar}
-            onClick={() => onConfirmar(cantidad, opcionesElegidas)}
-          >
+          <button type="button" className="boton" onClick={() => onConfirmar(cantidad, opcionesElegidas)}>
             Agregar · {formatoPrecio.format(subtotal)}
           </button>
         </div>
