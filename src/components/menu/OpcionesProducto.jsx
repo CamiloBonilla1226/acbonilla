@@ -15,8 +15,10 @@ function precioEfectivo(producto) {
 // Panel de detalle de un producto con adiciones/variantes: deja elegir opciones de
 // cada grupo (única o múltiple selección, según `grupos_opciones.seleccion`) antes de
 // agregarlo al carrito, como pide el flujo de "Detalle de producto" del contexto.
-export function OpcionesProducto({ producto, onConfirmar, onCancelar }) {
-  const grupos = producto.grupos_opciones ?? []
+// `grupos` ya no viene anidado en `producto`: las adiciones son del negocio completo
+// (ver useAdiciones.js), no de un producto puntual, así que se reciben aparte y son
+// las mismas para cualquier producto que se seleccione.
+export function OpcionesProducto({ producto, grupos = [], onConfirmar, onCancelar }) {
   const [seleccion, setSeleccion] = useState({})
   const [cantidad, setCantidad] = useState(1)
 

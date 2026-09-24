@@ -8,6 +8,7 @@ import { Carrito } from '../components/carrito/Carrito'
 import { Checkout } from '../components/carrito/Checkout'
 import { useCategorias } from '../hooks/useCategorias'
 import { useProductos } from '../hooks/useProductos'
+import { useAdiciones } from '../hooks/useAdiciones'
 import { useCarrito } from '../hooks/useCarrito'
 
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
@@ -24,13 +25,14 @@ export function Carta() {
     cargando: cargandoProductos,
     error: errorProductos,
   } = useProductos({ categoriaId: categoriaActivaId })
+  const { grupos: adiciones } = useAdiciones()
 
   const carrito = useCarrito()
   const [productoSeleccionado, setProductoSeleccionado] = useState(null)
   const [vista, setVista] = useState('cerrado') // 'cerrado' | 'carrito' | 'checkout'
 
   const manejarSeleccionProducto = (producto) => {
-    if ((producto.grupos_opciones ?? []).length > 0) {
+    if (adiciones.length > 0) {
       setProductoSeleccionado(producto)
     } else {
       carrito.agregarProducto(producto, [], 1)
@@ -84,6 +86,7 @@ export function Carta() {
         <div className="superposicion" role="dialog" aria-modal="true">
           <OpcionesProducto
             producto={productoSeleccionado}
+            grupos={adiciones}
             onConfirmar={confirmarOpciones}
             onCancelar={() => setProductoSeleccionado(null)}
           />

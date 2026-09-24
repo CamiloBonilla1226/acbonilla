@@ -2,15 +2,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { negocioConfig } from '../config/negocio.config'
 
-// Trae cada producto con su categoría y sus grupos de opciones/adiciones anidados,
-// tal como está modelado en la base de datos (productos -> grupos_opciones -> opciones).
+// Trae cada producto con su categoría. Las adiciones (grupos_opciones/opciones) ya no
+// pertenecen a un producto puntual, sino al negocio completo (ver useAdiciones.js), así
+// que no se anidan aquí — se cargan aparte y aplican a cualquier producto por igual.
 const SELECT_PRODUCTO_COMPLETO = `
   *,
-  categoria:categorias(id, nombre),
-  grupos_opciones (
-    *,
-    opciones (*)
-  )
+  categoria:categorias(id, nombre)
 `
 
 export function useProductos({ categoriaId, soloDisponibles = false } = {}) {

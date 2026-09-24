@@ -4,7 +4,7 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
   maximumFractionDigits: 0,
 })
 
-export function TablaProductos({ productos, onEditar, onEliminar, onGestionarOpciones }) {
+export function TablaProductos({ productos, onEditar, onEliminar }) {
   if (productos.length === 0) {
     return <p className="texto-suave">Todavía no hay productos. Crea el primero.</p>
   }
@@ -22,9 +22,6 @@ export function TablaProductos({ productos, onEditar, onEliminar, onGestionarOpc
             </span>
           </div>
           <div className="producto-admin-item__acciones">
-            <button type="button" className="boton boton--secundario boton--pequeno" onClick={() => onGestionarOpciones(producto)}>
-              Adiciones
-            </button>
             <button type="button" className="boton boton--secundario boton--pequeno" onClick={() => onEditar(producto)}>
               Editar
             </button>

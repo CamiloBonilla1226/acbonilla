@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { useGruposOpciones } from '../../hooks/useGruposOpciones'
+import { useAdiciones } from '../../hooks/useAdiciones'
 
 const GRUPO_VACIO = { nombre: '', obligatorio: false, seleccion: 'unica' }
 const OPCION_VACIA = { nombre: '', precio_extra: 0 }
 
-export function GestionOpciones({ productoId }) {
-  const { grupos, cargando, crearGrupo, eliminarGrupo, crearOpcion, eliminarOpcion } = useGruposOpciones(productoId)
+export function GestionOpciones() {
+  const { grupos, cargando, crearGrupo, eliminarGrupo, crearOpcion, eliminarOpcion } = useAdiciones()
   const [nuevoGrupo, setNuevoGrupo] = useState(GRUPO_VACIO)
   const [nuevaOpcion, setNuevaOpcion] = useState({})
 

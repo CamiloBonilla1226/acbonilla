@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { AdminNav } from '../../components/admin/AdminNav'
 import { TablaProductos } from '../../components/admin/TablaProductos'
 import { FormularioProducto } from '../../components/admin/FormularioProducto'
-import { GestionOpciones } from '../../components/admin/GestionOpciones'
 import { useCategorias } from '../../hooks/useCategorias'
 import { useProductos } from '../../hooks/useProductos'
 
@@ -11,7 +10,6 @@ export function Productos() {
   const { productos, cargando, error, crearProducto, actualizarProducto, eliminarProducto } = useProductos()
 
   const [productoEnEdicion, setProductoEnEdicion] = useState(null) // objeto o 'nuevo'
-  const [productoOpciones, setProductoOpciones] = useState(null)
 
   const guardarProducto = async (datos) => {
     if (productoEnEdicion === 'nuevo') {
@@ -44,12 +42,7 @@ export function Productos() {
         {cargando && <p className="texto-suave">Cargando productos…</p>}
         {error && <p className="campo__error">No se pudieron cargar los productos.</p>}
         {!cargando && !error && (
-          <TablaProductos
-            productos={productos}
-            onEditar={setProductoEnEdicion}
-            onEliminar={confirmarEliminar}
-            onGestionarOpciones={setProductoOpciones}
-          />
+          <TablaProductos productos={productos} onEditar={setProductoEnEdicion} onEliminar={confirmarEliminar} />
         )}
       </main>
 
@@ -71,18 +64,6 @@ export function Productos() {
               onGuardar={guardarProducto}
               onCancelar={() => setProductoEnEdicion(null)}
             />
-          </div>
-        </div>
-      )}
-
-      {productoOpciones && (
-        <div className="superposicion" role="dialog" aria-modal="true">
-          <div className="superposicion__panel">
-            <button type="button" className="superposicion__cerrar" onClick={() => setProductoOpciones(null)}>
-              Cerrar
-            </button>
-            <h2>Adiciones de {productoOpciones.nombre}</h2>
-            <GestionOpciones productoId={productoOpciones.id} />
           </div>
         </div>
       )}

@@ -754,6 +754,7 @@ p {
 .admin-pedidos,
 .admin-productos,
 .admin-categorias,
+.admin-adiciones,
 .admin-usuarios {
   padding-block: var(--espacio-4) var(--espacio-6);
 }
@@ -778,33 +779,19 @@ p {
 .admin-crear {
   border: 1px dashed var(--color-borde);
   background: var(--color-secundario);
-  padding: var(--espacio-4);
+  padding: var(--espacio-3);
   margin: var(--espacio-3) 0 var(--espacio-4);
 }
 
-.admin-crear__titulo {
-  margin: 0 0 var(--espacio-3);
-  font-size: 1rem;
-}
-
-.admin-crear__form {
-  display: flex;
-  align-items: flex-end;
-  gap: var(--espacio-3);
-  flex-wrap: wrap;
-}
-
-.admin-crear__form .campo {
-  flex: 1 1 200px;
-}
-
 .admin-crear--boton {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--espacio-2);
-  width: 100%;
+  gap: var(--espacio-1);
+  width: auto;
+  padding: var(--espacio-1) var(--espacio-3);
   font-weight: 600;
+  font-size: 0.85rem;
   color: var(--color-texto);
   background: var(--color-secundario);
 }
@@ -815,7 +802,7 @@ p {
 }
 
 .admin-crear__icono {
-  font-size: 1.2rem;
+  font-size: 1rem;
   line-height: 1;
 }
 

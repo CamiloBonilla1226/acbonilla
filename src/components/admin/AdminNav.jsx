@@ -71,6 +71,9 @@ export function AdminNav() {
               <NavLink to="/admin/categorias" className={claseEnlace} onClick={cerrar}>
                 Categorías
               </NavLink>
+              <NavLink to="/admin/adiciones" className={claseEnlace} onClick={cerrar}>
+                Adiciones
+              </NavLink>
               <NavLink to="/admin/usuarios" className={claseEnlace} onClick={cerrar}>
                 Usuarios
               </NavLink>

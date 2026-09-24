@@ -7,6 +7,7 @@ import { Login } from './pages/admin/Login'
 import { Dashboard } from './pages/admin/Dashboard'
 import { Productos } from './pages/admin/Productos'
 import { Categorias } from './pages/admin/Categorias'
+import { Adiciones } from './pages/admin/Adiciones'
 import { Pedidos } from './pages/admin/Pedidos'
 import { Usuarios } from './pages/admin/Usuarios'
 import { RutaProtegida } from './components/admin/RutaProtegida'
@@ -66,6 +67,14 @@ function App() {
           element={
             <RutaProtegida soloDueno>
               <Categorias />
+            </RutaProtegida>
+          }
+        />
+        <Route
+          path="/admin/adiciones"
+          element={
+            <RutaProtegida soloDueno>
+              <Adiciones />
             </RutaProtegida>
           }
         />

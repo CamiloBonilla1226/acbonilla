@@ -1,29 +1,25 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { negocioConfig } from '../config/negocio.config'
 
-// Gestiona grupos_opciones + opciones de un producto puntual (usado en el panel admin
-// para configurar adiciones/variantes). No estaba en la lista original de hooks del
-// brief, pero es necesario para el punto 8 ("gestión de adiciones") con el mismo patrón
-// fetch + CRUD que useProductos/useCategorias/usePedidos.
-export function useGruposOpciones(productoId) {
+// Catálogo de adiciones/variantes del NEGOCIO completo (ej. "Adiciones", "Tamaño"): ya no
+// pertenecen a un producto puntual (antes grupos_opciones.producto_id), sino al negocio
+// (grupos_opciones.negocio_id), para que cualquier producto pueda ofrecer cualquier
+// adición sin tener que asignarlas una por una. Ver CHANGELOG.md para el porqué y la
+// migración de base de datos que este cambio requirió.
+export function useAdiciones() {
   const [grupos, setGrupos] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
 
   const recargar = useCallback(async () => {
-    if (!productoId) {
-      setGrupos([])
-      setCargando(false)
-      return
-    }
-
     setCargando(true)
     setError(null)
 
     const { data, error: errorConsulta } = await supabase
       .from('grupos_opciones')
       .select('*, opciones(*)')
-      .eq('producto_id', productoId)
+      .eq('negocio_id', negocioConfig.negocioId)
       .order('nombre', { ascending: true })
 
     if (errorConsulta) {
@@ -33,7 +29,7 @@ export function useGruposOpciones(productoId) {
       setGrupos(data)
     }
     setCargando(false)
-  }, [productoId])
+  }, [])
 
   useEffect(() => {
     recargar()
@@ -43,11 +39,11 @@ export function useGruposOpciones(productoId) {
     async (grupo) => {
       const { error: errorCrear } = await supabase
         .from('grupos_opciones')
-        .insert({ ...grupo, producto_id: productoId })
+        .insert({ ...grupo, negocio_id: negocioConfig.negocioId })
       if (!errorCrear) await recargar()
       return { exito: !errorCrear, error: errorCrear }
     },
-    [productoId, recargar]
+    [recargar]
   )
 
   const eliminarGrupo = useCallback(
