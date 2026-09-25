@@ -41,8 +41,12 @@ export function CartaFisica() {
   const cerrarDetalle = () => setProductoSeleccionado(null)
 
   return (
-    <main className="contenedor pagina-carta">
-      <h1 className="pagina-carta__titulo">{negocioConfig.nombre}</h1>
+    <main className="contenedor pagina-carta carta-fisica">
+      <header className="carta-fisica__encabezado">
+        <p className="carta-fisica__kicker">Carta</p>
+        <h1 className="carta-fisica__titulo">{negocioConfig.nombre}</h1>
+        <span className="carta-fisica__linea" aria-hidden="true" />
+      </header>
 
       {errorCategorias && <p className="campo__error">No se pudieron cargar las categorías.</p>}
       {!cargandoCategorias && (categorias.length > 0 || adiciones.length > 0) && (
@@ -54,19 +58,21 @@ export function CartaFisica() {
         />
       )}
 
-      {mostrandoAdiciones ? (
-        <ListaAdiciones adiciones={adiciones} soloLectura titulo="Adiciones" />
-      ) : (
-        <>
-          {cargandoProductos && <p className="texto-suave">Cargando productos…</p>}
-          {errorProductos && <p className="campo__error">No se pudieron cargar los productos.</p>}
-          {!cargandoProductos && !errorProductos && productos.length === 0 && (
-            <p className="texto-suave">No hay productos en esta categoría todavía.</p>
-          )}
+      <div className="carta-fisica__contenido">
+        {mostrandoAdiciones ? (
+          <ListaAdiciones adiciones={adiciones} soloLectura titulo="Adiciones" />
+        ) : (
+          <>
+            {cargandoProductos && <p className="texto-suave">Cargando productos…</p>}
+            {errorProductos && <p className="campo__error">No se pudieron cargar los productos.</p>}
+            {!cargandoProductos && !errorProductos && productos.length === 0 && (
+              <p className="texto-suave carta-fisica__vacio">No hay productos en esta categoría todavía.</p>
+            )}
 
-          <ListaProductosFisica productos={productos} onSeleccionar={setProductoSeleccionado} />
-        </>
-      )}
+            <ListaProductosFisica productos={productos} onSeleccionar={setProductoSeleccionado} />
+          </>
+        )}
+      </div>
 
       {productoSeleccionado && (
         <div className="superposicion" role="dialog" aria-modal="true" onClick={alSoltarFondo(cerrarDetalle)}>

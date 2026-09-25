@@ -288,6 +288,81 @@ p {
   color: var(--color-fondo);
 }
 
+/* --- Carta física (QR en mesa): estilo "menú impreso", solo lectura, sin carrito.
+   Todas las reglas van bajo .carta-fisica para no afectar la carta de domicilios, con la
+   que comparte .pagina-carta y .filtro-categorias. */
+.carta-fisica__encabezado {
+  text-align: center;
+  padding-block: var(--espacio-1) var(--espacio-4);
+}
+
+.carta-fisica__kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+.carta-fisica__titulo {
+  margin: var(--espacio-1) 0 var(--espacio-3);
+  font-size: 1.6rem;
+  letter-spacing: 0.01em;
+}
+
+.carta-fisica__linea {
+  display: inline-block;
+  width: 48px;
+  height: 2px;
+  background: var(--color-acento);
+}
+
+.carta-fisica .filtro-categorias {
+  justify-content: center;
+  flex-wrap: wrap;
+  overflow-x: visible;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: var(--espacio-4);
+}
+
+.carta-fisica .filtro-categorias__item {
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: var(--espacio-1) var(--espacio-2);
+  background: transparent;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+.carta-fisica .filtro-categorias__item--activo {
+  background: transparent;
+  color: var(--color-texto);
+  border-bottom-color: var(--color-acento);
+}
+
+.carta-fisica__contenido {
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+.carta-fisica__vacio {
+  text-align: center;
+  padding-block: var(--espacio-4);
+}
+
+/* --- Detalle de producto de la carta física --- */
+.detalle-fisico__intro {
+  text-align: center;
+  padding-bottom: var(--espacio-3);
+  margin-bottom: var(--espacio-1);
+  border-bottom: 1px solid var(--color-borde);
+}
+
 .grid-productos {
   display: grid;
   grid-template-columns: 1fr;
@@ -470,8 +545,45 @@ p {
   justify-content: space-between;
 }
 
-.opcion-item--clickeable {
+/* --- "Fila de menú": patrón nombre — línea punteada — precio, estilo carta impresa.
+   Usado en la carta física (ListaProductosFisica.jsx y ListaAdiciones.jsx en modo
+   soloLectura) — nunca en domicilios, que usa checkboxes (.opcion-item) para armar el
+   pedido. */
+.lista-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fila-menu {
+  display: flex;
+  align-items: baseline;
+  gap: var(--espacio-2);
   width: 100%;
+  padding: var(--espacio-2) 0;
+}
+
+.fila-menu__nombre {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fila-menu__leader {
+  flex: 1 1 auto;
+  min-width: var(--espacio-4);
+  border-bottom: 1px dotted var(--color-borde);
+  margin-bottom: 5px;
+}
+
+.fila-menu__precio {
+  flex-shrink: 0;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+button.fila-menu {
   border: none;
   background: none;
   font: inherit;
@@ -480,18 +592,9 @@ p {
   cursor: pointer;
 }
 
-.opcion-item--clickeable:hover,
-.opcion-item--clickeable:focus-visible {
+button.fila-menu:hover,
+button.fila-menu:focus-visible {
   background: var(--color-secundario);
-}
-
-.lista-productos-fisica {
-  display: flex;
-  flex-direction: column;
-}
-
-.lista-productos-fisica li + li {
-  border-top: 1px solid var(--color-borde);
 }
 
 .opciones-producto__cantidad {

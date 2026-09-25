@@ -30,15 +30,17 @@ export function DetalleProductoFisico({ producto, adiciones, onCerrar }) {
     >
       <ImagenProducto src={producto.imagen_url} alt={producto.nombre} relacionAspecto="4 / 3" prioridad />
 
-      <div className="opciones-producto__contenido">
-        <h2 className="opciones-producto__nombre">{producto.nombre}</h2>
-        {producto.descripcion && <p className="texto-suave">{producto.descripcion}</p>}
+      <div className="opciones-producto__contenido detalle-fisico__contenido">
+        <div className="detalle-fisico__intro">
+          <h2 className="opciones-producto__nombre">{producto.nombre}</h2>
+          {producto.descripcion && <p className="texto-suave">{producto.descripcion}</p>}
 
-        {variantes.length > 0 ? (
-          <span className="precio-producto">Desde {formatoPrecio.format(precioMinimo(variantes))}</span>
-        ) : (
-          <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
-        )}
+          {variantes.length > 0 ? (
+            <span className="precio-producto">Desde {formatoPrecio.format(precioMinimo(variantes))}</span>
+          ) : (
+            <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
+          )}
+        </div>
 
         <ListaAdiciones adiciones={variantes} soloLectura titulo="Variantes" />
         <ListaAdiciones adiciones={adiciones} soloLectura titulo="Adiciones disponibles" />

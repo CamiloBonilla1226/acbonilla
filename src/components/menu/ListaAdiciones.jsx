@@ -21,9 +21,12 @@ export function ListaAdiciones({ adiciones, seleccionadas = [], onAlternar, solo
       {adiciones.map((adicion) => {
         if (soloLectura) {
           return (
-            <div key={adicion.id} className="opcion-item opcion-item--solo-lectura">
-              <span>{adicion.nombre}</span>
-              {adicion.precio > 0 && <span className="texto-suave">+{formatoPrecio.format(adicion.precio)}</span>}
+            <div key={adicion.id} className="fila-menu">
+              <span className="fila-menu__nombre">{adicion.nombre}</span>
+              <span className="fila-menu__leader" aria-hidden="true" />
+              {adicion.precio > 0 && (
+                <span className="fila-menu__precio texto-suave">+{formatoPrecio.format(adicion.precio)}</span>
+              )}
             </div>
           )
         }
