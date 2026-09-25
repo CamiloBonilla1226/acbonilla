@@ -470,6 +470,30 @@ p {
   justify-content: space-between;
 }
 
+.opcion-item--clickeable {
+  width: 100%;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.opcion-item--clickeable:hover,
+.opcion-item--clickeable:focus-visible {
+  background: var(--color-secundario);
+}
+
+.lista-productos-fisica {
+  display: flex;
+  flex-direction: column;
+}
+
+.lista-productos-fisica li + li {
+  border-top: 1px solid var(--color-borde);
+}
+
 .opciones-producto__cantidad {
   display: flex;
   align-items: center;

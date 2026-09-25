@@ -218,5 +218,7 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 - Verificación: `npm run build` (121 módulos, sin errores) y `npm run lint` (mismas advertencias preexistentes, sin advertencias nuevas).
 
 ## 2026-09-24 (22)
-- **La carta física ya no muestra la imagen del producto en la grilla del listado**, solo al entrar al detalle (donde sí se sigue viendo). `ProductoCard.jsx` ganó un prop `mostrarImagen` (default `true`, no afecta la carta de domicilios); `CartaFisica.jsx` pasa `mostrarImagen={false}` en la grilla, y `DetalleProductoFisico.jsx` sigue mostrando la imagen normalmente porque usa `ImagenProducto` directo, sin pasar por `ProductoCard`.
-- Verificación: `npm run build` (121 módulos, sin errores) y `npm run lint` (mismas advertencias preexistentes, sin advertencias nuevas).
+- **La lista de productos de la carta física ahora se ve como la de adiciones**: una fila por producto, con el nombre a la izquierda y el precio a la derecha, sin imagen ni tarjeta — al hacer clic en la fila se abre el detalle (`DetalleProductoFisico.jsx`, sin cambios), que sí sigue mostrando la imagen. Esto reemplaza el intento anterior de solo ocultar la imagen dentro de `ProductoCard.jsx` (se revirtió ese prop `mostrarImagen`, ya que la carta física dejó de usar `ProductoCard` por completo).
+  - Se creó **`src/components/menu/ListaProductosFisica.jsx`**, con el mismo patrón visual que `ListaAdiciones.jsx` (reutiliza las clases `.opcion-item`/`.opcion-item--solo-lectura`), pero cada fila es un botón (`.opcion-item--clickeable`, nueva clase en `index.css` con reset de estilos de botón nativo) que llama a `onSeleccionar(producto)` en vez de ser de solo lectura.
+  - `CartaFisica.jsx` ya no importa `ProductoCard`; usa `ListaProductosFisica` para el listado de productos de cada categoría.
+- Verificación: `npm run build` (122 módulos, sin errores) y `npm run lint` (mismas advertencias preexistentes, sin advertencias nuevas).

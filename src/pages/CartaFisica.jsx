@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { negocioConfig } from '../config/negocio.config'
 import { CategoriaFiltro } from '../components/menu/CategoriaFiltro'
-import { ProductoCard } from '../components/menu/ProductoCard'
+import { ListaProductosFisica } from '../components/menu/ListaProductosFisica'
 import { ListaAdiciones } from '../components/menu/ListaAdiciones'
 import { DetalleProductoFisico } from '../components/menu/DetalleProductoFisico'
 import { useCategorias } from '../hooks/useCategorias'
@@ -64,16 +64,7 @@ export function CartaFisica() {
             <p className="texto-suave">No hay productos en esta categoría todavía.</p>
           )}
 
-          <div className="grid-productos">
-            {productos.map((producto) => (
-              <ProductoCard
-                key={producto.id}
-                producto={producto}
-                onSeleccionar={setProductoSeleccionado}
-                mostrarImagen={false}
-              />
-            ))}
-          </div>
+          <ListaProductosFisica productos={productos} onSeleccionar={setProductoSeleccionado} />
         </>
       )}
 
