@@ -25,6 +25,15 @@ export function ProductoCard({ producto, interactivo, onSeleccionar }) {
               Agregar
             </button>
           )}
+          {!interactivo && onSeleccionar && (
+            <button
+              type="button"
+              className="boton boton--secundario boton--pequeno"
+              onClick={() => onSeleccionar(producto)}
+            >
+              Ver detalle
+            </button>
+          )}
         </div>
       </div>
     </article>

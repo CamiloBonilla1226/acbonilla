@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ImagenProducto } from './ImagenProducto'
+import { ListaAdiciones } from './ListaAdiciones'
 import { PrecioProducto } from '../promociones/BadgeOferta'
 import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
 
@@ -56,26 +57,7 @@ export function OpcionesProducto({ producto, adiciones = [], onConfirmar, onCanc
         {producto.descripcion && <p className="texto-suave">{producto.descripcion}</p>}
         <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
 
-        {adiciones.length > 0 && (
-          <fieldset className="grupo-opciones">
-            <legend className="grupo-opciones__titulo">
-              Adiciones <span className="grupo-opciones__obligatorio"> · opcional</span>
-            </legend>
-
-            {adiciones.map((adicion) => {
-              const marcada = seleccionadas.some((a) => a.id === adicion.id)
-              return (
-                <label key={adicion.id} className="opcion-item">
-                  <input type="checkbox" checked={marcada} onChange={() => alternarAdicion(adicion)} />
-                  <span>{adicion.nombre}</span>
-                  {adicion.precio > 0 && (
-                    <span className="texto-suave">+{formatoPrecio.format(adicion.precio)}</span>
-                  )}
-                </label>
-              )
-            })}
-          </fieldset>
-        )}
+        <ListaAdiciones adiciones={adiciones} seleccionadas={seleccionadas} onAlternar={alternarAdicion} />
 
         <div className="opciones-producto__cantidad">
           <span>Cantidad</span>

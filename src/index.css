@@ -466,6 +466,10 @@ p {
   padding: var(--espacio-1) 0;
 }
 
+.opcion-item--solo-lectura {
+  justify-content: space-between;
+}
+
 .opciones-producto__cantidad {
   display: flex;
   align-items: center;
