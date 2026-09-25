@@ -216,3 +216,7 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - **`src/components/menu/ListaAdiciones.jsx`** (nuevo): se extrajo el listado de adiciones que antes vivía inline dentro de `OpcionesProducto.jsx`, con un prop `soloLectura` que quita los checkboxes/interacción y muestra solo nombre + precio. Se usa en los tres lugares: `OpcionesProducto.jsx` (domicilios, interactivo), el detalle de producto de la carta física, y la pestaña "Adiciones" de la carta física.
   - `ProductoCard.jsx`: cuando se le pasa `onSeleccionar` sin `interactivo` (caso de la carta física), muestra un botón "Ver detalle" en vez de "Agregar".
 - Verificación: `npm run build` (121 módulos, sin errores) y `npm run lint` (mismas advertencias preexistentes, sin advertencias nuevas).
+
+## 2026-09-24 (22)
+- **La carta física ya no muestra la imagen del producto en la grilla del listado**, solo al entrar al detalle (donde sí se sigue viendo). `ProductoCard.jsx` ganó un prop `mostrarImagen` (default `true`, no afecta la carta de domicilios); `CartaFisica.jsx` pasa `mostrarImagen={false}` en la grilla, y `DetalleProductoFisico.jsx` sigue mostrando la imagen normalmente porque usa `ImagenProducto` directo, sin pasar por `ProductoCard`.
+- Verificación: `npm run build` (121 módulos, sin errores) y `npm run lint` (mismas advertencias preexistentes, sin advertencias nuevas).

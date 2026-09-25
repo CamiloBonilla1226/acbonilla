@@ -66,7 +66,12 @@ export function CartaFisica() {
 
           <div className="grid-productos">
             {productos.map((producto) => (
-              <ProductoCard key={producto.id} producto={producto} onSeleccionar={setProductoSeleccionado} />
+              <ProductoCard
+                key={producto.id}
+                producto={producto}
+                onSeleccionar={setProductoSeleccionado}
+                mostrarImagen={false}
+              />
             ))}
           </div>
         </>
