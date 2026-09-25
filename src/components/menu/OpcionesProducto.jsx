@@ -13,7 +13,7 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
 })
 
 // Cuando el producto tiene variantes (tamaños, sabores), su precio (y precio de oferta) ya
-// no aplican: el precio real lo da la variante elegida. Ver GestionVariantes.jsx / brief.
+// no aplican: el precio real lo da la variante elegida. Ver FormularioProducto.jsx.
 function precioEfectivo(producto, variante) {
   if (variante) return variante.precio
   return producto.precio_oferta ?? producto.precio

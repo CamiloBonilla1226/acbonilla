@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 
 // Cuando el producto tiene variante elegida (tamaño, sabor), su precio manda: el
-// precio_oferta de productos deja de aplicar (ver GestionVariantes.jsx / brief).
+// precio_oferta de productos deja de aplicar (ver FormularioProducto.jsx).
 function precioEfectivo(producto, variante) {
   if (variante) return variante.precio
   return producto.precio_oferta ?? producto.precio

@@ -21,6 +21,21 @@ const SELECT_PRODUCTO_COMPLETO = `
   variantes_producto(precio, disponible)
 `
 
+// Inserta las filas de variantes de un producto (nombre + precio, orden = posición en la
+// lista). Se usa tanto al crear como al editar; en ambos casos el llamador decide qué hacer
+// si falla (ver crearProducto/actualizarProducto).
+async function insertarVariantes(productoId, variantes) {
+  const filas = variantes.map((variante, indice) => ({
+    producto_id: productoId,
+    negocio_id: negocioConfig.negocioId,
+    nombre: variante.nombre.trim(),
+    precio: Number(variante.precio) || 0,
+    orden: indice,
+  }))
+  const { error } = await supabase.from('variantes_producto').insert(filas)
+  return { error }
+}
+
 export function useProductos({
   categoriaId,
   soloDisponibles = false,
@@ -69,8 +84,11 @@ export function useProductos({
     recargar()
   }, [recargar])
 
+  // `variantes`: cuando el producto tiene variantes (switch encendido en el formulario), la
+  // lista completa de {nombre, precio} a guardar en variantes_producto, en la misma acción
+  // de crear — para el panel se siente como un solo "Crear producto", no dos pasos.
   const crearProducto = useCallback(
-    async (producto) => {
+    async (producto, variantes = []) => {
       const nombreLimpio = producto.nombre?.trim() ?? ''
       if (!nombreLimpio) {
         return { exito: false, error: new Error('El nombre es obligatorio.') }
@@ -94,14 +112,29 @@ export function useProductos({
         .select()
         .single()
 
-      if (!errorCrear) await recargar()
-      return { exito: !errorCrear, error: errorCrear, producto: data }
+      if (errorCrear) return { exito: false, error: errorCrear }
+
+      if (variantes.length > 0) {
+        const { error: errorVariantes } = await insertarVariantes(data.id, variantes)
+        if (errorVariantes) {
+          // Rollback: no dejar un producto a medias sin sus variantes — mismo criterio de
+          // atomicidad que ya se usa en la Edge Function crear-usuario-admin.
+          await supabase.from('productos').delete().eq('id', data.id)
+          return { exito: false, error: errorVariantes }
+        }
+      }
+
+      await recargar()
+      return { exito: true, producto: data }
     },
     [recargar]
   )
 
+  // `variantes`: `null` deja intactas las variantes existentes (no se tocó esa parte del
+  // formulario); un arreglo (aunque esté vacío) reemplaza por completo las variantes del
+  // producto — se borran todas las anteriores y se insertan las que llegaron.
   const actualizarProducto = useCallback(
-    async (id, cambiosOriginales) => {
+    async (id, cambiosOriginales, variantes = null) => {
       let cambios = cambiosOriginales
 
       if (cambios.nombre !== undefined) {
@@ -127,9 +160,20 @@ export function useProductos({
       }
 
       const { error: errorActualizar } = await supabase.from('productos').update(cambios).eq('id', id)
+      if (errorActualizar) return { exito: false, error: errorActualizar }
 
-      if (!errorActualizar) await recargar()
-      return { exito: !errorActualizar, error: errorActualizar }
+      if (variantes !== null) {
+        const { error: errorEliminar } = await supabase.from('variantes_producto').delete().eq('producto_id', id)
+        if (errorEliminar) return { exito: false, error: errorEliminar }
+
+        if (variantes.length > 0) {
+          const { error: errorVariantes } = await insertarVariantes(id, variantes)
+          if (errorVariantes) return { exito: false, error: errorVariantes }
+        }
+      }
+
+      await recargar()
+      return { exito: true }
     },
     [recargar]
   )

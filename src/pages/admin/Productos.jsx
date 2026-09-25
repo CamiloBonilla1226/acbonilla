@@ -20,19 +20,14 @@ export function Productos() {
   const mostrarToast = useToast()
   const confirmar = useConfirmacion()
 
-  const guardarProducto = async (datos) => {
+  const guardarProducto = async (datos, variantes) => {
     const esNuevo = productoEnEdicion === 'nuevo'
-    const resultado = esNuevo ? await crearProducto(datos) : await actualizarProducto(productoEnEdicion.id, datos)
+    const resultado = esNuevo
+      ? await crearProducto(datos, variantes)
+      : await actualizarProducto(productoEnEdicion.id, datos, variantes)
 
     if (resultado.exito) {
-      if (esNuevo) {
-        // Se deja el modal abierto (en modo edición, con el producto recién creado) en vez
-        // de cerrarlo, para poder agregarle variantes de inmediato sin tener que volver a
-        // abrirlo — las variantes necesitan un producto_id que solo existe tras guardar.
-        setProductoEnEdicion(resultado.producto)
-      } else {
-        setProductoEnEdicion(null)
-      }
+      setProductoEnEdicion(null)
       mostrarToast(esNuevo ? 'Producto creado' : 'Producto actualizado')
     }
     return resultado
