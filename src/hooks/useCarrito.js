@@ -1,6 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
 
-function precioEfectivo(producto) {
+// Cuando el producto tiene variante elegida (tamaño, sabor), su precio manda: el
+// precio_oferta de productos deja de aplicar (ver GestionVariantes.jsx / brief).
+function precioEfectivo(producto, variante) {
+  if (variante) return variante.precio
   return producto.precio_oferta ?? producto.precio
 }
 
@@ -11,10 +14,11 @@ function idOpciones(opcionesElegidas) {
     .join(',')
 }
 
-// Dos selecciones idénticas del mismo producto (mismo producto + mismas opciones)
-// se agrupan en una sola línea del carrito, sumando cantidad, en vez de duplicar filas.
-function construirItemId(productoId, opcionesElegidas) {
-  return `${productoId}|${idOpciones(opcionesElegidas)}`
+// Dos selecciones idénticas del mismo producto (mismo producto + misma variante + mismas
+// opciones) se agrupan en una sola línea del carrito, sumando cantidad, en vez de duplicar
+// filas. Variantes distintas del mismo producto quedan en líneas separadas.
+function construirItemId(productoId, varianteId, opcionesElegidas) {
+  return `${productoId}|${varianteId ?? ''}|${idOpciones(opcionesElegidas)}`
 }
 
 function calcularSubtotal(precioBase, opcionesElegidas, cantidad) {
@@ -25,9 +29,9 @@ function calcularSubtotal(precioBase, opcionesElegidas, cantidad) {
 export function useCarrito() {
   const [items, setItems] = useState([])
 
-  const agregarProducto = useCallback((producto, opcionesElegidas = [], cantidad = 1) => {
-    const itemId = construirItemId(producto.id, opcionesElegidas)
-    const precioBase = precioEfectivo(producto)
+  const agregarProducto = useCallback((producto, opcionesElegidas = [], cantidad = 1, variante = null) => {
+    const itemId = construirItemId(producto.id, variante?.id, opcionesElegidas)
+    const precioBase = precioEfectivo(producto, variante)
 
     setItems((actuales) => {
       const existente = actuales.find((item) => item.itemId === itemId)
@@ -51,6 +55,7 @@ export function useCarrito() {
           itemId,
           productoId: producto.id,
           nombre: producto.nombre,
+          varianteNombre: variante?.nombre ?? null,
           precioBase,
           cantidad,
           opcionesElegidas,

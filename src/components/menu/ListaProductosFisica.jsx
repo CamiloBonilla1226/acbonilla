@@ -1,4 +1,11 @@
 import { PrecioProducto } from '../promociones/BadgeOferta'
+import { precioMinimo, variantesDisponibles } from '../../lib/variantes'
+
+const formatoPrecio = new Intl.NumberFormat('es-CO', {
+  style: 'currency',
+  currency: 'COP',
+  maximumFractionDigits: 0,
+})
 
 // Listado de productos de la carta física: mismo estilo de fila que ListaAdiciones
 // (nombre a la izquierda, precio a la derecha, sin imagen), pero cada fila es un botón
@@ -10,6 +17,7 @@ export function ListaProductosFisica({ productos, onSeleccionar }) {
     <ul className="lista-productos-fisica">
       {productos.map((producto) => {
         const agotado = !producto.disponible
+        const variantes = variantesDisponibles(producto)
         return (
           <li key={producto.id}>
             <button
@@ -21,7 +29,11 @@ export function ListaProductosFisica({ productos, onSeleccionar }) {
                 {producto.nombre}
                 {agotado && <span className="producto-card__agotado"> · Agotado</span>}
               </span>
-              <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
+              {variantes.length > 0 ? (
+                <span>Desde {formatoPrecio.format(precioMinimo(variantes))}</span>
+              ) : (
+                <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
+              )}
             </button>
           </li>
         )

@@ -1,8 +1,16 @@
 import { ImagenProducto } from './ImagenProducto'
 import { PrecioProducto } from '../promociones/BadgeOferta'
+import { precioMinimo, variantesDisponibles } from '../../lib/variantes'
+
+const formatoPrecio = new Intl.NumberFormat('es-CO', {
+  style: 'currency',
+  currency: 'COP',
+  maximumFractionDigits: 0,
+})
 
 export function ProductoCard({ producto, interactivo, onSeleccionar }) {
   const agotado = !producto.disponible
+  const variantes = variantesDisponibles(producto)
 
   return (
     <article className={`tarjeta producto-card ${agotado ? 'producto-card--agotado' : ''}`}>
@@ -14,7 +22,11 @@ export function ProductoCard({ producto, interactivo, onSeleccionar }) {
         </div>
         {producto.descripcion && <p className="texto-suave producto-card__descripcion">{producto.descripcion}</p>}
         <div className="producto-card__pie">
-          <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
+          {variantes.length > 0 ? (
+            <span className="precio-producto">Desde {formatoPrecio.format(precioMinimo(variantes))}</span>
+          ) : (
+            <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
+          )}
           {interactivo && (
             <button
               type="button"

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ImagenProducto } from '../menu/ImagenProducto'
+import { GestionVariantes } from './GestionVariantes'
 import { subirImagenProducto } from '../../lib/storage'
 import { negocioConfig } from '../../config/negocio.config'
 
@@ -95,84 +96,88 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
   }
 
   return (
-    <form className="checkout formulario-producto" onSubmit={enviar} noValidate>
-      <label className="campo">
-        <span>Nombre</span>
-        <input type="text" value={valores.nombre} onChange={actualizar('nombre')} required maxLength={80} />
-      </label>
-
-      <label className="campo">
-        <span>Descripción</span>
-        <input type="text" value={valores.descripcion} onChange={actualizar('descripcion')} maxLength={200} />
-      </label>
-
-      <label className="campo">
-        <span>Categoría</span>
-        <select value={valores.categoria_id} onChange={actualizar('categoria_id')}>
-          <option value="">Sin categoría</option>
-          {categorias.map((categoria) => (
-            <option key={categoria.id} value={categoria.id}>
-              {categoria.nombre}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="campo">
-        <span>Precio</span>
-        <input type="number" min="0" step="1" value={valores.precio} onChange={actualizar('precio')} required />
-      </label>
-
-      <label className="campo">
-        <span>Precio de oferta (opcional)</span>
-        <input type="number" min="0" step="1" value={valores.precio_oferta} onChange={actualizar('precio_oferta')} />
-      </label>
-
-      <div className="campo campo-imagen">
-        <span>Imagen del producto (obligatoria)</span>
-
-        <ImagenProducto src={valores.imagen_url} alt={valores.nombre || 'Vista previa'} relacionAspecto="4 / 3" prioridad />
-
-        <label className="boton boton--secundario boton--pequeno campo-imagen__subir">
-          {subiendoImagen ? 'Subiendo…' : 'Subir imagen'}
-          <input type="file" accept="image/*" onChange={subirArchivo} disabled={subiendoImagen} hidden />
+    <>
+      <form className="checkout formulario-producto" onSubmit={enviar} noValidate>
+        <label className="campo">
+          <span>Nombre</span>
+          <input type="text" value={valores.nombre} onChange={actualizar('nombre')} required maxLength={80} />
         </label>
 
-        {errorImagen && <span className="campo__error">{errorImagen}</span>}
+        <label className="campo">
+          <span>Descripción</span>
+          <input type="text" value={valores.descripcion} onChange={actualizar('descripcion')} maxLength={200} />
+        </label>
 
-        <input
-          type="text"
-          placeholder="…o pega una URL de imagen"
-          value={valores.imagen_url}
-          onChange={actualizar('imagen_url')}
-        />
-      </div>
+        <label className="campo">
+          <span>Categoría</span>
+          <select value={valores.categoria_id} onChange={actualizar('categoria_id')}>
+            <option value="">Sin categoría</option>
+            {categorias.map((categoria) => (
+              <option key={categoria.id} value={categoria.id}>
+                {categoria.nombre}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <label className="campo campo--linea">
-        <input type="checkbox" checked={valores.disponible} onChange={actualizar('disponible')} />
-        <span>Disponible</span>
-      </label>
+        <label className="campo">
+          <span>Precio</span>
+          <input type="number" min="0" step="1" value={valores.precio} onChange={actualizar('precio')} required />
+        </label>
 
-      <label className="campo campo--linea">
-        <input type="checkbox" checked={valores.visible_domicilios} onChange={actualizar('visible_domicilios')} />
-        <span>Mostrar en carta de domicilios</span>
-      </label>
+        <label className="campo">
+          <span>Precio de oferta (opcional)</span>
+          <input type="number" min="0" step="1" value={valores.precio_oferta} onChange={actualizar('precio_oferta')} />
+        </label>
 
-      <label className="campo campo--linea">
-        <input type="checkbox" checked={valores.visible_carta_fisica} onChange={actualizar('visible_carta_fisica')} />
-        <span>Mostrar en carta física</span>
-      </label>
+        <div className="campo campo-imagen">
+          <span>Imagen del producto (obligatoria)</span>
 
-      {errorGuardado && <p className="campo__error">{errorGuardado}</p>}
+          <ImagenProducto src={valores.imagen_url} alt={valores.nombre || 'Vista previa'} relacionAspecto="4 / 3" prioridad />
 
-      <div className="opciones-producto__acciones">
-        <button type="button" className="boton boton--secundario" onClick={onCancelar}>
-          Cancelar
-        </button>
-        <button type="submit" className="boton" disabled={guardando || subiendoImagen}>
-          {guardando ? 'Guardando…' : 'Guardar'}
-        </button>
-      </div>
-    </form>
+          <label className="boton boton--secundario boton--pequeno campo-imagen__subir">
+            {subiendoImagen ? 'Subiendo…' : 'Subir imagen'}
+            <input type="file" accept="image/*" onChange={subirArchivo} disabled={subiendoImagen} hidden />
+          </label>
+
+          {errorImagen && <span className="campo__error">{errorImagen}</span>}
+
+          <input
+            type="text"
+            placeholder="…o pega una URL de imagen"
+            value={valores.imagen_url}
+            onChange={actualizar('imagen_url')}
+          />
+        </div>
+
+        <label className="campo campo--linea">
+          <input type="checkbox" checked={valores.disponible} onChange={actualizar('disponible')} />
+          <span>Disponible</span>
+        </label>
+
+        <label className="campo campo--linea">
+          <input type="checkbox" checked={valores.visible_domicilios} onChange={actualizar('visible_domicilios')} />
+          <span>Mostrar en carta de domicilios</span>
+        </label>
+
+        <label className="campo campo--linea">
+          <input type="checkbox" checked={valores.visible_carta_fisica} onChange={actualizar('visible_carta_fisica')} />
+          <span>Mostrar en carta física</span>
+        </label>
+
+        {errorGuardado && <p className="campo__error">{errorGuardado}</p>}
+
+        <div className="opciones-producto__acciones">
+          <button type="button" className="boton boton--secundario" onClick={onCancelar}>
+            Cancelar
+          </button>
+          <button type="submit" className="boton" disabled={guardando || subiendoImagen}>
+            {guardando ? 'Guardando…' : 'Guardar'}
+          </button>
+        </div>
+      </form>
+
+      <GestionVariantes productoId={productoInicial?.id ?? null} />
+    </>
   )
 }

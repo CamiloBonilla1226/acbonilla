@@ -10,9 +10,15 @@ import { negocioConfig } from '../config/negocio.config'
 // desactivada o no visible en esa carta, aunque no se esté filtrando por ella (ver
 // Carta.jsx/CartaFisica.jsx); no se puede filtrar directo en esta consulta porque un join
 // `!inner` excluiría también a los productos sin categoría (categoria_id null).
+// `variantes_producto(precio, disponible)` trae solo lo necesario para que la carta
+// pública sepa, sin una consulta aparte por producto, si debe mostrar "Desde $X" en la
+// tarjeta y forzar el modal de selección obligatoria antes de agregar al carrito (ver
+// Carta.jsx/ProductoCard.jsx). El detalle completo (id, nombre, orden) se carga con
+// useVariantesProducto.js cuando el modal ya está abierto.
 const SELECT_PRODUCTO_COMPLETO = `
   *,
-  categoria:categorias(id, nombre, activo, visible_domicilios, visible_carta_fisica)
+  categoria:categorias(id, nombre, activo, visible_domicilios, visible_carta_fisica),
+  variantes_producto(precio, disponible)
 `
 
 export function useProductos({

@@ -34,6 +34,7 @@ export function Checkout({ items, total, onPedidoConfirmado }) {
     const productosDetalle = items.map((item) => ({
       producto_id: item.productoId,
       nombre: item.nombre,
+      variante_elegida: item.varianteNombre,
       cantidad: item.cantidad,
       precio_base: item.precioBase,
       opciones_elegidas: item.opcionesElegidas.map((o) => ({ nombre: o.nombre, precio_extra: o.precio_extra ?? 0 })),

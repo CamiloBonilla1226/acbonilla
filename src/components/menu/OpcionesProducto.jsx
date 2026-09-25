@@ -3,6 +3,8 @@ import { ImagenProducto } from './ImagenProducto'
 import { ListaAdiciones } from './ListaAdiciones'
 import { PrecioProducto } from '../promociones/BadgeOferta'
 import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
+import { useVariantesProducto } from '../../hooks/useVariantesProducto'
+import { precioMinimo } from '../../lib/variantes'
 
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -10,17 +12,27 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
   maximumFractionDigits: 0,
 })
 
-function precioEfectivo(producto) {
+// Cuando el producto tiene variantes (tamaños, sabores), su precio (y precio de oferta) ya
+// no aplican: el precio real lo da la variante elegida. Ver GestionVariantes.jsx / brief.
+function precioEfectivo(producto, variante) {
+  if (variante) return variante.precio
   return producto.precio_oferta ?? producto.precio
 }
 
 // Panel de detalle de un producto con adiciones: catálogo plano del negocio completo
 // (ver useAdiciones.js), no de un producto puntual — cualquier producto puede recibir
 // cualquier adición, y todas son siempre opcionales (no hay grupos ni obligatoriedad).
+// Las variantes, en cambio, son propias de este producto (`useVariantesProducto`) y la
+// elección es obligatoria: cambian el precio final en vez de sumarse.
 export function OpcionesProducto({ producto, adiciones = [], onConfirmar, onCancelar }) {
+  const { variantes } = useVariantesProducto(producto.id, { soloDisponibles: true })
   const [seleccionadas, setSeleccionadas] = useState([])
+  const [varianteSeleccionada, setVarianteSeleccionada] = useState(null)
   const [cantidad, setCantidad] = useState(1)
   const swipe = useSwipeParaCerrar(onCancelar)
+
+  const tieneVariantes = variantes.length > 0
+  const faltaElegirVariante = tieneVariantes && !varianteSeleccionada
 
   const alternarAdicion = (adicion) => {
     setSeleccionadas((actuales) => {
@@ -39,8 +51,8 @@ export function OpcionesProducto({ producto, adiciones = [], onConfirmar, onCanc
 
   const subtotal = useMemo(() => {
     const extras = opcionesElegidas.reduce((suma, o) => suma + (o.precio_extra ?? 0), 0)
-    return (precioEfectivo(producto) + extras) * cantidad
-  }, [producto, opcionesElegidas, cantidad])
+    return (precioEfectivo(producto, varianteSeleccionada) + extras) * cantidad
+  }, [producto, varianteSeleccionada, opcionesElegidas, cantidad])
 
   return (
     <div
@@ -55,7 +67,36 @@ export function OpcionesProducto({ producto, adiciones = [], onConfirmar, onCanc
       <div className="opciones-producto__contenido">
         <h2 className="opciones-producto__nombre">{producto.nombre}</h2>
         {producto.descripcion && <p className="texto-suave">{producto.descripcion}</p>}
-        <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
+
+        {tieneVariantes ? (
+          varianteSeleccionada ? (
+            <PrecioProducto precio={varianteSeleccionada.precio} />
+          ) : (
+            <span className="precio-producto">Desde {formatoPrecio.format(precioMinimo(variantes))}</span>
+          )
+        ) : (
+          <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
+        )}
+
+        {tieneVariantes && (
+          <fieldset className="grupo-opciones">
+            <legend className="grupo-opciones__titulo">
+              Elige una opción <span className="grupo-opciones__obligatorio"> · obligatorio</span>
+            </legend>
+            {variantes.map((variante) => (
+              <label key={variante.id} className="opcion-item">
+                <input
+                  type="radio"
+                  name="variante-producto"
+                  checked={varianteSeleccionada?.id === variante.id}
+                  onChange={() => setVarianteSeleccionada(variante)}
+                />
+                <span>{variante.nombre}</span>
+                <span className="texto-suave">{formatoPrecio.format(variante.precio)}</span>
+              </label>
+            ))}
+          </fieldset>
+        )}
 
         <ListaAdiciones adiciones={adiciones} seleccionadas={seleccionadas} onAlternar={alternarAdicion} />
 
@@ -76,8 +117,13 @@ export function OpcionesProducto({ producto, adiciones = [], onConfirmar, onCanc
           <button type="button" className="boton boton--secundario" onClick={onCancelar}>
             Cancelar
           </button>
-          <button type="button" className="boton" onClick={() => onConfirmar(cantidad, opcionesElegidas)}>
-            Agregar · {formatoPrecio.format(subtotal)}
+          <button
+            type="button"
+            className="boton"
+            disabled={faltaElegirVariante}
+            onClick={() => onConfirmar(cantidad, opcionesElegidas, varianteSeleccionada)}
+          >
+            {faltaElegirVariante ? 'Elige una opción' : `Agregar · ${formatoPrecio.format(subtotal)}`}
           </button>
         </div>
       </div>

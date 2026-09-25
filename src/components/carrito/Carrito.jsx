@@ -16,8 +16,10 @@ export function Carrito({ items, total, onQuitar, onCambiarCantidad, onIrAChecko
           <li key={item.itemId} className="carrito__item">
             <div className="carrito__item-info">
               <strong>{item.nombre}</strong>
-              {item.opcionesElegidas.length > 0 && (
-                <span className="texto-suave">{item.opcionesElegidas.map((o) => o.nombre).join(', ')}</span>
+              {(item.varianteNombre || item.opcionesElegidas.length > 0) && (
+                <span className="texto-suave">
+                  {[item.varianteNombre, ...item.opcionesElegidas.map((o) => o.nombre)].filter(Boolean).join(', ')}
+                </span>
               )}
               <span className="texto-suave">{formatoPrecio.format(item.subtotal)}</span>
             </div>

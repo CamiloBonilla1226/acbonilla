@@ -42,12 +42,17 @@ export function TablaPedidos({ pedidos, onActualizarEstado }) {
             {pedido.direccion && <span className="texto-suave">{pedido.direccion}</span>}
 
             <ul className="pedido-item__detalle">
-              {pedido.productos_detalle.map((item, indice) => (
-                <li key={indice}>
-                  {item.cantidad}x {item.nombre}
-                  {item.opciones_elegidas?.length > 0 && ` (${item.opciones_elegidas.map((o) => o.nombre).join(', ')})`}
-                </li>
-              ))}
+              {pedido.productos_detalle.map((item, indice) => {
+                const detalles = [item.variante_elegida, ...(item.opciones_elegidas?.map((o) => o.nombre) ?? [])].filter(
+                  Boolean
+                )
+                return (
+                  <li key={indice}>
+                    {item.cantidad}x {item.nombre}
+                    {detalles.length > 0 && ` (${detalles.join(', ')})`}
+                  </li>
+                )
+              })}
             </ul>
 
             <div className="pedido-item__pie">

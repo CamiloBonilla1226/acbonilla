@@ -6,10 +6,9 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
 
 export function construirMensajePedido({ items, total, cliente }) {
   const lineas = items.map((item) => {
-    const opciones = item.opcionesElegidas.length
-      ? ` (${item.opcionesElegidas.map((o) => o.nombre).join(', ')})`
-      : ''
-    return `• ${item.cantidad}x ${item.nombre}${opciones} — ${formatoPrecio.format(item.subtotal)}`
+    const detalles = [item.varianteNombre, ...item.opcionesElegidas.map((o) => o.nombre)].filter(Boolean)
+    const detalleTexto = detalles.length ? ` (${detalles.join(', ')})` : ''
+    return `• ${item.cantidad}x ${item.nombre}${detalleTexto} — ${formatoPrecio.format(item.subtotal)}`
   })
 
   return [

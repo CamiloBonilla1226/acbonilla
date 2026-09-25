@@ -13,6 +13,7 @@ import { useCarrito } from '../hooks/useCarrito'
 import { useSwipeParaCerrar } from '../hooks/useSwipeParaCerrar'
 import { alSoltarFondo } from '../lib/superposicion'
 import { filtrarProductosVisibles } from '../lib/productosVisibles'
+import { variantesDisponibles } from '../lib/variantes'
 
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -39,15 +40,17 @@ export function Carta() {
   const [vista, setVista] = useState('cerrado') // 'cerrado' | 'carrito' | 'checkout'
 
   const manejarSeleccionProducto = (producto) => {
-    if (adiciones.length > 0) {
+    // Si el producto tiene variantes (tamaños, sabores), elegir una es obligatorio, así que
+    // se fuerza el modal aunque no haya adiciones.
+    if (adiciones.length > 0 || variantesDisponibles(producto).length > 0) {
       setProductoSeleccionado(producto)
     } else {
       carrito.agregarProducto(producto, [], 1)
     }
   }
 
-  const confirmarOpciones = (cantidad, opcionesElegidas) => {
-    carrito.agregarProducto(productoSeleccionado, opcionesElegidas, cantidad)
+  const confirmarOpciones = (cantidad, opcionesElegidas, variante) => {
+    carrito.agregarProducto(productoSeleccionado, opcionesElegidas, cantidad, variante)
     setProductoSeleccionado(null)
   }
 
