@@ -548,18 +548,36 @@ p {
 /* --- "Fila de menú": patrón nombre — línea punteada — precio, estilo carta impresa.
    Usado en la carta física (ListaProductosFisica.jsx y ListaAdiciones.jsx en modo
    soloLectura) — nunca en domicilios, que usa checkboxes (.opcion-item) para armar el
-   pedido. */
+   pedido.
+   `.lista-menu` es una grilla CSS de 2 columnas: la segunda (el precio) se ajusta al
+   ancho del precio MÁS ANCHO de toda la lista, así que en todas las filas el precio
+   empieza exactamente en el mismo punto, sin importar cuánto varíe el nombre — antes,
+   con flexbox por fila, cada precio quedaba a una distancia distinta del borde según el
+   largo de su propio nombre, y se veía desalineado. Cada `.fila-menu` (li o div) es
+   `display: contents` para que sus dos hijos (`__etiqueta` y `__precio`) sean ellos
+   mismos las dos celdas de la grilla, compartidas por todas las filas. */
 .lista-menu {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: var(--espacio-3);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .fila-menu {
+  display: contents;
+}
+
+.fila-menu[role='button'] {
+  cursor: pointer;
+}
+
+.fila-menu__etiqueta {
   display: flex;
   align-items: baseline;
   gap: var(--espacio-2);
-  width: 100%;
+  min-width: 0;
   padding: var(--espacio-2) 0;
 }
 
@@ -578,23 +596,21 @@ p {
 }
 
 .fila-menu__precio {
-  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  padding: var(--espacio-2) 0;
   font-weight: 600;
   white-space: nowrap;
 }
 
-button.fila-menu {
-  border: none;
-  background: none;
-  font: inherit;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
+.fila-menu[role='button']:hover > *,
+.fila-menu[role='button']:focus-visible > * {
+  background: var(--color-secundario);
 }
 
-button.fila-menu:hover,
-button.fila-menu:focus-visible {
-  background: var(--color-secundario);
+.fila-menu[role='button']:focus-visible > * {
+  outline: 1px solid var(--color-acento);
+  outline-offset: -1px;
 }
 
 .opciones-producto__cantidad {

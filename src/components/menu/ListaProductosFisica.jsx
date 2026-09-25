@@ -7,9 +7,10 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
   maximumFractionDigits: 0,
 })
 
-// Listado de productos de la carta física: cada fila usa el patrón de menú impreso
-// (nombre — línea punteada — precio, ver .fila-menu en index.css), clicable para abrir el
-// detalle del producto (DetalleProductoFisico).
+// Listado de productos de la carta física: patrón de menú impreso (nombre — línea
+// punteada — precio). `.lista-menu` es una grilla de 2 columnas (ver index.css): la
+// columna de precio se ajusta al precio más ancho de TODA la lista, así que todos los
+// precios empiezan exactamente en el mismo punto sin importar cuánto varíe el nombre.
 export function ListaProductosFisica({ productos, onSeleccionar }) {
   if (productos.length === 0) return null
 
@@ -19,21 +20,33 @@ export function ListaProductosFisica({ productos, onSeleccionar }) {
         const agotado = !producto.disponible
         const variantes = variantesDisponibles(producto)
         return (
-          <li key={producto.id}>
-            <button type="button" className="fila-menu" onClick={() => onSeleccionar(producto)}>
+          <li
+            key={producto.id}
+            className="fila-menu"
+            role="button"
+            tabIndex={0}
+            onClick={() => onSeleccionar(producto)}
+            onKeyDown={(evento) => {
+              if (evento.key === 'Enter' || evento.key === ' ') {
+                evento.preventDefault()
+                onSeleccionar(producto)
+              }
+            }}
+          >
+            <span className="fila-menu__etiqueta">
               <span className="fila-menu__nombre">
                 {producto.nombre}
                 {agotado && <span className="producto-card__agotado"> · Agotado</span>}
               </span>
               <span className="fila-menu__leader" aria-hidden="true" />
-              <span className="fila-menu__precio">
-                {variantes.length > 0 ? (
-                  `Desde ${formatoPrecio.format(precioMinimo(variantes))}`
-                ) : (
-                  <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
-                )}
-              </span>
-            </button>
+            </span>
+            <span className="fila-menu__precio">
+              {variantes.length > 0 ? (
+                `Desde ${formatoPrecio.format(precioMinimo(variantes))}`
+              ) : (
+                <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
+              )}
+            </span>
           </li>
         )
       })}
