@@ -11,6 +11,8 @@ import { Adiciones } from './pages/admin/Adiciones'
 import { Pedidos } from './pages/admin/Pedidos'
 import { Usuarios } from './pages/admin/Usuarios'
 import { RutaProtegida } from './components/admin/RutaProtegida'
+import { ToastProvider } from './components/ui/ToastProvider'
+import { ConfirmProvider } from './components/ui/ConfirmProvider'
 import { negocioConfig } from './config/negocio.config'
 
 // Aplica la marca de este negocio (colores, tipografía) como variables CSS en tiempo de
@@ -31,63 +33,67 @@ function App() {
   useAplicarMarca()
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Inicio />} />
-        <Route path="/carta" element={<Carta />} />
-        <Route path="/carta-fisica" element={<CartaFisica />} />
+    <ToastProvider>
+      <ConfirmProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Inicio />} />
+            <Route path="/carta" element={<Carta />} />
+            <Route path="/carta-fisica" element={<CartaFisica />} />
 
-        <Route path="/admin/login" element={<Login />} />
-        <Route
-          path="/admin"
-          element={
-            <RutaProtegida>
-              <Dashboard />
-            </RutaProtegida>
-          }
-        />
-        <Route
-          path="/admin/pedidos"
-          element={
-            <RutaProtegida>
-              <Pedidos />
-            </RutaProtegida>
-          }
-        />
-        <Route
-          path="/admin/productos"
-          element={
-            <RutaProtegida soloDueno>
-              <Productos />
-            </RutaProtegida>
-          }
-        />
-        <Route
-          path="/admin/categorias"
-          element={
-            <RutaProtegida soloDueno>
-              <Categorias />
-            </RutaProtegida>
-          }
-        />
-        <Route
-          path="/admin/adiciones"
-          element={
-            <RutaProtegida soloDueno>
-              <Adiciones />
-            </RutaProtegida>
-          }
-        />
-        <Route
-          path="/admin/usuarios"
-          element={
-            <RutaProtegida soloDueno>
-              <Usuarios />
-            </RutaProtegida>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+            <Route path="/admin/login" element={<Login />} />
+            <Route
+              path="/admin"
+              element={
+                <RutaProtegida>
+                  <Dashboard />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path="/admin/pedidos"
+              element={
+                <RutaProtegida>
+                  <Pedidos />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path="/admin/productos"
+              element={
+                <RutaProtegida soloDueno>
+                  <Productos />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path="/admin/categorias"
+              element={
+                <RutaProtegida soloDueno>
+                  <Categorias />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path="/admin/adiciones"
+              element={
+                <RutaProtegida soloDueno>
+                  <Adiciones />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path="/admin/usuarios"
+              element={
+                <RutaProtegida soloDueno>
+                  <Usuarios />
+                </RutaProtegida>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </ConfirmProvider>
+    </ToastProvider>
   )
 }
 

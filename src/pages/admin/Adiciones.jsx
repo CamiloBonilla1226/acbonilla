@@ -5,6 +5,8 @@ import { FormularioAdicion } from '../../components/admin/FormularioAdicion'
 import { useAdiciones } from '../../hooks/useAdiciones'
 import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
 import { alSoltarFondo } from '../../lib/superposicion'
+import { useToast } from '../../hooks/useToast'
+import { useConfirmacion } from '../../hooks/useConfirmacion'
 
 export function Adiciones() {
   const { adiciones, cargando, error, crearAdicion, actualizarAdicion, eliminarAdicion, toggleDisponible } =
@@ -13,21 +15,26 @@ export function Adiciones() {
   const [adicionEnEdicion, setAdicionEnEdicion] = useState(null) // objeto o 'nuevo'
   const cerrarModal = () => setAdicionEnEdicion(null)
   const swipe = useSwipeParaCerrar(cerrarModal)
+  const mostrarToast = useToast()
+  const confirmar = useConfirmacion()
 
   const guardarAdicion = async (datos) => {
-    const resultado =
-      adicionEnEdicion === 'nuevo'
-        ? await crearAdicion(datos)
-        : await actualizarAdicion(adicionEnEdicion.id, datos)
+    const esNueva = adicionEnEdicion === 'nuevo'
+    const resultado = esNueva ? await crearAdicion(datos) : await actualizarAdicion(adicionEnEdicion.id, datos)
 
-    if (resultado.exito) setAdicionEnEdicion(null)
+    if (resultado.exito) {
+      setAdicionEnEdicion(null)
+      mostrarToast(esNueva ? 'Adición creada' : 'Adición actualizada')
+    }
     return resultado
   }
 
   const confirmarEliminar = async (id) => {
-    if (window.confirm('¿Eliminar esta adición? Esta acción no se puede deshacer.')) {
-      await eliminarAdicion(id)
-    }
+    const confirmado = await confirmar('¿Eliminar esta adición? Esta acción no se puede deshacer.')
+    if (!confirmado) return
+
+    const { exito } = await eliminarAdicion(id)
+    mostrarToast(exito ? 'Adición eliminada' : 'No se pudo eliminar la adición', exito ? 'exito' : 'error')
   }
 
   return (

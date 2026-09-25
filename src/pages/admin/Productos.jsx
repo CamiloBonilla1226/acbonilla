@@ -6,6 +6,8 @@ import { useCategorias } from '../../hooks/useCategorias'
 import { useProductos } from '../../hooks/useProductos'
 import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
 import { alSoltarFondo } from '../../lib/superposicion'
+import { useToast } from '../../hooks/useToast'
+import { useConfirmacion } from '../../hooks/useConfirmacion'
 
 export function Productos() {
   const { categorias } = useCategorias()
@@ -15,21 +17,26 @@ export function Productos() {
   const [productoEnEdicion, setProductoEnEdicion] = useState(null) // objeto o 'nuevo'
   const cerrarModal = () => setProductoEnEdicion(null)
   const swipe = useSwipeParaCerrar(cerrarModal)
+  const mostrarToast = useToast()
+  const confirmar = useConfirmacion()
 
   const guardarProducto = async (datos) => {
-    const resultado =
-      productoEnEdicion === 'nuevo'
-        ? await crearProducto(datos)
-        : await actualizarProducto(productoEnEdicion.id, datos)
+    const esNuevo = productoEnEdicion === 'nuevo'
+    const resultado = esNuevo ? await crearProducto(datos) : await actualizarProducto(productoEnEdicion.id, datos)
 
-    if (resultado.exito) setProductoEnEdicion(null)
+    if (resultado.exito) {
+      setProductoEnEdicion(null)
+      mostrarToast(esNuevo ? 'Producto creado' : 'Producto actualizado')
+    }
     return resultado
   }
 
   const confirmarEliminar = async (id) => {
-    if (window.confirm('¿Eliminar este producto? Esta acción no se puede deshacer.')) {
-      await eliminarProducto(id)
-    }
+    const confirmado = await confirmar('¿Eliminar este producto? Esta acción no se puede deshacer.')
+    if (!confirmado) return
+
+    const { exito } = await eliminarProducto(id)
+    mostrarToast(exito ? 'Producto eliminado' : 'No se pudo eliminar el producto', exito ? 'exito' : 'error')
   }
 
   return (

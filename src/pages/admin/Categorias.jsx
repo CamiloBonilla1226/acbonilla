@@ -5,6 +5,8 @@ import { FormularioCategoria } from '../../components/admin/FormularioCategoria'
 import { useCategorias } from '../../hooks/useCategorias'
 import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
 import { alSoltarFondo } from '../../lib/superposicion'
+import { useToast } from '../../hooks/useToast'
+import { useConfirmacion } from '../../hooks/useConfirmacion'
 
 export function Categorias() {
   const { categorias, cargando, error, crearCategoria, actualizarCategoria, eliminarCategoria } = useCategorias()
@@ -12,24 +14,31 @@ export function Categorias() {
   const [categoriaEnEdicion, setCategoriaEnEdicion] = useState(null) // objeto o 'nuevo'
   const cerrarModal = () => setCategoriaEnEdicion(null)
   const swipe = useSwipeParaCerrar(cerrarModal)
+  const mostrarToast = useToast()
+  const confirmar = useConfirmacion()
 
   const guardarCategoria = async (datos) => {
-    const resultado =
-      categoriaEnEdicion === 'nuevo'
-        ? await crearCategoria(datos.nombre)
-        : await actualizarCategoria(categoriaEnEdicion.id, datos)
+    const esNueva = categoriaEnEdicion === 'nuevo'
+    const resultado = esNueva
+      ? await crearCategoria(datos.nombre)
+      : await actualizarCategoria(categoriaEnEdicion.id, datos)
 
-    if (resultado.exito) setCategoriaEnEdicion(null)
+    if (resultado.exito) {
+      setCategoriaEnEdicion(null)
+      mostrarToast(esNueva ? 'Categoría creada' : 'Categoría actualizada')
+    }
     return resultado
   }
 
   const confirmarEliminar = async (id) => {
-    if (!window.confirm('¿Eliminar esta categoría?')) return
+    const confirmado = await confirmar('¿Eliminar esta categoría?')
+    if (!confirmado) return
 
     const { exito, error: errorEliminar } = await eliminarCategoria(id)
-    if (!exito) {
-      alert(errorEliminar?.message ?? 'No se pudo eliminar la categoría.')
-    }
+    mostrarToast(
+      exito ? 'Categoría eliminada' : errorEliminar?.message ?? 'No se pudo eliminar la categoría.',
+      exito ? 'exito' : 'error'
+    )
   }
 
   return (

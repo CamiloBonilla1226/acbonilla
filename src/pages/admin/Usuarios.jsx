@@ -5,6 +5,8 @@ import { FormularioEmpleado } from '../../components/admin/FormularioEmpleado'
 import { useUsuariosAdmin } from '../../hooks/useUsuariosAdmin'
 import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
 import { alSoltarFondo } from '../../lib/superposicion'
+import { useToast } from '../../hooks/useToast'
+import { useConfirmacion } from '../../hooks/useConfirmacion'
 
 export function Usuarios() {
   const { usuarios, cargando, error, crearEmpleado, eliminarUsuario } = useUsuariosAdmin()
@@ -12,6 +14,8 @@ export function Usuarios() {
   const [creando, setCreando] = useState(false)
   const cerrarModal = () => setCreando(false)
   const swipe = useSwipeParaCerrar(cerrarModal)
+  const mostrarToast = useToast()
+  const confirmar = useConfirmacion()
 
   // Esta pantalla es para que el dueño administre a SUS empleados: no tiene sentido que se
   // vea a sí mismo en la lista (ni podría eliminarse ni tendría nada que hacer con su propia
@@ -22,14 +26,19 @@ export function Usuarios() {
 
   const guardarEmpleado = async (numero, contrasena, nombre) => {
     const resultado = await crearEmpleado(numero, contrasena, nombre)
-    if (resultado.exito) setCreando(false)
+    if (resultado.exito) {
+      setCreando(false)
+      mostrarToast('Empleado creado')
+    }
     return resultado
   }
 
   const confirmarEliminar = async (id) => {
-    if (window.confirm('¿Eliminar este usuario? Ya no podrá iniciar sesión en el panel.')) {
-      await eliminarUsuario(id)
-    }
+    const confirmado = await confirmar('¿Eliminar este usuario? Ya no podrá iniciar sesión en el panel.')
+    if (!confirmado) return
+
+    const { exito } = await eliminarUsuario(id)
+    mostrarToast(exito ? 'Usuario eliminado' : 'No se pudo eliminar el usuario', exito ? 'exito' : 'error')
   }
 
   return (
