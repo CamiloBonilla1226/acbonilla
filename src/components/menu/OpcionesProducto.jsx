@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ImagenProducto } from './ImagenProducto'
 import { PrecioProducto } from '../promociones/BadgeOferta'
+import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
 
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -18,6 +19,7 @@ function precioEfectivo(producto) {
 export function OpcionesProducto({ producto, adiciones = [], onConfirmar, onCancelar }) {
   const [seleccionadas, setSeleccionadas] = useState([])
   const [cantidad, setCantidad] = useState(1)
+  const swipe = useSwipeParaCerrar(onCancelar)
 
   const alternarAdicion = (adicion) => {
     setSeleccionadas((actuales) => {
@@ -40,7 +42,13 @@ export function OpcionesProducto({ producto, adiciones = [], onConfirmar, onCanc
   }, [producto, opcionesElegidas, cantidad])
 
   return (
-    <div className="opciones-producto">
+    <div
+      className="opciones-producto"
+      style={swipe.estilo}
+      onTouchStart={swipe.onTouchStart}
+      onTouchMove={swipe.onTouchMove}
+      onTouchEnd={swipe.onTouchEnd}
+    >
       <ImagenProducto src={producto.imagen_url} alt={producto.nombre} relacionAspecto="16 / 9" prioridad />
 
       <div className="opciones-producto__contenido">

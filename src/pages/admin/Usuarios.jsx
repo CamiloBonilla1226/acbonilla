@@ -3,11 +3,15 @@ import { AdminNav } from '../../components/admin/AdminNav'
 import { TablaUsuarios } from '../../components/admin/TablaUsuarios'
 import { FormularioEmpleado } from '../../components/admin/FormularioEmpleado'
 import { useUsuariosAdmin } from '../../hooks/useUsuariosAdmin'
+import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
+import { alSoltarFondo } from '../../lib/superposicion'
 
 export function Usuarios() {
   const { usuarios, cargando, error, crearEmpleado, eliminarUsuario } = useUsuariosAdmin()
 
   const [creando, setCreando] = useState(false)
+  const cerrarModal = () => setCreando(false)
+  const swipe = useSwipeParaCerrar(cerrarModal)
 
   // Esta pantalla es para que el dueño administre a SUS empleados: no tiene sentido que se
   // vea a sí mismo en la lista (ni podría eliminarse ni tendría nada que hacer con su propia
@@ -47,13 +51,19 @@ export function Usuarios() {
       </main>
 
       {creando && (
-        <div className="superposicion" role="dialog" aria-modal="true">
-          <div className="superposicion__panel">
-            <button type="button" className="superposicion__cerrar-x" onClick={() => setCreando(false)} aria-label="Cerrar">
+        <div className="superposicion" role="dialog" aria-modal="true" onClick={alSoltarFondo(cerrarModal)}>
+          <div
+            className="superposicion__panel"
+            style={swipe.estilo}
+            onTouchStart={swipe.onTouchStart}
+            onTouchMove={swipe.onTouchMove}
+            onTouchEnd={swipe.onTouchEnd}
+          >
+            <button type="button" className="superposicion__cerrar-x" onClick={cerrarModal} aria-label="Cerrar">
               ×
             </button>
             <h2>Crear empleado</h2>
-            <FormularioEmpleado onGuardar={guardarEmpleado} onCancelar={() => setCreando(false)} />
+            <FormularioEmpleado onGuardar={guardarEmpleado} onCancelar={cerrarModal} />
           </div>
         </div>
       )}

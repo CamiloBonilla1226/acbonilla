@@ -3,12 +3,16 @@ import { AdminNav } from '../../components/admin/AdminNav'
 import { TablaAdiciones } from '../../components/admin/TablaAdiciones'
 import { FormularioAdicion } from '../../components/admin/FormularioAdicion'
 import { useAdiciones } from '../../hooks/useAdiciones'
+import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
+import { alSoltarFondo } from '../../lib/superposicion'
 
 export function Adiciones() {
   const { adiciones, cargando, error, crearAdicion, actualizarAdicion, eliminarAdicion, toggleDisponible } =
     useAdiciones()
 
   const [adicionEnEdicion, setAdicionEnEdicion] = useState(null) // objeto o 'nuevo'
+  const cerrarModal = () => setAdicionEnEdicion(null)
+  const swipe = useSwipeParaCerrar(cerrarModal)
 
   const guardarAdicion = async (datos) => {
     const resultado =
@@ -52,14 +56,15 @@ export function Adiciones() {
       </main>
 
       {adicionEnEdicion && (
-        <div className="superposicion" role="dialog" aria-modal="true">
-          <div className="superposicion__panel">
-            <button
-              type="button"
-              className="superposicion__cerrar-x"
-              onClick={() => setAdicionEnEdicion(null)}
-              aria-label="Cerrar"
-            >
+        <div className="superposicion" role="dialog" aria-modal="true" onClick={alSoltarFondo(cerrarModal)}>
+          <div
+            className="superposicion__panel"
+            style={swipe.estilo}
+            onTouchStart={swipe.onTouchStart}
+            onTouchMove={swipe.onTouchMove}
+            onTouchEnd={swipe.onTouchEnd}
+          >
+            <button type="button" className="superposicion__cerrar-x" onClick={cerrarModal} aria-label="Cerrar">
               ×
             </button>
             <h2>{adicionEnEdicion === 'nuevo' ? 'Nueva adición' : 'Editar adición'}</h2>

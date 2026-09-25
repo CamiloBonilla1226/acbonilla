@@ -4,6 +4,8 @@ import { TablaProductos } from '../../components/admin/TablaProductos'
 import { FormularioProducto } from '../../components/admin/FormularioProducto'
 import { useCategorias } from '../../hooks/useCategorias'
 import { useProductos } from '../../hooks/useProductos'
+import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
+import { alSoltarFondo } from '../../lib/superposicion'
 
 export function Productos() {
   const { categorias } = useCategorias()
@@ -11,6 +13,8 @@ export function Productos() {
     useProductos()
 
   const [productoEnEdicion, setProductoEnEdicion] = useState(null) // objeto o 'nuevo'
+  const cerrarModal = () => setProductoEnEdicion(null)
+  const swipe = useSwipeParaCerrar(cerrarModal)
 
   const guardarProducto = async (datos) => {
     const resultado =
@@ -54,14 +58,15 @@ export function Productos() {
       </main>
 
       {productoEnEdicion && (
-        <div className="superposicion" role="dialog" aria-modal="true">
-          <div className="superposicion__panel">
-            <button
-              type="button"
-              className="superposicion__cerrar-x"
-              onClick={() => setProductoEnEdicion(null)}
-              aria-label="Cerrar"
-            >
+        <div className="superposicion" role="dialog" aria-modal="true" onClick={alSoltarFondo(cerrarModal)}>
+          <div
+            className="superposicion__panel"
+            style={swipe.estilo}
+            onTouchStart={swipe.onTouchStart}
+            onTouchMove={swipe.onTouchMove}
+            onTouchEnd={swipe.onTouchEnd}
+          >
+            <button type="button" className="superposicion__cerrar-x" onClick={cerrarModal} aria-label="Cerrar">
               ×
             </button>
             <h2>{productoEnEdicion === 'nuevo' ? 'Nuevo producto' : 'Editar producto'}</h2>

@@ -10,6 +10,8 @@ import { useCategorias } from '../hooks/useCategorias'
 import { useProductos } from '../hooks/useProductos'
 import { useAdiciones } from '../hooks/useAdiciones'
 import { useCarrito } from '../hooks/useCarrito'
+import { useSwipeParaCerrar } from '../hooks/useSwipeParaCerrar'
+import { alSoltarFondo } from '../lib/superposicion'
 
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -43,6 +45,9 @@ export function Carta() {
     carrito.agregarProducto(productoSeleccionado, opcionesElegidas, cantidad)
     setProductoSeleccionado(null)
   }
+
+  const cerrarVista = () => setVista('cerrado')
+  const swipeCarritoCheckout = useSwipeParaCerrar(cerrarVista)
 
   return (
     <>
@@ -83,7 +88,12 @@ export function Carta() {
       )}
 
       {productoSeleccionado && (
-        <div className="superposicion" role="dialog" aria-modal="true">
+        <div
+          className="superposicion"
+          role="dialog"
+          aria-modal="true"
+          onClick={alSoltarFondo(() => setProductoSeleccionado(null))}
+        >
           <OpcionesProducto
             producto={productoSeleccionado}
             adiciones={adiciones}
@@ -94,9 +104,15 @@ export function Carta() {
       )}
 
       {vista !== 'cerrado' && (
-        <div className="superposicion" role="dialog" aria-modal="true">
-          <div className="superposicion__panel">
-            <button type="button" className="superposicion__cerrar" onClick={() => setVista('cerrado')}>
+        <div className="superposicion" role="dialog" aria-modal="true" onClick={alSoltarFondo(cerrarVista)}>
+          <div
+            className="superposicion__panel"
+            style={swipeCarritoCheckout.estilo}
+            onTouchStart={swipeCarritoCheckout.onTouchStart}
+            onTouchMove={swipeCarritoCheckout.onTouchMove}
+            onTouchEnd={swipeCarritoCheckout.onTouchEnd}
+          >
+            <button type="button" className="superposicion__cerrar" onClick={cerrarVista}>
               Cerrar
             </button>
 

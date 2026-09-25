@@ -3,11 +3,15 @@ import { AdminNav } from '../../components/admin/AdminNav'
 import { TablaCategorias } from '../../components/admin/TablaCategorias'
 import { FormularioCategoria } from '../../components/admin/FormularioCategoria'
 import { useCategorias } from '../../hooks/useCategorias'
+import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
+import { alSoltarFondo } from '../../lib/superposicion'
 
 export function Categorias() {
   const { categorias, cargando, error, crearCategoria, actualizarCategoria, eliminarCategoria } = useCategorias()
 
   const [categoriaEnEdicion, setCategoriaEnEdicion] = useState(null) // objeto o 'nuevo'
+  const cerrarModal = () => setCategoriaEnEdicion(null)
+  const swipe = useSwipeParaCerrar(cerrarModal)
 
   const guardarCategoria = async (datos) => {
     const resultado =
@@ -49,14 +53,15 @@ export function Categorias() {
       </main>
 
       {categoriaEnEdicion && (
-        <div className="superposicion" role="dialog" aria-modal="true">
-          <div className="superposicion__panel">
-            <button
-              type="button"
-              className="superposicion__cerrar-x"
-              onClick={() => setCategoriaEnEdicion(null)}
-              aria-label="Cerrar"
-            >
+        <div className="superposicion" role="dialog" aria-modal="true" onClick={alSoltarFondo(cerrarModal)}>
+          <div
+            className="superposicion__panel"
+            style={swipe.estilo}
+            onTouchStart={swipe.onTouchStart}
+            onTouchMove={swipe.onTouchMove}
+            onTouchEnd={swipe.onTouchEnd}
+          >
+            <button type="button" className="superposicion__cerrar-x" onClick={cerrarModal} aria-label="Cerrar">
               ×
             </button>
             <h2>{categoriaEnEdicion === 'nuevo' ? 'Nueva categoría' : 'Editar categoría'}</h2>
