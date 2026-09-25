@@ -11,13 +11,16 @@ import { filtrarProductosVisibles } from '../lib/productosVisibles'
 // cliente ya está en el local y no debe verse invitado a "pedir a domicilio".
 export function CartaFisica() {
   const [categoriaActivaId, setCategoriaActivaId] = useState(null)
-  const { categorias, cargando: cargandoCategorias, error: errorCategorias } = useCategorias({ soloActivas: true })
+  const { categorias, cargando: cargandoCategorias, error: errorCategorias } = useCategorias({
+    soloActivas: true,
+    soloVisibleCartaFisica: true,
+  })
   const {
     productos: productosCargados,
     cargando: cargandoProductos,
     error: errorProductos,
-  } = useProductos({ categoriaId: categoriaActivaId, soloDisponibles: true })
-  const productos = filtrarProductosVisibles(productosCargados)
+  } = useProductos({ categoriaId: categoriaActivaId, soloDisponibles: true, soloVisibleCartaFisica: true })
+  const productos = filtrarProductosVisibles(productosCargados, 'visible_carta_fisica')
 
   return (
     <main className="contenedor pagina-carta">

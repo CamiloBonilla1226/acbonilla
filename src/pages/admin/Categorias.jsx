@@ -21,7 +21,7 @@ export function Categorias() {
   const guardarCategoria = async (datos) => {
     const esNueva = categoriaEnEdicion === 'nuevo'
     const resultado = esNueva
-      ? await crearCategoria(datos.nombre)
+      ? await crearCategoria(datos)
       : await actualizarCategoria(categoriaEnEdicion.id, datos)
 
     if (resultado.exito) {

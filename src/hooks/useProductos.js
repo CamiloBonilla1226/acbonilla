@@ -5,16 +5,22 @@ import { negocioConfig } from '../config/negocio.config'
 // Trae cada producto con su categoría. Las adiciones (grupos_opciones/opciones) ya no
 // pertenecen a un producto puntual, sino al negocio completo (ver useAdiciones.js), así
 // que no se anidan aquí — se cargan aparte y aplican a cualquier producto por igual.
-// `categoria.activo` viaja junto con el resto: las cartas públicas lo usan para ocultar
-// productos de una categoría desactivada aunque no se esté filtrando por ella (ver
+// `categoria.activo`/`visible_domicilios`/`visible_carta_fisica` viajan junto con el
+// resto: las cartas públicas los usan para ocultar productos de una categoría
+// desactivada o no visible en esa carta, aunque no se esté filtrando por ella (ver
 // Carta.jsx/CartaFisica.jsx); no se puede filtrar directo en esta consulta porque un join
 // `!inner` excluiría también a los productos sin categoría (categoria_id null).
 const SELECT_PRODUCTO_COMPLETO = `
   *,
-  categoria:categorias(id, nombre, activo)
+  categoria:categorias(id, nombre, activo, visible_domicilios, visible_carta_fisica)
 `
 
-export function useProductos({ categoriaId, soloDisponibles = false } = {}) {
+export function useProductos({
+  categoriaId,
+  soloDisponibles = false,
+  soloVisibleDomicilios = false,
+  soloVisibleCartaFisica = false,
+} = {}) {
   const [productos, setProductos] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
@@ -35,6 +41,12 @@ export function useProductos({ categoriaId, soloDisponibles = false } = {}) {
     if (soloDisponibles) {
       consulta = consulta.eq('disponible', true)
     }
+    if (soloVisibleDomicilios) {
+      consulta = consulta.eq('visible_domicilios', true)
+    }
+    if (soloVisibleCartaFisica) {
+      consulta = consulta.eq('visible_carta_fisica', true)
+    }
 
     const { data, error: errorConsulta } = await consulta
 
@@ -45,7 +57,7 @@ export function useProductos({ categoriaId, soloDisponibles = false } = {}) {
       setProductos(data)
     }
     setCargando(false)
-  }, [categoriaId, soloDisponibles])
+  }, [categoriaId, soloDisponibles, soloVisibleDomicilios, soloVisibleCartaFisica])
 
   useEffect(() => {
     recargar()

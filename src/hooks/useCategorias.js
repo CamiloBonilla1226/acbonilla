@@ -2,7 +2,11 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { negocioConfig } from '../config/negocio.config'
 
-export function useCategorias({ soloActivas = false } = {}) {
+export function useCategorias({
+  soloActivas = false,
+  soloVisibleDomicilios = false,
+  soloVisibleCartaFisica = false,
+} = {}) {
   const [categorias, setCategorias] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
@@ -20,6 +24,12 @@ export function useCategorias({ soloActivas = false } = {}) {
     if (soloActivas) {
       consulta = consulta.eq('activo', true)
     }
+    if (soloVisibleDomicilios) {
+      consulta = consulta.eq('visible_domicilios', true)
+    }
+    if (soloVisibleCartaFisica) {
+      consulta = consulta.eq('visible_carta_fisica', true)
+    }
 
     const { data, error: errorConsulta } = await consulta
 
@@ -30,15 +40,15 @@ export function useCategorias({ soloActivas = false } = {}) {
       setCategorias(data)
     }
     setCargando(false)
-  }, [soloActivas])
+  }, [soloActivas, soloVisibleDomicilios, soloVisibleCartaFisica])
 
   useEffect(() => {
     recargar()
   }, [recargar])
 
   const crearCategoria = useCallback(
-    async (nombre) => {
-      const nombreLimpio = nombre.trim()
+    async (datos) => {
+      const nombreLimpio = datos.nombre.trim()
       if (!nombreLimpio) {
         return { exito: false, error: new Error('El nombre es obligatorio.') }
       }
@@ -59,7 +69,7 @@ export function useCategorias({ soloActivas = false } = {}) {
 
       const { error: errorCrear } = await supabase
         .from('categorias')
-        .insert({ nombre: nombreLimpio, negocio_id: negocioConfig.negocioId })
+        .insert({ ...datos, nombre: nombreLimpio, negocio_id: negocioConfig.negocioId })
 
       if (!errorCrear) await recargar()
       return { exito: !errorCrear, error: errorCrear }

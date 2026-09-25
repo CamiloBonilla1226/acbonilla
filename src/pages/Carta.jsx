@@ -22,14 +22,17 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
 
 export function Carta() {
   const [categoriaActivaId, setCategoriaActivaId] = useState(null)
-  const { categorias, cargando: cargandoCategorias, error: errorCategorias } = useCategorias({ soloActivas: true })
+  const { categorias, cargando: cargandoCategorias, error: errorCategorias } = useCategorias({
+    soloActivas: true,
+    soloVisibleDomicilios: true,
+  })
   const {
     productos: productosCargados,
     cargando: cargandoProductos,
     error: errorProductos,
-  } = useProductos({ categoriaId: categoriaActivaId, soloDisponibles: true })
-  const productos = filtrarProductosVisibles(productosCargados)
-  const { adiciones } = useAdiciones({ soloDisponibles: true })
+  } = useProductos({ categoriaId: categoriaActivaId, soloDisponibles: true, soloVisibleDomicilios: true })
+  const productos = filtrarProductosVisibles(productosCargados, 'visible_domicilios')
+  const { adiciones } = useAdiciones({ soloDisponibles: true, soloVisibleDomicilios: true })
 
   const carrito = useCarrito()
   const [productoSeleccionado, setProductoSeleccionado] = useState(null)

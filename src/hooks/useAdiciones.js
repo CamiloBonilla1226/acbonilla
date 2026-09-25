@@ -6,7 +6,11 @@ import { negocioConfig } from '../config/negocio.config'
 // independiente, con su propio precio, y siempre opcional al pedir cualquier producto —
 // no hay grupos ni obligatoriedad (eso reemplazó al modelo anterior de
 // grupos_opciones/opciones, ver CHANGELOG.md).
-export function useAdiciones({ soloDisponibles = false } = {}) {
+export function useAdiciones({
+  soloDisponibles = false,
+  soloVisibleDomicilios = false,
+  soloVisibleCartaFisica = false,
+} = {}) {
   const [adiciones, setAdiciones] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
@@ -24,6 +28,12 @@ export function useAdiciones({ soloDisponibles = false } = {}) {
     if (soloDisponibles) {
       consulta = consulta.eq('disponible', true)
     }
+    if (soloVisibleDomicilios) {
+      consulta = consulta.eq('visible_domicilios', true)
+    }
+    if (soloVisibleCartaFisica) {
+      consulta = consulta.eq('visible_carta_fisica', true)
+    }
 
     const { data, error: errorConsulta } = await consulta
 
@@ -34,7 +44,7 @@ export function useAdiciones({ soloDisponibles = false } = {}) {
       setAdiciones(data)
     }
     setCargando(false)
-  }, [soloDisponibles])
+  }, [soloDisponibles, soloVisibleDomicilios, soloVisibleCartaFisica])
 
   useEffect(() => {
     recargar()

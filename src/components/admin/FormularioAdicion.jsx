@@ -8,6 +8,8 @@ const VACIO = {
   descripcion: '',
   precio: '',
   imagen_url: '',
+  visible_domicilios: true,
+  visible_carta_fisica: true,
 }
 
 export function FormularioAdicion({ adicionInicial, onGuardar, onCancelar }) {
@@ -18,6 +20,8 @@ export function FormularioAdicion({ adicionInicial, onGuardar, onCancelar }) {
           descripcion: adicionInicial.descripcion ?? '',
           precio: adicionInicial.precio,
           imagen_url: adicionInicial.imagen_url ?? '',
+          visible_domicilios: adicionInicial.visible_domicilios ?? true,
+          visible_carta_fisica: adicionInicial.visible_carta_fisica ?? true,
         }
       : VACIO
   )
@@ -27,7 +31,8 @@ export function FormularioAdicion({ adicionInicial, onGuardar, onCancelar }) {
   const [errorGuardado, setErrorGuardado] = useState(null)
 
   const actualizar = (campo) => (evento) => {
-    setValores((actual) => ({ ...actual, [campo]: evento.target.value }))
+    const valor = evento.target.type === 'checkbox' ? evento.target.checked : evento.target.value
+    setValores((actual) => ({ ...actual, [campo]: valor }))
   }
 
   const subirArchivo = async (evento) => {
@@ -61,6 +66,8 @@ export function FormularioAdicion({ adicionInicial, onGuardar, onCancelar }) {
       descripcion: valores.descripcion.trim() || null,
       precio: Number(valores.precio),
       imagen_url: valores.imagen_url.trim() || null,
+      visible_domicilios: valores.visible_domicilios,
+      visible_carta_fisica: valores.visible_carta_fisica,
     })
 
     setGuardando(false)
@@ -105,6 +112,16 @@ export function FormularioAdicion({ adicionInicial, onGuardar, onCancelar }) {
           onChange={actualizar('imagen_url')}
         />
       </div>
+
+      <label className="campo campo--linea">
+        <input type="checkbox" checked={valores.visible_domicilios} onChange={actualizar('visible_domicilios')} />
+        <span>Mostrar en carta de domicilios</span>
+      </label>
+
+      <label className="campo campo--linea">
+        <input type="checkbox" checked={valores.visible_carta_fisica} onChange={actualizar('visible_carta_fisica')} />
+        <span>Mostrar en carta física</span>
+      </label>
 
       {errorGuardado && <p className="campo__error">{errorGuardado}</p>}
 

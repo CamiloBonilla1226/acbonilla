@@ -11,6 +11,8 @@ const VACIO = {
   precio_oferta: '',
   imagen_url: '',
   disponible: true,
+  visible_domicilios: true,
+  visible_carta_fisica: true,
 }
 
 export function FormularioProducto({ categorias, productoInicial, onGuardar, onCancelar }) {
@@ -24,6 +26,8 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
           precio_oferta: productoInicial.precio_oferta ?? '',
           imagen_url: productoInicial.imagen_url ?? '',
           disponible: productoInicial.disponible,
+          visible_domicilios: productoInicial.visible_domicilios ?? true,
+          visible_carta_fisica: productoInicial.visible_carta_fisica ?? true,
         }
       : VACIO
   )
@@ -80,6 +84,8 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
       precio_oferta: valores.precio_oferta === '' ? null : Number(valores.precio_oferta),
       imagen_url: valores.imagen_url.trim() || null,
       disponible: valores.disponible,
+      visible_domicilios: valores.visible_domicilios,
+      visible_carta_fisica: valores.visible_carta_fisica,
     })
 
     setGuardando(false)
@@ -145,6 +151,16 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
       <label className="campo campo--linea">
         <input type="checkbox" checked={valores.disponible} onChange={actualizar('disponible')} />
         <span>Disponible</span>
+      </label>
+
+      <label className="campo campo--linea">
+        <input type="checkbox" checked={valores.visible_domicilios} onChange={actualizar('visible_domicilios')} />
+        <span>Mostrar en carta de domicilios</span>
+      </label>
+
+      <label className="campo campo--linea">
+        <input type="checkbox" checked={valores.visible_carta_fisica} onChange={actualizar('visible_carta_fisica')} />
+        <span>Mostrar en carta física</span>
       </label>
 
       {errorGuardado && <p className="campo__error">{errorGuardado}</p>}
