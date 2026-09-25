@@ -9,7 +9,7 @@ import { useToast } from '../../hooks/useToast'
 import { useConfirmacion } from '../../hooks/useConfirmacion'
 
 export function Usuarios() {
-  const { usuarios, cargando, error, crearEmpleado, eliminarUsuario } = useUsuariosAdmin()
+  const { usuarios, cargando, error, crearEmpleado, eliminarUsuario, toggleActivo } = useUsuariosAdmin()
 
   const [creando, setCreando] = useState(false)
   const cerrarModal = () => setCreando(false)
@@ -41,6 +41,14 @@ export function Usuarios() {
     mostrarToast(exito ? 'Usuario eliminado' : 'No se pudo eliminar el usuario', exito ? 'exito' : 'error')
   }
 
+  const cambiarActivo = async (id, valor) => {
+    const { exito } = await toggleActivo(id, valor)
+    mostrarToast(
+      exito ? (valor ? 'Usuario activado' : 'Usuario desactivado') : 'No se pudo actualizar el usuario',
+      exito ? 'exito' : 'error'
+    )
+  }
+
   return (
     <>
       <AdminNav />
@@ -56,7 +64,9 @@ export function Usuarios() {
 
         {cargando && <p className="texto-suave">Cargando usuarios…</p>}
         {error && <p className="campo__error">No se pudieron cargar los usuarios.</p>}
-        {!cargando && !error && <TablaUsuarios usuarios={empleados} onEliminar={confirmarEliminar} />}
+        {!cargando && !error && (
+          <TablaUsuarios usuarios={empleados} onEliminar={confirmarEliminar} onToggleActivo={cambiarActivo} />
+        )}
       </main>
 
       {creando && (

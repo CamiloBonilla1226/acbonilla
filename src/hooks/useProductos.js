@@ -5,9 +5,13 @@ import { negocioConfig } from '../config/negocio.config'
 // Trae cada producto con su categoría. Las adiciones (grupos_opciones/opciones) ya no
 // pertenecen a un producto puntual, sino al negocio completo (ver useAdiciones.js), así
 // que no se anidan aquí — se cargan aparte y aplican a cualquier producto por igual.
+// `categoria.activo` viaja junto con el resto: las cartas públicas lo usan para ocultar
+// productos de una categoría desactivada aunque no se esté filtrando por ella (ver
+// Carta.jsx/CartaFisica.jsx); no se puede filtrar directo en esta consulta porque un join
+// `!inner` excluiría también a los productos sin categoría (categoria_id null).
 const SELECT_PRODUCTO_COMPLETO = `
   *,
-  categoria:categorias(id, nombre)
+  categoria:categorias(id, nombre, activo)
 `
 
 export function useProductos({ categoriaId, soloDisponibles = false } = {}) {

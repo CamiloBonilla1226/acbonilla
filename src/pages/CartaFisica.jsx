@@ -4,18 +4,20 @@ import { CategoriaFiltro } from '../components/menu/CategoriaFiltro'
 import { ProductoCard } from '../components/menu/ProductoCard'
 import { useCategorias } from '../hooks/useCategorias'
 import { useProductos } from '../hooks/useProductos'
+import { filtrarProductosVisibles } from '../lib/productosVisibles'
 
 // Carta de solo lectura para el punto físico (QR en mesa): mismo catálogo, sin carrito
 // ni checkout. Sin Nav/Footer de navegación hacia domicilios, porque en este modo el
 // cliente ya está en el local y no debe verse invitado a "pedir a domicilio".
 export function CartaFisica() {
   const [categoriaActivaId, setCategoriaActivaId] = useState(null)
-  const { categorias, cargando: cargandoCategorias, error: errorCategorias } = useCategorias()
+  const { categorias, cargando: cargandoCategorias, error: errorCategorias } = useCategorias({ soloActivas: true })
   const {
-    productos,
+    productos: productosCargados,
     cargando: cargandoProductos,
     error: errorProductos,
   } = useProductos({ categoriaId: categoriaActivaId, soloDisponibles: true })
+  const productos = filtrarProductosVisibles(productosCargados)
 
   return (
     <main className="contenedor pagina-carta">

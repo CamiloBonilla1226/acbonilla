@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { negocioConfig } from '../config/negocio.config'
 
-export function useCategorias() {
+export function useCategorias({ soloActivas = false } = {}) {
   const [categorias, setCategorias] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
@@ -11,11 +11,17 @@ export function useCategorias() {
     setCargando(true)
     setError(null)
 
-    const { data, error: errorConsulta } = await supabase
+    let consulta = supabase
       .from('categorias')
       .select('*')
       .eq('negocio_id', negocioConfig.negocioId)
       .order('nombre', { ascending: true })
+
+    if (soloActivas) {
+      consulta = consulta.eq('activo', true)
+    }
+
+    const { data, error: errorConsulta } = await consulta
 
     if (errorConsulta) {
       setError(errorConsulta)
@@ -24,7 +30,7 @@ export function useCategorias() {
       setCategorias(data)
     }
     setCargando(false)
-  }, [])
+  }, [soloActivas])
 
   useEffect(() => {
     recargar()
@@ -129,5 +135,34 @@ export function useCategorias() {
     [recargar]
   )
 
-  return { categorias, cargando, error, recargar, crearCategoria, actualizarCategoria, eliminarCategoria }
+  const toggleActivo = useCallback(
+    async (id, valor) => {
+      const { error: errorActualizar } = await supabase.from('categorias').update({ activo: valor }).eq('id', id)
+
+      if (errorActualizar) {
+        // El trigger de la base de datos bloquea desactivar una categoría con productos y
+        // devuelve un error crudo de Postgres; se reemplaza por un mensaje entendible en vez
+        // de mostrárselo tal cual a quien usa el panel.
+        const mensaje = !valor
+          ? 'No puedes desactivar esta categoría porque tiene productos. Reasigna o elimina esos productos primero.'
+          : errorActualizar.message
+        return { exito: false, error: new Error(mensaje) }
+      }
+
+      await recargar()
+      return { exito: true }
+    },
+    [recargar]
+  )
+
+  return {
+    categorias,
+    cargando,
+    error,
+    recargar,
+    crearCategoria,
+    actualizarCategoria,
+    eliminarCategoria,
+    toggleActivo,
+  }
 }

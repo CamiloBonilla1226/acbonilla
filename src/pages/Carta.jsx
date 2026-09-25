@@ -12,6 +12,7 @@ import { useAdiciones } from '../hooks/useAdiciones'
 import { useCarrito } from '../hooks/useCarrito'
 import { useSwipeParaCerrar } from '../hooks/useSwipeParaCerrar'
 import { alSoltarFondo } from '../lib/superposicion'
+import { filtrarProductosVisibles } from '../lib/productosVisibles'
 
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -21,12 +22,13 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
 
 export function Carta() {
   const [categoriaActivaId, setCategoriaActivaId] = useState(null)
-  const { categorias, cargando: cargandoCategorias, error: errorCategorias } = useCategorias()
+  const { categorias, cargando: cargandoCategorias, error: errorCategorias } = useCategorias({ soloActivas: true })
   const {
-    productos,
+    productos: productosCargados,
     cargando: cargandoProductos,
     error: errorProductos,
   } = useProductos({ categoriaId: categoriaActivaId, soloDisponibles: true })
+  const productos = filtrarProductosVisibles(productosCargados)
   const { adiciones } = useAdiciones({ soloDisponibles: true })
 
   const carrito = useCarrito()

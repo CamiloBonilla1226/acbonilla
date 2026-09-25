@@ -9,7 +9,8 @@ import { useToast } from '../../hooks/useToast'
 import { useConfirmacion } from '../../hooks/useConfirmacion'
 
 export function Categorias() {
-  const { categorias, cargando, error, crearCategoria, actualizarCategoria, eliminarCategoria } = useCategorias()
+  const { categorias, cargando, error, crearCategoria, actualizarCategoria, eliminarCategoria, toggleActivo } =
+    useCategorias()
 
   const [categoriaEnEdicion, setCategoriaEnEdicion] = useState(null) // objeto o 'nuevo'
   const cerrarModal = () => setCategoriaEnEdicion(null)
@@ -41,6 +42,14 @@ export function Categorias() {
     )
   }
 
+  const cambiarActivo = async (id, valor) => {
+    const { exito, error: errorActualizar } = await toggleActivo(id, valor)
+    mostrarToast(
+      exito ? (valor ? 'Categoría activada' : 'Categoría desactivada') : errorActualizar.message,
+      exito ? 'exito' : 'error'
+    )
+  }
+
   return (
     <>
       <AdminNav />
@@ -57,7 +66,12 @@ export function Categorias() {
         {cargando && <p className="texto-suave">Cargando categorías…</p>}
         {error && <p className="campo__error">No se pudieron cargar las categorías.</p>}
         {!cargando && !error && (
-          <TablaCategorias categorias={categorias} onEditar={setCategoriaEnEdicion} onEliminar={confirmarEliminar} />
+          <TablaCategorias
+            categorias={categorias}
+            onEditar={setCategoriaEnEdicion}
+            onEliminar={confirmarEliminar}
+            onToggleActivo={cambiarActivo}
+          />
         )}
       </main>
 

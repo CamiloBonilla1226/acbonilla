@@ -74,6 +74,24 @@ export function useAuth() {
       return { exito: false, error: new Error('negocio_id no coincide') }
     }
 
+    // El rol/negocio_id vive en app_metadata (verificado arriba), pero `activo` vive en
+    // usuarios_admin: se consulta aparte porque desactivar una cuenta no reescribe el JWT
+    // ya emitido (seguiría trayendo la sesión válida hasta que expire). numero se limpia
+    // igual que en la Edge Function crear-usuario-admin, para que coincida con lo guardado.
+    const numeroLimpio = numero.replace(/\D/g, '')
+    const { data: filaUsuario, error: errorFila } = await supabase
+      .from('usuarios_admin')
+      .select('activo')
+      .eq('negocio_id', negocioConfig.negocioId)
+      .eq('numero', numeroLimpio)
+      .maybeSingle()
+
+    if (errorFila || !filaUsuario || filaUsuario.activo === false) {
+      await supabase.auth.signOut()
+      setError('Esta cuenta está desactivada.')
+      return { exito: false, error: new Error('usuario desactivado') }
+    }
+
     return { exito: true }
   }, [])
 

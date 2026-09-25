@@ -16,7 +16,7 @@ export function useUsuariosAdmin() {
 
     const { data, error: errorConsulta } = await supabase
       .from('usuarios_admin')
-      .select('id, numero, nombre, rol, creado_en')
+      .select('id, numero, nombre, rol, activo, creado_en')
       .eq('negocio_id', negocioConfig.negocioId)
       .order('creado_en', { ascending: true })
 
@@ -64,5 +64,14 @@ export function useUsuariosAdmin() {
     [recargar]
   )
 
-  return { usuarios, cargando, error, recargar, crearEmpleado, eliminarUsuario }
+  const toggleActivo = useCallback(
+    async (id, valor) => {
+      const { error: errorActualizar } = await supabase.from('usuarios_admin').update({ activo: valor }).eq('id', id)
+      if (!errorActualizar) await recargar()
+      return { exito: !errorActualizar, error: errorActualizar }
+    },
+    [recargar]
+  )
+
+  return { usuarios, cargando, error, recargar, crearEmpleado, eliminarUsuario, toggleActivo }
 }

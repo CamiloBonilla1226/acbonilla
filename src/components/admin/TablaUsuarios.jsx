@@ -1,4 +1,6 @@
-export function TablaUsuarios({ usuarios, onEliminar }) {
+import { Interruptor } from './Interruptor'
+
+export function TablaUsuarios({ usuarios, onEliminar, onToggleActivo }) {
   if (usuarios.length === 0) {
     return <p className="texto-suave">Todavía no hay usuarios. Crea el primero.</p>
   }
@@ -10,6 +12,7 @@ export function TablaUsuarios({ usuarios, onEliminar }) {
           <tr>
             <th>Nombre</th>
             <th>Celular</th>
+            <th>Activo</th>
             <th aria-label="Acciones"></th>
           </tr>
         </thead>
@@ -18,6 +21,13 @@ export function TablaUsuarios({ usuarios, onEliminar }) {
             <tr key={usuario.id}>
               <td data-etiqueta="Nombre">{usuario.nombre}</td>
               <td data-etiqueta="Celular">{usuario.numero}</td>
+              <td data-etiqueta="Activo">
+                <Interruptor
+                  activo={usuario.activo}
+                  etiqueta=""
+                  onCambiar={(valor) => onToggleActivo(usuario.id, valor)}
+                />
+              </td>
               <td data-etiqueta="Acciones" className="tabla-usuarios-admin__acciones">
                 <button type="button" className="carrito__quitar" onClick={() => onEliminar(usuario.id)}>
                   Eliminar
