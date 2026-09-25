@@ -49,7 +49,7 @@ export function OpcionesProducto({ producto, adiciones = [], onConfirmar, onCanc
       onTouchMove={swipe.onTouchMove}
       onTouchEnd={swipe.onTouchEnd}
     >
-      <ImagenProducto src={producto.imagen_url} alt={producto.nombre} relacionAspecto="16 / 9" prioridad />
+      <ImagenProducto src={producto.imagen_url} alt={producto.nombre} relacionAspecto="4 / 3" prioridad />
 
       <div className="opciones-producto__contenido">
         <h2 className="opciones-producto__nombre">{producto.nombre}</h2>
