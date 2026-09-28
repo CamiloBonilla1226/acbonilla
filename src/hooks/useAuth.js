@@ -34,6 +34,11 @@ export function useAuth() {
   // app_metadata porque, igual que `activo`, son datos que el dueño puede cambiar en
   // cualquier momento sin que eso reescriba el JWT ya emitido del empleado.
   const [perfil, setPerfil] = useState(null)
+  // Mientras el perfil todavía no llegó, RutaProtegida no debe decidir con `permiso` en
+  // false por defecto — eso redirigiría a un empleado con permiso real, solo porque la
+  // consulta a usuarios_admin (asíncrona) no había terminado en el primer render tras
+  // iniciar sesión.
+  const [cargandoPerfil, setCargandoPerfil] = useState(true)
 
   useEffect(() => {
     let activo = true
@@ -59,9 +64,11 @@ export function useAuth() {
 
     if (!estado.usuario?.email) {
       setPerfil(null)
+      setCargandoPerfil(false)
       return undefined
     }
 
+    setCargandoPerfil(true)
     const numero = correoInternoANumero(estado.usuario.email)
     supabase
       .from('usuarios_admin')
@@ -70,7 +77,9 @@ export function useAuth() {
       .eq('numero', numero)
       .maybeSingle()
       .then(({ data }) => {
-        if (activo) setPerfil(data ?? null)
+        if (!activo) return
+        setPerfil(data ?? null)
+        setCargandoPerfil(false)
       })
 
     return () => {
@@ -134,6 +143,7 @@ export function useAuth() {
     rol: estado.rol,
     negocioId: estado.negocioId,
     cargando: estado.cargando,
+    cargandoPerfil,
     autenticado: Boolean(estado.usuario),
     esDueno,
     esEmpleado: estado.rol === 'empleado',

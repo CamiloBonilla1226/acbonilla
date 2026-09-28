@@ -8,12 +8,18 @@ import { useAuth } from '../../hooks/useAuth'
 // restricción real de datos vive en RLS, no aquí).
 export function RutaProtegida({ children, soloDueno = false, permiso }) {
   const auth = useAuth()
-  const { autenticado, cargando, esDueno } = auth
+  const { autenticado, cargando, cargandoPerfil, esDueno } = auth
 
   if (cargando) return <p className="texto-suave admin-cargando">Cargando…</p>
   if (!autenticado) return <Navigate to="/admin/login" replace />
   if (soloDueno && !esDueno) return <Navigate to="/admin/pedidos" replace />
-  if (permiso && !auth[permiso]) return <Navigate to="/admin/pedidos" replace />
+  // El permiso de un empleado se consulta aparte (usuarios_admin, no viene en el JWT) — hay
+  // que esperar a que esa consulta termine antes de decidir, o un empleado con permiso real
+  // sería redirigido igual, solo por llegar aquí antes de que el dato cargara.
+  if (permiso) {
+    if (cargandoPerfil) return <p className="texto-suave admin-cargando">Cargando…</p>
+    if (!auth[permiso]) return <Navigate to="/admin/pedidos" replace />
+  }
 
   return children
 }
