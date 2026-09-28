@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { numeroACorreoInterno } from '../lib/phoneAuth'
+import { correoInternoANumero, numeroACorreoInterno } from '../lib/phoneAuth'
 import { negocioConfig } from '../config/negocio.config'
 
 function extraerSesion(session) {
@@ -30,6 +30,10 @@ export function useAuth() {
     cargando: true,
   })
   const [error, setError] = useState(null)
+  // Perfil propio en usuarios_admin (nombre + permisos por módulo): vive aparte de
+  // app_metadata porque, igual que `activo`, son datos que el dueño puede cambiar en
+  // cualquier momento sin que eso reescriba el JWT ya emitido del empleado.
+  const [perfil, setPerfil] = useState(null)
 
   useEffect(() => {
     let activo = true
@@ -49,6 +53,30 @@ export function useAuth() {
       suscripcion.subscription.unsubscribe()
     }
   }, [])
+
+  useEffect(() => {
+    let activo = true
+
+    if (!estado.usuario?.email) {
+      setPerfil(null)
+      return undefined
+    }
+
+    const numero = correoInternoANumero(estado.usuario.email)
+    supabase
+      .from('usuarios_admin')
+      .select('nombre, puede_productos, puede_categorias, puede_adiciones')
+      .eq('negocio_id', negocioConfig.negocioId)
+      .eq('numero', numero)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (activo) setPerfil(data ?? null)
+      })
+
+    return () => {
+      activo = false
+    }
+  }, [estado.usuario])
 
   const iniciarSesion = useCallback(async (numero, contrasena) => {
     setError(null)
@@ -99,14 +127,22 @@ export function useAuth() {
     await supabase.auth.signOut()
   }, [])
 
+  const esDueno = estado.rol === 'dueño'
+
   return {
     usuario: estado.usuario,
     rol: estado.rol,
     negocioId: estado.negocioId,
     cargando: estado.cargando,
     autenticado: Boolean(estado.usuario),
-    esDueno: estado.rol === 'dueño',
+    esDueno,
     esEmpleado: estado.rol === 'empleado',
+    nombre: perfil?.nombre ?? null,
+    // El dueño siempre tiene acceso completo, sin depender de estas columnas (que solo
+    // aplican a empleados).
+    puedeProductos: esDueno || perfil?.puede_productos === true,
+    puedeCategorias: esDueno || perfil?.puede_categorias === true,
+    puedeAdiciones: esDueno || perfil?.puede_adiciones === true,
     error,
     iniciarSesion,
     cerrarSesion,

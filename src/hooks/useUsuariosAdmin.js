@@ -16,7 +16,7 @@ export function useUsuariosAdmin() {
 
     const { data, error: errorConsulta } = await supabase
       .from('usuarios_admin')
-      .select('id, numero, nombre, rol, activo, creado_en')
+      .select('id, numero, nombre, rol, activo, puede_productos, puede_categorias, puede_adiciones, creado_en')
       .eq('negocio_id', negocioConfig.negocioId)
       .order('creado_en', { ascending: true })
 
@@ -73,5 +73,20 @@ export function useUsuariosAdmin() {
     [recargar]
   )
 
-  return { usuarios, cargando, error, recargar, crearEmpleado, eliminarUsuario, toggleActivo }
+  // `permiso` es 'puede_productos' | 'puede_categorias' | 'puede_adiciones'. Solo tiene
+  // efecto real sobre un empleado — el dueño siempre tiene acceso completo sin depender de
+  // estas columnas (ver useAuth.js).
+  const togglePermiso = useCallback(
+    async (id, permiso, valor) => {
+      const { error: errorActualizar } = await supabase
+        .from('usuarios_admin')
+        .update({ [permiso]: valor })
+        .eq('id', id)
+      if (!errorActualizar) await recargar()
+      return { exito: !errorActualizar, error: errorActualizar }
+    },
+    [recargar]
+  )
+
+  return { usuarios, cargando, error, recargar, crearEmpleado, eliminarUsuario, toggleActivo, togglePermiso }
 }

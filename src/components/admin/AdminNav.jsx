@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { negocioConfig } from '../../config/negocio.config'
 
 export function AdminNav() {
-  const { esDueno, cerrarSesion } = useAuth()
+  const { esDueno, puedeProductos, puedeCategorias, puedeAdiciones, cerrarSesion } = useAuth()
   const [abierto, setAbierto] = useState(false)
 
   // Cierra el panel con Escape, y evita el scroll del fondo mientras está abierto: son
@@ -63,21 +63,25 @@ export function AdminNav() {
           <NavLink to="/admin/pedidos" className={claseEnlace} onClick={cerrar}>
             Pedidos
           </NavLink>
+          {puedeProductos && (
+            <NavLink to="/admin/productos" className={claseEnlace} onClick={cerrar}>
+              Productos
+            </NavLink>
+          )}
+          {puedeCategorias && (
+            <NavLink to="/admin/categorias" className={claseEnlace} onClick={cerrar}>
+              Categorías
+            </NavLink>
+          )}
+          {puedeAdiciones && (
+            <NavLink to="/admin/adiciones" className={claseEnlace} onClick={cerrar}>
+              Adiciones
+            </NavLink>
+          )}
           {esDueno && (
-            <>
-              <NavLink to="/admin/productos" className={claseEnlace} onClick={cerrar}>
-                Productos
-              </NavLink>
-              <NavLink to="/admin/categorias" className={claseEnlace} onClick={cerrar}>
-                Categorías
-              </NavLink>
-              <NavLink to="/admin/adiciones" className={claseEnlace} onClick={cerrar}>
-                Adiciones
-              </NavLink>
-              <NavLink to="/admin/usuarios" className={claseEnlace} onClick={cerrar}>
-                Usuarios
-              </NavLink>
-            </>
+            <NavLink to="/admin/usuarios" className={claseEnlace} onClick={cerrar}>
+              Usuarios
+            </NavLink>
           )}
         </div>
 

@@ -9,7 +9,7 @@ import { useToast } from '../../hooks/useToast'
 import { useConfirmacion } from '../../hooks/useConfirmacion'
 
 export function Usuarios() {
-  const { usuarios, cargando, error, crearEmpleado, eliminarUsuario, toggleActivo } = useUsuariosAdmin()
+  const { usuarios, cargando, error, crearEmpleado, eliminarUsuario, toggleActivo, togglePermiso } = useUsuariosAdmin()
 
   const [creando, setCreando] = useState(false)
   const cerrarModal = () => setCreando(false)
@@ -49,6 +49,11 @@ export function Usuarios() {
     )
   }
 
+  const cambiarPermiso = async (id, permiso, valor) => {
+    const { exito } = await togglePermiso(id, permiso, valor)
+    mostrarToast(exito ? 'Permiso actualizado' : 'No se pudo actualizar el permiso', exito ? 'exito' : 'error')
+  }
+
   return (
     <>
       <AdminNav />
@@ -65,7 +70,12 @@ export function Usuarios() {
         {cargando && <p className="texto-suave">Cargando usuarios…</p>}
         {error && <p className="campo__error">No se pudieron cargar los usuarios.</p>}
         {!cargando && !error && (
-          <TablaUsuarios usuarios={empleados} onEliminar={confirmarEliminar} onToggleActivo={cambiarActivo} />
+          <TablaUsuarios
+            usuarios={empleados}
+            onEliminar={confirmarEliminar}
+            onToggleActivo={cambiarActivo}
+            onTogglePermiso={cambiarPermiso}
+          />
         )}
       </main>
 

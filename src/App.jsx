@@ -61,7 +61,7 @@ function App() {
             <Route
               path="/admin/productos"
               element={
-                <RutaProtegida soloDueno>
+                <RutaProtegida permiso="puedeProductos">
                   <Productos />
                 </RutaProtegida>
               }
@@ -69,7 +69,7 @@ function App() {
             <Route
               path="/admin/categorias"
               element={
-                <RutaProtegida soloDueno>
+                <RutaProtegida permiso="puedeCategorias">
                   <Categorias />
                 </RutaProtegida>
               }
@@ -77,7 +77,7 @@ function App() {
             <Route
               path="/admin/adiciones"
               element={
-                <RutaProtegida soloDueno>
+                <RutaProtegida permiso="puedeAdiciones">
                   <Adiciones />
                 </RutaProtegida>
               }

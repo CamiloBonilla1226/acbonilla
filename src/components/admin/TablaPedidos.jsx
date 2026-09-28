@@ -40,6 +40,7 @@ export function TablaPedidos({ pedidos, onActualizarEstado }) {
           <span className="texto-suave">{formatoFecha.format(new Date(pedido.creado_en))}</span>
           <span className="texto-suave">{pedido.cliente_telefono}</span>
           {pedido.direccion && <span className="texto-suave">{pedido.direccion}</span>}
+          {pedido.atendido_por && <span className="texto-suave">Atendido por {pedido.atendido_por}</span>}
 
           <ul className="pedido-item__detalle">
             {pedido.productos_detalle.map((item, indice) => {

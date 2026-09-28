@@ -19,3 +19,12 @@ export function numeroACorreoInterno(numero, negocioId) {
   const numeroLimpio = normalizarNumero(numero)
   return `${numeroLimpio}.${negocioId}@${DOMINIO_INTERNO}`
 }
+
+// Inverso de numeroACorreoInterno: recupera el número desde el correo interno de la sesión
+// (todo lo que hay antes del primer punto — negocioId es un UUID, que solo usa guiones, así
+// que no hay ambigüedad). Se usa para que el panel pueda consultar la propia fila de
+// usuarios_admin del usuario autenticado (nombre, permisos), ya que esa tabla no guarda un
+// id de auth.users, solo `numero` + `negocio_id`.
+export function correoInternoANumero(correo) {
+  return correo.split('.')[0]
+}

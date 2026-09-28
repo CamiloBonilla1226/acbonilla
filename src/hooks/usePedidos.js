@@ -66,9 +66,18 @@ export function usePedidos({ tiempoReal = false } = {}) {
     return { exito: !errorCrear, error: errorCrear, pedido: data }
   }, [])
 
+  // `atendidoPor`: nombre del admin/empleado que hizo el cambio (ver useAuth.js), para dejar
+  // registro de quién atendió el pedido. Si la columna `atendido_por` todavía no existe en
+  // la base de datos (código 42703), se reintenta solo con `estado` — así el cambio de
+  // estado no queda roto mientras el dueño corre el script de la columna nueva.
   const actualizarEstadoPedido = useCallback(
-    async (id, estado) => {
-      const { error: errorActualizar } = await supabase.from('pedidos').update({ estado }).eq('id', id)
+    async (id, estado, atendidoPor) => {
+      const cambios = atendidoPor ? { estado, atendido_por: atendidoPor } : { estado }
+      let { error: errorActualizar } = await supabase.from('pedidos').update(cambios).eq('id', id)
+
+      if (errorActualizar?.code === '42703' && atendidoPor) {
+        ;({ error: errorActualizar } = await supabase.from('pedidos').update({ estado }).eq('id', id))
+      }
 
       if (!errorActualizar) await recargar()
       return { exito: !errorActualizar, error: errorActualizar }

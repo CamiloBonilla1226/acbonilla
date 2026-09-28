@@ -1,6 +1,6 @@
 import { Interruptor } from './Interruptor'
 
-export function TablaUsuarios({ usuarios, onEliminar, onToggleActivo }) {
+export function TablaUsuarios({ usuarios, onEliminar, onToggleActivo, onTogglePermiso }) {
   if (usuarios.length === 0) {
     return <p className="texto-suave">Todavía no hay usuarios. Crea el primero.</p>
   }
@@ -13,6 +13,9 @@ export function TablaUsuarios({ usuarios, onEliminar, onToggleActivo }) {
             <th>Nombre</th>
             <th>Celular</th>
             <th>Activo</th>
+            <th>Productos</th>
+            <th>Categorías</th>
+            <th>Adiciones</th>
             <th aria-label="Acciones"></th>
           </tr>
         </thead>
@@ -26,6 +29,27 @@ export function TablaUsuarios({ usuarios, onEliminar, onToggleActivo }) {
                   activo={usuario.activo}
                   etiqueta=""
                   onCambiar={(valor) => onToggleActivo(usuario.id, valor)}
+                />
+              </td>
+              <td data-etiqueta="Productos">
+                <Interruptor
+                  activo={usuario.puede_productos}
+                  etiqueta=""
+                  onCambiar={(valor) => onTogglePermiso(usuario.id, 'puede_productos', valor)}
+                />
+              </td>
+              <td data-etiqueta="Categorías">
+                <Interruptor
+                  activo={usuario.puede_categorias}
+                  etiqueta=""
+                  onCambiar={(valor) => onTogglePermiso(usuario.id, 'puede_categorias', valor)}
+                />
+              </td>
+              <td data-etiqueta="Adiciones">
+                <Interruptor
+                  activo={usuario.puede_adiciones}
+                  etiqueta=""
+                  onCambiar={(valor) => onTogglePermiso(usuario.id, 'puede_adiciones', valor)}
                 />
               </td>
               <td data-etiqueta="Acciones" className="tabla-usuarios-admin__acciones">
