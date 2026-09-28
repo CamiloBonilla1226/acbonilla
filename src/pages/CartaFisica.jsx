@@ -9,14 +9,16 @@ import { useProductos } from '../hooks/useProductos'
 import { useAdiciones } from '../hooks/useAdiciones'
 import { alSoltarFondo } from '../lib/superposicion'
 import { filtrarProductosVisibles } from '../lib/productosVisibles'
+import { Creditos } from '../components/layout/Creditos'
 
 // Pestaña fija que se agrega al final del filtro de categorías (no es una categoría real
 // en la base de datos): permite hojear el catálogo de adiciones sin abrir cada producto.
 const TAB_ADICIONES = '__adiciones__'
 
 // Carta de solo lectura para el punto físico (QR en mesa): mismo catálogo, sin carrito
-// ni checkout. Sin Nav/Footer de navegación hacia domicilios, porque en este modo el
-// cliente ya está en el local y no debe verse invitado a "pedir a domicilio".
+// ni checkout. Sin Nav/Footer de navegación hacia domicilios (ni el link de WhatsApp del
+// negocio), porque en este modo el cliente ya está en el local y no debe verse invitado a
+// "pedir a domicilio" — sí lleva los créditos de autoría, igual que el resto de las vistas.
 export function CartaFisica() {
   const [categoriaActivaId, setCategoriaActivaId] = useState(null)
   const mostrandoAdiciones = categoriaActivaId === TAB_ADICIONES
@@ -79,6 +81,8 @@ export function CartaFisica() {
           <DetalleProductoFisico producto={productoSeleccionado} adiciones={adiciones} onCerrar={cerrarDetalle} />
         </div>
       )}
+
+      <Creditos />
     </main>
   )
 }

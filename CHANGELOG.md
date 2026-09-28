@@ -282,3 +282,11 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 - Se agregó un log de diagnóstico temporal (`console.error`/`console.warn`) dentro del efecto de `useAuth.js` que carga el perfil de `usuarios_admin`, para distinguir en la consola del navegador si el permiso de un empleado no aparece porque la consulta falla (RLS, columna inexistente) o porque no encuentra ninguna fila (posible desajuste de `numero`), en vez de fallar en silencio mostrando solo "sin permisos" al usuario.
 - **Créditos de autoría en el pie de página público**: `Footer.jsx` (usado en `Inicio.jsx` y `Carta.jsx`) ahora muestra, debajo del copyright del negocio, una línea "Desarrollado por acbonilla1226" con un enlace `mailto:acbonilla1226@gmail.com` para contacto. Es una línea discreta (`.footer__creditos`, tamaño reducido y opacidad baja) para no competir visualmente con la marca del negocio.
 - Verificación: `npm run build` (124 módulos, sin errores) y `npm run lint` (mismas advertencias preexistentes, sin advertencias nuevas).
+
+## 2026-09-28 (4)
+- **Créditos de autoría en todas las vistas, no solo el Footer público**: se reemplazó el contacto por correo por el número de contacto real (WhatsApp `3146032055`), y se extrajo la línea a un componente nuevo y reutilizable, `Creditos.jsx` (`src/components/layout/`), porque `carta-fisica` y todo el panel admin no usan `Footer.jsx` (no tienen el link de WhatsApp del negocio ni el copyright, que no aplican ahí).
+  - `Footer.jsx` ahora renderiza `<Creditos />` en vez de tener el párrafo duplicado.
+  - `CartaFisica.jsx` agrega `<Creditos />` al final de la carta — sigue sin el Nav/Footer de navegación a domicilios ni el link de WhatsApp del negocio (eso seguía siendo intencional, ver comentario existente), pero sí lleva los créditos.
+  - Las 6 páginas del panel admin que usan `AdminNav` (`Dashboard`, `Pedidos`, `Productos`, `Categorias`, `Adiciones`, `Usuarios`) y `Login.jsx` (que no usa `AdminNav`) agregan `<Creditos />` al final de su `<main>`.
+  - CSS: `.footer__creditos`/`.footer__creditos-enlace` se renombraron a `.creditos`/`.creditos__enlace` (ya no dependen de estar dentro de `.footer`).
+- Verificación: `npm run build` (125 módulos, sin errores) y `npm run lint` (mismas advertencias preexistentes, sin advertencias nuevas).

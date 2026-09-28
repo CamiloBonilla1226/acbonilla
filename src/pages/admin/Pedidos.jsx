@@ -1,4 +1,5 @@
 import { AdminNav } from '../../components/admin/AdminNav'
+import { Creditos } from '../../components/layout/Creditos'
 import { TablaPedidos } from '../../components/admin/TablaPedidos'
 import { usePedidos } from '../../hooks/usePedidos'
 import { useAuth } from '../../hooks/useAuth'
@@ -22,6 +23,7 @@ export function Pedidos() {
         {cargando && <p className="texto-suave">Cargando pedidos…</p>}
         {error && <p className="campo__error">No se pudieron cargar los pedidos.</p>}
         {!cargando && !error && <TablaPedidos pedidos={pedidos} onActualizarEstado={cambiarEstado} />}
+        <Creditos />
       </main>
     </>
   )

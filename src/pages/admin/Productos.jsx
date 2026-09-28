@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AdminNav } from '../../components/admin/AdminNav'
+import { Creditos } from '../../components/layout/Creditos'
 import { TablaProductos } from '../../components/admin/TablaProductos'
 import { FormularioProducto } from '../../components/admin/FormularioProducto'
 import { useCategorias } from '../../hooks/useCategorias'
@@ -64,6 +65,7 @@ export function Productos() {
             onToggleDisponible={toggleDisponible}
           />
         )}
+        <Creditos />
       </main>
 
       {productoEnEdicion && (

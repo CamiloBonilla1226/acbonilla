@@ -1,4 +1,5 @@
 import { AdminNav } from '../../components/admin/AdminNav'
+import { Creditos } from '../../components/layout/Creditos'
 import { useAuth } from '../../hooks/useAuth'
 import { usePedidos } from '../../hooks/usePedidos'
 
@@ -18,6 +19,7 @@ export function Dashboard() {
           <span className="texto-suave">Pedidos nuevos</span>
           <strong>{cargando ? '—' : pedidosNuevos}</strong>
         </div>
+        <Creditos />
       </main>
     </>
   )

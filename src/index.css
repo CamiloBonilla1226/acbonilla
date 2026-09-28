@@ -232,12 +232,12 @@ p {
   text-decoration: none;
 }
 
-.footer__creditos {
+.creditos {
   font-size: 0.8rem;
   opacity: 0.75;
 }
 
-.footer__creditos-enlace {
+.creditos__enlace {
   color: inherit;
 }
 
