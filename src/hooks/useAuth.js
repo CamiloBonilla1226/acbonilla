@@ -76,8 +76,16 @@ export function useAuth() {
       .eq('negocio_id', negocioConfig.negocioId)
       .eq('numero', numero)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error: errorPerfil }) => {
         if (!activo) return
+        // Log temporal de diagnóstico: si la consulta falla (RLS, columna inexistente,
+        // numero que no matchea) o no encuentra fila, se ve en la consola en vez de fallar
+        // en silencio con "sin permisos" como único síntoma visible.
+        if (errorPerfil) {
+          console.error('[useAuth] No se pudo cargar el perfil de usuarios_admin:', errorPerfil, { numero })
+        } else if (!data) {
+          console.warn('[useAuth] usuarios_admin no tiene ninguna fila para este usuario:', { numero })
+        }
         setPerfil(data ?? null)
         setCargandoPerfil(false)
       })
