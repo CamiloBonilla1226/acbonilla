@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
-import { Creditos } from '../../components/layout/Creditos'
 
 export function Login() {
   const { autenticado, cargando, iniciarSesion, error } = useAuth()
@@ -50,7 +49,6 @@ export function Login() {
           {enviando ? 'Ingresando…' : 'Ingresar'}
         </button>
       </form>
-      <Creditos />
     </main>
   )
 }

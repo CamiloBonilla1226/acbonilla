@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { AdminNav } from '../../components/admin/AdminNav'
-import { Creditos } from '../../components/layout/Creditos'
 import { TablaCategorias } from '../../components/admin/TablaCategorias'
 import { FormularioCategoria } from '../../components/admin/FormularioCategoria'
 import { useCategorias } from '../../hooks/useCategorias'
@@ -74,7 +73,6 @@ export function Categorias() {
             onToggleActivo={cambiarActivo}
           />
         )}
-        <Creditos />
       </main>
 
       {categoriaEnEdicion && (

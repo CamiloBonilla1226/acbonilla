@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { AdminNav } from '../../components/admin/AdminNav'
-import { Creditos } from '../../components/layout/Creditos'
 import { TablaUsuarios } from '../../components/admin/TablaUsuarios'
 import { FormularioEmpleado } from '../../components/admin/FormularioEmpleado'
 import { useUsuariosAdmin } from '../../hooks/useUsuariosAdmin'
@@ -78,7 +77,6 @@ export function Usuarios() {
             onTogglePermiso={cambiarPermiso}
           />
         )}
-        <Creditos />
       </main>
 
       {creando && (

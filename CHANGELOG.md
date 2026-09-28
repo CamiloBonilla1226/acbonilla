@@ -290,3 +290,7 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - Las 6 páginas del panel admin que usan `AdminNav` (`Dashboard`, `Pedidos`, `Productos`, `Categorias`, `Adiciones`, `Usuarios`) y `Login.jsx` (que no usa `AdminNav`) agregan `<Creditos />` al final de su `<main>`.
   - CSS: `.footer__creditos`/`.footer__creditos-enlace` se renombraron a `.creditos`/`.creditos__enlace` (ya no dependen de estar dentro de `.footer`).
 - Verificación: `npm run build` (125 módulos, sin errores) y `npm run lint` (mismas advertencias preexistentes, sin advertencias nuevas).
+
+## 2026-09-28 (5)
+- **Se limitaron los créditos solo a la carta física**, a pedido explícito del dueño: se quitó `<Creditos />` de `Footer.jsx` (Inicio/Carta) y de las 7 vistas del panel admin (6 páginas con `AdminNav` + `Login.jsx`). El componente `Creditos.jsx` se conserva (sigue usándose únicamente en `CartaFisica.jsx`) por si más adelante se pide agregarlo de nuevo en algún otro lugar.
+- Verificación: `npm run build` (125 módulos, sin errores) y `npm run lint` (mismas advertencias preexistentes, sin advertencias nuevas).

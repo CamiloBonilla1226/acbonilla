@@ -1,5 +1,4 @@
 import { negocioConfig } from '../../config/negocio.config'
-import { Creditos } from './Creditos'
 
 export function Footer() {
   const anio = new Date().getFullYear()
@@ -14,7 +13,6 @@ export function Footer() {
         <p className="texto-suave footer__copy">
           © {anio} {negocioConfig.nombre}
         </p>
-        <Creditos />
       </div>
     </footer>
   )

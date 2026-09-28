@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { AdminNav } from '../../components/admin/AdminNav'
-import { Creditos } from '../../components/layout/Creditos'
 import { TablaAdiciones } from '../../components/admin/TablaAdiciones'
 import { FormularioAdicion } from '../../components/admin/FormularioAdicion'
 import { useAdiciones } from '../../hooks/useAdiciones'
@@ -61,7 +60,6 @@ export function Adiciones() {
             onToggleDisponible={toggleDisponible}
           />
         )}
-        <Creditos />
       </main>
 
       {adicionEnEdicion && (
