@@ -232,6 +232,15 @@ p {
   text-decoration: none;
 }
 
+.footer__creditos {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.footer__creditos-enlace {
+  color: inherit;
+}
+
 /* --- Inicio --- */
 .pagina-inicio {
   flex: 1;

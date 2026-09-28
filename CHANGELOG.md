@@ -277,3 +277,8 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - **`useAuth.js`**: nuevo `cargandoPerfil` (true mientras la consulta del perfil propio a `usuarios_admin` está en curso).
   - **`RutaProtegida.jsx`**: cuando la ruta pide un `permiso`, espera a que `cargandoPerfil` sea `false` antes de decidir si redirige — igual que ya se hacía con `cargando` (la sesión) desde el principio.
 - Verificación: `npm run build` (124 módulos, sin errores) y `npm run lint` (mismas advertencias preexistentes, sin advertencias nuevas).
+
+## 2026-09-28 (3)
+- Se agregó un log de diagnóstico temporal (`console.error`/`console.warn`) dentro del efecto de `useAuth.js` que carga el perfil de `usuarios_admin`, para distinguir en la consola del navegador si el permiso de un empleado no aparece porque la consulta falla (RLS, columna inexistente) o porque no encuentra ninguna fila (posible desajuste de `numero`), en vez de fallar en silencio mostrando solo "sin permisos" al usuario.
+- **Créditos de autoría en el pie de página público**: `Footer.jsx` (usado en `Inicio.jsx` y `Carta.jsx`) ahora muestra, debajo del copyright del negocio, una línea "Desarrollado por acbonilla1226" con un enlace `mailto:acbonilla1226@gmail.com` para contacto. Es una línea discreta (`.footer__creditos`, tamaño reducido y opacidad baja) para no competir visualmente con la marca del negocio.
+- Verificación: `npm run build` (124 módulos, sin errores) y `npm run lint` (mismas advertencias preexistentes, sin advertencias nuevas).
