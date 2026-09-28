@@ -990,13 +990,36 @@ p {
 }
 
 .pedido-item__estado--nuevo {
-  border-color: var(--color-error);
-  color: var(--color-error);
+  border-color: var(--color-acento);
+  color: var(--color-acento);
+}
+
+.pedido-item__estado--aprobado {
+  border-color: var(--color-exito);
+  color: var(--color-exito);
+}
+
+.pedido-item__estado--en_preparacion {
+  border-color: var(--color-texto-suave);
+  color: var(--color-texto-suave);
 }
 
 .pedido-item__estado--entregado {
   border-color: var(--color-exito);
-  color: var(--color-exito);
+  background: var(--color-exito);
+  color: var(--color-fondo);
+}
+
+.pedido-item__estado--rechazado {
+  border-color: var(--color-error);
+  background: var(--color-error);
+  color: var(--color-fondo);
+}
+
+.pedido-item__selector-estado select {
+  border: 1px solid var(--color-borde);
+  padding: var(--espacio-1) var(--espacio-2);
+  font-weight: 600;
 }
 
 .pedido-item__detalle {
@@ -1216,6 +1239,55 @@ p {
 
 .tabla-usuarios-admin td:first-child {
   font-weight: 600;
+}
+
+/* Por debajo de 480px, la tabla (4 columnas con padding generoso) no cabe sin scroll
+   horizontal — y ahí quedaba "Eliminar" fuera de vista. Se convierte en una lista de
+   tarjetas apiladas (usa el `data-etiqueta` que ya traía cada <td>), sin perder la
+   semántica de tabla en pantallas más anchas. */
+@media (max-width: 480px) {
+  .tabla-usuarios-admin__contenedor {
+    overflow-x: visible;
+    border: none;
+  }
+
+  .tabla-usuarios-admin thead {
+    display: none;
+  }
+
+  .tabla-usuarios-admin,
+  .tabla-usuarios-admin tbody,
+  .tabla-usuarios-admin tr,
+  .tabla-usuarios-admin td {
+    display: block;
+    width: 100%;
+  }
+
+  .tabla-usuarios-admin tr {
+    border: 1px solid var(--color-borde);
+    margin-bottom: var(--espacio-2);
+  }
+
+  .tabla-usuarios-admin td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espacio-2);
+    border-bottom: 1px solid var(--color-borde);
+  }
+
+  .tabla-usuarios-admin tr td:last-child {
+    border-bottom: none;
+  }
+
+  .tabla-usuarios-admin td::before {
+    content: attr(data-etiqueta);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-texto-suave);
+  }
 }
 
 .tabla-usuarios-admin__acciones {

@@ -9,15 +9,17 @@ const formatoFecha = new Intl.DateTimeFormat('es-CO', {
   timeStyle: 'short',
 })
 
-const SIGUIENTE_ESTADO = {
-  nuevo: 'en_preparacion',
-  en_preparacion: 'entregado',
-}
+// Estados libres: cualquier pedido puede pasar a cualquier otro estado (el selector
+// permite "devolver" un pedido, ej. de "entregado" de vuelta a "en preparación" si se marcó
+// por error) — ya no es una cadena fija de un solo sentido nuevo → en_preparacion → entregado.
+const ESTADOS_PEDIDO = ['nuevo', 'aprobado', 'en_preparacion', 'entregado', 'rechazado']
 
 const ETIQUETA_ESTADO = {
   nuevo: 'Nuevo',
+  aprobado: 'Aprobado',
   en_preparacion: 'En preparación',
   entregado: 'Entregado',
+  rechazado: 'Rechazado',
 }
 
 export function TablaPedidos({ pedidos, onActualizarEstado }) {
@@ -27,45 +29,47 @@ export function TablaPedidos({ pedidos, onActualizarEstado }) {
 
   return (
     <ul className="lista-pedidos">
-      {pedidos.map((pedido) => {
-        const siguienteEstado = SIGUIENTE_ESTADO[pedido.estado]
-        return (
-          <li key={pedido.id} className="tarjeta pedido-item">
-            <div className="pedido-item__encabezado">
-              <strong>{pedido.cliente_nombre}</strong>
-              <span className={`pedido-item__estado pedido-item__estado--${pedido.estado}`}>
-                {ETIQUETA_ESTADO[pedido.estado]}
-              </span>
-            </div>
-            <span className="texto-suave">{formatoFecha.format(new Date(pedido.creado_en))}</span>
-            <span className="texto-suave">{pedido.cliente_telefono}</span>
-            {pedido.direccion && <span className="texto-suave">{pedido.direccion}</span>}
+      {pedidos.map((pedido) => (
+        <li key={pedido.id} className="tarjeta pedido-item">
+          <div className="pedido-item__encabezado">
+            <strong>{pedido.cliente_nombre}</strong>
+            <span className={`pedido-item__estado pedido-item__estado--${pedido.estado}`}>
+              {ETIQUETA_ESTADO[pedido.estado] ?? pedido.estado}
+            </span>
+          </div>
+          <span className="texto-suave">{formatoFecha.format(new Date(pedido.creado_en))}</span>
+          <span className="texto-suave">{pedido.cliente_telefono}</span>
+          {pedido.direccion && <span className="texto-suave">{pedido.direccion}</span>}
 
-            <ul className="pedido-item__detalle">
-              {pedido.productos_detalle.map((item, indice) => {
-                const detalles = [item.variante_elegida, ...(item.opciones_elegidas?.map((o) => o.nombre) ?? [])].filter(
-                  Boolean
-                )
-                return (
-                  <li key={indice}>
-                    {item.cantidad}x {item.nombre}
-                    {detalles.length > 0 && ` (${detalles.join(', ')})`}
-                  </li>
-                )
-              })}
-            </ul>
+          <ul className="pedido-item__detalle">
+            {pedido.productos_detalle.map((item, indice) => {
+              const detalles = [item.variante_elegida, ...(item.opciones_elegidas?.map((o) => o.nombre) ?? [])].filter(
+                Boolean
+              )
+              return (
+                <li key={indice}>
+                  {item.cantidad}x {item.nombre}
+                  {detalles.length > 0 && ` (${detalles.join(', ')})`}
+                </li>
+              )
+            })}
+          </ul>
 
-            <div className="pedido-item__pie">
-              <strong>{formatoPrecio.format(pedido.total)}</strong>
-              {siguienteEstado && (
-                <button type="button" className="boton boton--pequeno" onClick={() => onActualizarEstado(pedido.id, siguienteEstado)}>
-                  Marcar como {ETIQUETA_ESTADO[siguienteEstado].toLowerCase()}
-                </button>
-              )}
-            </div>
-          </li>
-        )
-      })}
+          <div className="pedido-item__pie">
+            <strong>{formatoPrecio.format(pedido.total)}</strong>
+            <label className="pedido-item__selector-estado">
+              <span className="visualmente-oculto">Cambiar estado del pedido</span>
+              <select value={pedido.estado} onChange={(evento) => onActualizarEstado(pedido.id, evento.target.value)}>
+                {ESTADOS_PEDIDO.map((estado) => (
+                  <option key={estado} value={estado}>
+                    {ETIQUETA_ESTADO[estado]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </li>
+      ))}
     </ul>
   )
 }
