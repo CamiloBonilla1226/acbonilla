@@ -11,6 +11,7 @@ import { Adiciones } from './pages/admin/Adiciones'
 import { Pedidos } from './pages/admin/Pedidos'
 import { Usuarios } from './pages/admin/Usuarios'
 import { Negocio } from './pages/admin/Negocio'
+import { AdminLayout } from './components/admin/AdminLayout'
 import { RutaProtegida } from './components/admin/RutaProtegida'
 import { AuthProvider } from './hooks/useAuth'
 import { ToastProvider } from './components/ui/ToastProvider'
@@ -44,63 +45,65 @@ function App() {
               <Route path="/carta" element={<Carta />} />
               <Route path="/carta-fisica" element={<CartaFisica />} />
 
-              <Route path="/admin/login" element={<Login />} />
-              <Route
-                path="/admin"
-                element={
-                  <RutaProtegida>
-                    <Dashboard />
-                  </RutaProtegida>
-                }
-              />
-              <Route
-                path="/admin/pedidos"
-                element={
-                  <RutaProtegida>
-                    <Pedidos />
-                  </RutaProtegida>
-                }
-              />
-              <Route
-                path="/admin/productos"
-                element={
-                  <RutaProtegida permiso="puedeProductos">
-                    <Productos />
-                  </RutaProtegida>
-                }
-              />
-              <Route
-                path="/admin/categorias"
-                element={
-                  <RutaProtegida permiso="puedeCategorias">
-                    <Categorias />
-                  </RutaProtegida>
-                }
-              />
-              <Route
-                path="/admin/adiciones"
-                element={
-                  <RutaProtegida permiso="puedeAdiciones">
-                    <Adiciones />
-                  </RutaProtegida>
-                }
-              />
-              <Route
-                path="/admin/usuarios"
-                element={
-                  <RutaProtegida soloDueno>
-                    <Usuarios />
-                  </RutaProtegida>
-                }
-              />
-              <Route
-                path="/admin/negocio"
-                element={
-                  <RutaProtegida soloDueno>
-                    <Negocio />
-                  </RutaProtegida>
-                }
-              />
+              <Route element={<AdminLayout />}>
+                <Route path="/admin/login" element={<Login />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <RutaProtegida>
+                      <Dashboard />
+                    </RutaProtegida>
+                  }
+                />
+                <Route
+                  path="/admin/pedidos"
+                  element={
+                    <RutaProtegida>
+                      <Pedidos />
+                    </RutaProtegida>
+                  }
+                />
+                <Route
+                  path="/admin/productos"
+                  element={
+                    <RutaProtegida permiso="puedeProductos">
+                      <Productos />
+                    </RutaProtegida>
+                  }
+                />
+                <Route
+                  path="/admin/categorias"
+                  element={
+                    <RutaProtegida permiso="puedeCategorias">
+                      <Categorias />
+                    </RutaProtegida>
+                  }
+                />
+                <Route
+                  path="/admin/adiciones"
+                  element={
+                    <RutaProtegida permiso="puedeAdiciones">
+                      <Adiciones />
+                    </RutaProtegida>
+                  }
+                />
+                <Route
+                  path="/admin/usuarios"
+                  element={
+                    <RutaProtegida soloDueno>
+                      <Usuarios />
+                    </RutaProtegida>
+                  }
+                />
+                <Route
+                  path="/admin/negocio"
+                  element={
+                    <RutaProtegida soloDueno>
+                      <Negocio />
+                    </RutaProtegida>
+                  }
+                />
+              </Route>
             </Routes>
           </BrowserRouter>
         </AuthProvider>

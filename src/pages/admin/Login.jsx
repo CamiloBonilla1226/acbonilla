@@ -33,11 +33,11 @@ export function Login() {
   return (
     <main className="admin-login">
       <div className="admin-login__tarjeta">
-        <div className="admin-login__marca" aria-hidden="true">
-          {negocioConfig.nombre.trim().charAt(0).toUpperCase()}
-        </div>
-        <h1 className="admin-login__titulo">Panel administrativo</h1>
-        <p className="admin-login__subtitulo">{negocioConfig.nombre}</p>
+        <p className="admin-login__negocio">{negocioConfig.nombre}</p>
+        <h1 className="admin-login__titulo">Iniciar sesión</h1>
+        <p className="admin-login__subtitulo">
+          Ingresa con tu número y contraseña para administrar el negocio.
+        </p>
         <form className="checkout" onSubmit={enviar} noValidate>
           <label className="campo">
             <span>Número de teléfono</span>

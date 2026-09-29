@@ -339,3 +339,12 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - "★ Destacado" y "Agotado" pasaron de texto pegado al nombre/precio a etiquetas en una fila propia de altura reservada, para que aparezcan o no sin mover nada.
   - Interruptor y "Eliminar" apilados en una columna alineada a la derecha.
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (6)
+- **Tema visual nuevo para todo el panel admin** (minimalista y moderno), pedido por el dueño tras ver el login anterior, que quedó recargado (fondo oscuro degradado, logotipo cuadrado).
+  - Nuevo `AdminLayout.jsx`: ruta padre de todas las rutas `/admin/*` (incluido el login) que agrega la clase `admin` al `<body>`. Todo el tema vive bajo `body.admin` en la sección final de `index.css`, así la carta pública no cambia en nada; se usa el body y no un div envolvente porque modales y confirmaciones también deben heredar el tema.
+  - Paleta neutra propia del admin (fondo gris claro `#f5f5f7`, superficies blancas, texto casi negro), independiente de la marca del negocio; se reasignan las variables `--color-*` dentro de `body.admin`.
+  - Esquinas redondeadas (10–16px, antes el proyecto usaba 0), tarjetas con borde fino y sombra suave, botones y campos con foco de anillo suave, interruptores tipo píldora en verde, estados de pedido como etiquetas de color, botón "crear" como píldora oscura.
+  - Barra superior clara y translúcida con blur en vez de barra negra; menú lateral con enlaces redondeados y el activo resaltado en oscuro; modales con fondo difuminado.
+  - **Login**: una tarjeta blanca centrada sobre fondo gris claro, con nombre del negocio en versalitas, título "Iniciar sesión", una línea de ayuda, campos y botón de ancho completo. Se quitaron el fondo oscuro y el logotipo.
+- Verificación: `npm run build` y `npm run lint`.
