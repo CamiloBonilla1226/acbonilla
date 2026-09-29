@@ -45,11 +45,20 @@ function useAuthInterno() {
   // app_metadata porque, igual que `activo`, son datos que el dueño puede cambiar en
   // cualquier momento sin que eso reescriba el JWT ya emitido del empleado.
   const [perfil, setPerfil] = useState(null)
-  // Mientras el perfil todavía no llegó, RutaProtegida no debe decidir con `permiso` en
-  // false por defecto — eso redirigiría a un empleado con permiso real, solo porque la
-  // consulta a usuarios_admin (asíncrona) no había terminado en el primer render tras
-  // iniciar sesión.
-  const [cargandoPerfil, setCargandoPerfil] = useState(true)
+  // Para qué usuario (por id) están al día `perfil`/`perfilError` — null mientras no hay
+  // ningún resultado calculado todavía. Que "cargando el perfil" sea un booleano de estado
+  // aparte (en vez de derivarse de esto) causaba un bug real y siempre reproducible: justo
+  // al iniciar sesión, `estado.usuario` cambiaba de null a el usuario real en un render,
+  // pero el booleano de "cargando" — que el chequeo inicial de "no hay usuario" ya había
+  // dejado en `false` — no se ponía en `true` hasta el siguiente efecto, un render después.
+  // En ese único render intermedio, cuentaValida veía cargandoPerfil=false y perfil=null (el
+  // resultado viejo, de cuando no había usuario) y concluía "cuenta inválida", rebotando al
+  // login antes de que la consulta nueva siquiera empezara — en todo navegador, siempre.
+  // Derivar "cargando" de si el id del usuario actual coincide con el id para el que ya hay
+  // resultado, en vez de guardarlo aparte, hace imposible ese desfase: no hay ningún render
+  // donde puedan quedar desincronizados.
+  const [perfilUsuarioId, setPerfilUsuarioId] = useState(null)
+  const cargandoPerfil = Boolean(estado.usuario) && estado.usuario.id !== perfilUsuarioId
   // Distingue "la consulta corrió bien y no encontró fila" (usuario realmente eliminado) de
   // "la consulta falló" (RLS, red, lo que sea — ver el log de abajo, este problema ya se
   // había visto antes). Solo el primer caso debe poder cerrar la sesión de alguien: si se
@@ -93,11 +102,11 @@ function useAuthInterno() {
     if (!estado.usuario?.email) {
       setPerfil(null)
       setPerfilError(false)
-      setCargandoPerfil(false)
+      setPerfilUsuarioId(null)
       return undefined
     }
 
-    setCargandoPerfil(true)
+    const usuarioId = estado.usuario.id
     const numero = correoInternoANumero(estado.usuario.email)
 
     const consultarPerfil = () =>
@@ -136,7 +145,7 @@ function useAuthInterno() {
         console.warn('[useAuth] La sesión guardada ya no existe en el servidor, se limpia:', errorPerfil)
         setPerfil(null)
         setPerfilError(false)
-        setCargandoPerfil(false)
+        setPerfilUsuarioId(usuarioId)
         setError('Tu sesión expiró. Inicia sesión de nuevo.')
         await supabase.auth.signOut({ scope: 'local' })
         return
@@ -152,7 +161,7 @@ function useAuthInterno() {
       }
       setPerfil(data ?? null)
       setPerfilError(Boolean(errorPerfil))
-      setCargandoPerfil(false)
+      setPerfilUsuarioId(usuarioId)
     }
 
     cargarPerfil()
