@@ -1576,7 +1576,7 @@ body.body--con-nav-inferior .toast-contenedor {
 /* --- Inicio de la carta: logo --- */
 .seccion-inicio__logo {
   display: block;
-  max-width: 140px;
+  max-width: 220px;
   margin: var(--espacio-3) auto;
 }
 

@@ -113,7 +113,7 @@ export function Carta() {
         onTouchEnd={swipe.onTouchEnd}
       >
         <section hidden={seccion !== 'inicio'} className="seccion-inicio">
-          <img src="/imagenprueba.jpeg" alt={negocioConfig.nombre} className="seccion-inicio__logo" />
+          <img src="/imagenprueba.png" alt={negocioConfig.nombre} className="seccion-inicio__logo" />
           <TarjetaOferta />
           <CarruselDestacados productos={destacados} onAbrirDetalle={setProductoSeleccionado} />
           <SobreNosotros />
