@@ -82,26 +82,45 @@ export function useAuth() {
 
     setCargandoPerfil(true)
     const numero = correoInternoANumero(estado.usuario.email)
-    supabase
-      .from('usuarios_admin')
-      .select('nombre, activo, puede_productos, puede_categorias, puede_adiciones')
-      .eq('negocio_id', negocioConfig.negocioId)
-      .eq('numero', numero)
-      .maybeSingle()
-      .then(({ data, error: errorPerfil }) => {
+
+    const consultarPerfil = () =>
+      supabase
+        .from('usuarios_admin')
+        .select('nombre, activo, puede_productos, puede_categorias, puede_adiciones')
+        .eq('negocio_id', negocioConfig.negocioId)
+        .eq('numero', numero)
+        .maybeSingle()
+
+    async function cargarPerfil() {
+      let { data, error: errorPerfil } = await consultarPerfil()
+
+      // Si no se encontró fila (sin error), se reintenta una vez tras una pausa corta antes
+      // de darlo por definitivo. Justo después de un login recién hecho, la sesión puede
+      // tardar un instante en propagarse del lado del cliente/RLS; sin este reintento, esa
+      // demora se confundía con "la cuenta fue eliminada" y cerraba la sesión de una cuenta
+      // recién autenticada y perfectamente válida (visto en producción: login correcto
+      // seguido de un logout inmediato).
+      if (!errorPerfil && !data) {
+        await new Promise((resolver) => setTimeout(resolver, 600))
         if (!activo) return
-        // Log temporal de diagnóstico: si la consulta falla (RLS, columna inexistente,
-        // numero que no matchea) o no encuentra fila, se ve en la consola en vez de fallar
-        // en silencio con "sin permisos" como único síntoma visible.
-        if (errorPerfil) {
-          console.error('[useAuth] No se pudo cargar el perfil de usuarios_admin:', errorPerfil, { numero })
-        } else if (!data) {
-          console.warn('[useAuth] usuarios_admin no tiene ninguna fila para este usuario:', { numero })
-        }
-        setPerfil(data ?? null)
-        setPerfilError(Boolean(errorPerfil))
-        setCargandoPerfil(false)
-      })
+        ;({ data, error: errorPerfil } = await consultarPerfil())
+      }
+
+      if (!activo) return
+      // Log temporal de diagnóstico: si la consulta falla (RLS, columna inexistente,
+      // numero que no matchea) o no encuentra fila, se ve en la consola en vez de fallar
+      // en silencio con "sin permisos" como único síntoma visible.
+      if (errorPerfil) {
+        console.error('[useAuth] No se pudo cargar el perfil de usuarios_admin:', errorPerfil, { numero })
+      } else if (!data) {
+        console.warn('[useAuth] usuarios_admin no tiene ninguna fila para este usuario (tras reintento):', { numero })
+      }
+      setPerfil(data ?? null)
+      setPerfilError(Boolean(errorPerfil))
+      setCargandoPerfil(false)
+    }
+
+    cargarPerfil()
 
     return () => {
       activo = false
@@ -164,27 +183,14 @@ export function useAuth() {
       return { exito: false, error: new Error('negocio_id no coincide') }
     }
 
-    // El rol/negocio_id vive en app_metadata (verificado arriba), pero `activo` vive en
-    // usuarios_admin: se consulta aparte porque desactivar una cuenta no reescribe el JWT
-    // ya emitido (seguiría trayendo la sesión válida hasta que expire). numero se limpia
-    // igual que en la Edge Function crear-usuario-admin, para que coincida con lo guardado.
-    const numeroLimpio = numero.replace(/\D/g, '')
-    const { data: filaUsuario, error: errorFila } = await supabase
-      .from('usuarios_admin')
-      .select('activo')
-      .eq('negocio_id', negocioConfig.negocioId)
-      .eq('numero', numeroLimpio)
-      .maybeSingle()
-
-    if (errorFila || !filaUsuario || filaUsuario.activo === false) {
-      // Igual que arriba: si la fila ya no existe (usuario eliminado), la cuenta de Auth
-      // puede estar a medio borrar o ya no existir, y /logout con scope global puede
-      // devolver 403 en vez de confirmar. 'local' no depende de esa respuesta.
-      await supabase.auth.signOut({ scope: 'local' })
-      setError(filaUsuario === null ? 'Esta cuenta ya no existe.' : 'Esta cuenta está desactivada.')
-      return { exito: false, error: new Error('usuario desactivado') }
-    }
-
+    // El chequeo de `activo` en usuarios_admin (desactivar una cuenta no reescribe el JWT ya
+    // emitido, así que no basta con lo que ya verificó signInWithPassword) NO se repite aquí:
+    // ya lo hace `cuentaValida` justo después de navegar (ver el efecto de perfil y el de
+    // auto-signout más abajo), con reintento incluido para no confundir una sesión recién
+    // creada (que puede tardar un instante en propagarse) con una cuenta eliminada. Tener esa
+    // misma validación duplicada en este punto, corriendo en el mismo instante que el login,
+    // era justamente lo que causaba el cierre de sesión inmediato de cuentas válidas (visto en
+    // producción: login correcto seguido de un logout automático).
     return { exito: true }
   }, [])
 

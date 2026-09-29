@@ -18,7 +18,11 @@ export function RutaProtegida({ children, soloDueno = false, permiso }) {
   // desactivado). Sin esperar `cargandoPerfil` aquí, una cuenta recién eliminada alcanza a
   // ver el contenido admin durante uno o dos renders antes de que el signOut la saque.
   if (cargandoPerfil) return <p className="texto-suave admin-cargando">Cargando…</p>
-  if (!cuentaValida) return <Navigate to="/admin/login" replace />
+  // `state` le avisa a Login.jsx por qué volvió aquí, ya que el chequeo de cuenta
+  // eliminada/desactivada ya no se hace en el propio iniciarSesion (ver useAuth.js) sino
+  // acá, un instante después de navegar — para entonces Login.jsx ya no tiene forma de
+  // saberlo por sí mismo.
+  if (!cuentaValida) return <Navigate to="/admin/login" replace state={{ cuentaInvalida: true }} />
 
   if (soloDueno && !esDueno) return <Navigate to="/admin/pedidos" replace />
   if (permiso && !auth[permiso]) return <Navigate to="/admin/pedidos" replace />
