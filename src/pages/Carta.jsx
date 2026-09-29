@@ -3,8 +3,8 @@ import { negocioConfig } from '../config/negocio.config'
 import { HeaderNegocio } from '../components/layout/HeaderNegocio'
 import { NavInferior } from '../components/layout/NavInferior'
 import { SobreNosotros } from '../components/layout/SobreNosotros'
+import { TarjetaOferta } from '../components/layout/TarjetaOferta'
 import { CarruselDestacados } from '../components/menu/CarruselDestacados'
-import { SeccionCategorias } from '../components/menu/SeccionCategorias'
 import { BuscadorProductos } from '../components/menu/BuscadorProductos'
 import { ProductoListaItem } from '../components/menu/ProductoListaItem'
 import { CategoriaFiltro } from '../components/menu/CategoriaFiltro'
@@ -53,11 +53,6 @@ export function Carta() {
 
   const carrito = useCarrito()
   const mostrarToast = useToast()
-
-  const irACategoria = (categoriaId) => {
-    setCategoriaSeleccionada(categoriaId)
-    setSeccion('menu')
-  }
 
   // "Todas" (categoriaSeleccionada === null) cuenta como la primera posición, igual que ya
   // se ve en CategoriaFiltro. El swipe en Menú recorre esta lista antes de cambiar de
@@ -119,8 +114,8 @@ export function Carta() {
       >
         <section hidden={seccion !== 'inicio'} className="seccion-inicio">
           <img src="/imagenprueba.jpeg" alt={negocioConfig.nombre} className="seccion-inicio__logo" />
+          <TarjetaOferta />
           <CarruselDestacados productos={destacados} onAbrirDetalle={setProductoSeleccionado} />
-          <SeccionCategorias categorias={categorias} onSeleccionar={irACategoria} />
           <SobreNosotros />
         </section>
 

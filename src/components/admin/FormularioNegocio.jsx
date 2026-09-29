@@ -3,6 +3,8 @@ import { Interruptor } from './Interruptor'
 import { DIAS_ORDEN_SEMANA, ETIQUETA_DIA } from '../../lib/horario'
 
 const DIAS_FORMULARIO = DIAS_ORDEN_SEMANA
+const OFERTA_TITULO_MAX = 60
+const OFERTA_SUBTITULO_MAX = 30
 
 function horarioVacio() {
   return Object.fromEntries(DIAS_FORMULARIO.map((dia) => [dia, { cerrado: true, abre: '10:00', cierra: '22:00' }]))
@@ -19,6 +21,11 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
     instagram: configuracion?.redes_sociales?.instagram ?? '',
     facebook: configuracion?.redes_sociales?.facebook ?? '',
     whatsapp: configuracion?.redes_sociales?.whatsapp ?? '',
+  })
+  const [oferta, setOferta] = useState({
+    activa: configuracion?.oferta?.activa ?? false,
+    titulo: configuracion?.oferta?.titulo ?? '',
+    subtitulo: configuracion?.oferta?.subtitulo ?? '',
   })
   const [horario, setHorario] = useState(() => {
     const base = horarioVacio()
@@ -43,6 +50,11 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
       instagram: configuracion.redes_sociales?.instagram ?? '',
       facebook: configuracion.redes_sociales?.facebook ?? '',
       whatsapp: configuracion.redes_sociales?.whatsapp ?? '',
+    })
+    setOferta({
+      activa: configuracion.oferta?.activa ?? false,
+      titulo: configuracion.oferta?.titulo ?? '',
+      subtitulo: configuracion.oferta?.subtitulo ?? '',
     })
     const base = horarioVacio()
     for (const dia of DIAS_FORMULARIO) {
@@ -80,6 +92,11 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
         whatsapp: redes.whatsapp.trim(),
       },
       horario: horarioFinal,
+      oferta: {
+        activa: oferta.activa,
+        titulo: oferta.titulo.trim(),
+        subtitulo: oferta.subtitulo.trim(),
+      },
     })
 
     setGuardando(false)
@@ -126,6 +143,41 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
           onChange={(e) => setRedes((r) => ({ ...r, whatsapp: e.target.value }))}
         />
       </label>
+
+      <fieldset className="grupo-opciones formulario-negocio__oferta">
+        <legend className="grupo-opciones__titulo">Tarjeta de oferta en Inicio</legend>
+        <Interruptor
+          activo={oferta.activa}
+          etiqueta={oferta.activa ? 'Se muestra en Inicio' : 'No se muestra'}
+          onCambiar={(valor) => setOferta((actual) => ({ ...actual, activa: valor }))}
+        />
+
+        {oferta.activa && (
+          <>
+            <label className="campo">
+              <span>Título ({oferta.titulo.length}/{OFERTA_TITULO_MAX})</span>
+              <input
+                type="text"
+                value={oferta.titulo}
+                onChange={(e) => setOferta((actual) => ({ ...actual, titulo: e.target.value }))}
+                maxLength={OFERTA_TITULO_MAX}
+                placeholder="Ej. Gira la ruleta y gana un descuento en tu compra"
+              />
+            </label>
+
+            <label className="campo">
+              <span>Subtítulo, opcional ({oferta.subtitulo.length}/{OFERTA_SUBTITULO_MAX})</span>
+              <input
+                type="text"
+                value={oferta.subtitulo}
+                onChange={(e) => setOferta((actual) => ({ ...actual, subtitulo: e.target.value }))}
+                maxLength={OFERTA_SUBTITULO_MAX}
+                placeholder="Ej. Compras desde $70.000"
+              />
+            </label>
+          </>
+        )}
+      </fieldset>
 
       <fieldset className="grupo-opciones formulario-negocio__horario">
         <legend className="grupo-opciones__titulo">Horario de atención</legend>
