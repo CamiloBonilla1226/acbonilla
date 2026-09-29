@@ -1,9 +1,10 @@
 import { useNegocioConfig } from '../../hooks/useNegocioConfig'
 
 // Ficha fija de "oferta destacada" en Inicio, entre el logo y el carrusel. El diseño
-// (ícono, borde, tipografía) es el mismo para todos los negocios — solo el texto y si se
-// muestra o no son configurables desde /admin/negocio (ver FormularioNegocio.jsx). Si el
-// dueño la desactiva, o no le puso título, no se renderiza nada.
+// (ícono, borde, tipografía) es el mismo para todos los negocios; el único texto que se
+// muestra es el que el dueño escribe en /admin/negocio (ver FormularioNegocio.jsx), sin
+// ningún rótulo fijo agregado. Si el dueño la desactiva, o no le puso título, no se
+// renderiza nada.
 export function TarjetaOferta() {
   const { config } = useNegocioConfig()
   const oferta = config?.oferta
@@ -22,7 +23,6 @@ export function TarjetaOferta() {
         </svg>
       </span>
       <div className="tarjeta-oferta__texto">
-        <span className="tarjeta-oferta__kicker">Oferta especial</span>
         <strong>{oferta.titulo}</strong>
         {oferta.subtitulo?.trim() && <span className="tarjeta-oferta__subtitulo">{oferta.subtitulo}</span>}
       </div>
