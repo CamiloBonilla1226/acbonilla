@@ -1591,8 +1591,8 @@ body.body--con-nav-inferior .toast-contenedor {
   overflow: hidden;
   display: flex;
   align-items: center;
-  gap: var(--espacio-2);
-  padding: var(--espacio-2) var(--espacio-3);
+  gap: var(--espacio-3);
+  padding: var(--espacio-3) var(--espacio-4);
   margin-bottom: var(--espacio-4);
   border: 1px solid color-mix(in srgb, var(--color-acento) 45%, var(--color-borde));
   background: linear-gradient(
@@ -1634,8 +1634,8 @@ body.body--con-nav-inferior .toast-contenedor {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   color: var(--color-acento);
   background: color-mix(in srgb, var(--color-acento) 14%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-acento) 40%, transparent);
@@ -1644,14 +1644,14 @@ body.body--con-nav-inferior .toast-contenedor {
 .tarjeta-oferta__texto {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   min-width: 0;
-  line-height: 1.25;
+  line-height: 1.3;
 }
 
 .tarjeta-oferta__texto strong {
   display: block;
-  font-size: 0.9rem;
+  font-size: 1rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1660,7 +1660,7 @@ body.body--con-nav-inferior .toast-contenedor {
 .tarjeta-oferta__subtitulo {
   display: block;
   color: var(--color-acento);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
