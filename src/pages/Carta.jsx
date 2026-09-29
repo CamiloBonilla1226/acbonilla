@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { negocioConfig } from '../config/negocio.config'
 import { HeaderNegocio } from '../components/layout/HeaderNegocio'
 import { NavInferior } from '../components/layout/NavInferior'
 import { SobreNosotros } from '../components/layout/SobreNosotros'
@@ -117,6 +118,7 @@ export function Carta() {
         onTouchEnd={swipe.onTouchEnd}
       >
         <section hidden={seccion !== 'inicio'} className="seccion-inicio">
+          <img src="/imagenprueba.jpeg" alt={negocioConfig.nombre} className="seccion-inicio__logo" />
           <CarruselDestacados productos={destacados} onAbrirDetalle={setProductoSeleccionado} />
           <SeccionCategorias categorias={categorias} onSeleccionar={irACategoria} />
           <SobreNosotros />

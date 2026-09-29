@@ -1566,6 +1566,13 @@ body.body--con-nav-inferior .toast-contenedor {
   font-weight: 600;
 }
 
+/* --- Inicio de la carta: logo --- */
+.seccion-inicio__logo {
+  display: block;
+  max-width: 140px;
+  margin: var(--espacio-3) auto;
+}
+
 /* --- Inicio de la carta: carrusel de destacados --- */
 .carrusel-destacados__titulo {
   text-align: center;
