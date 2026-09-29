@@ -8,20 +8,18 @@ export function TablaCategorias({ categorias, onEditar, onEliminar, onToggleActi
   return (
     <ul className="lista-categorias-admin">
       {categorias.map((categoria) => (
-        <li key={categoria.id} className="tarjeta categoria-admin-item">
-          <span>
-            {categoria.nombre}
-            {!categoria.activo && ' · Desactivada'}
-          </span>
-          <div className="categoria-admin-item__acciones">
+        <li
+          key={categoria.id}
+          className="tarjeta categoria-admin-item categoria-admin-item--clicable"
+          onClick={() => onEditar(categoria)}
+        >
+          <span>{categoria.nombre}</span>
+          <div className="categoria-admin-item__acciones" onClick={(evento) => evento.stopPropagation()}>
             <Interruptor
               activo={categoria.activo}
-              etiqueta="Activa"
+              etiqueta=""
               onCambiar={(valor) => onToggleActivo(categoria.id, valor)}
             />
-            <button type="button" className="boton boton--secundario boton--pequeno" onClick={() => onEditar(categoria)}>
-              Editar
-            </button>
             <button type="button" className="carrito__quitar" onClick={() => onEliminar(categoria.id)}>
               Eliminar
             </button>

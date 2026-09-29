@@ -147,16 +147,30 @@ export function useCategorias({
 
   const toggleActivo = useCallback(
     async (id, valor) => {
+      // Desactivar una categoría desactiva en cascada sus productos (pedido explícito del
+      // negocio: una categoría desactivada no debería dejar productos "sueltos" visibles en
+      // la carta). Se hace primero, antes de tocar la categoría, para que si esto falla no
+      // quede la categoría desactivada con productos todavía disponibles. Al ACTIVAR una
+      // categoría no se reactivan sus productos — el dueño pudo haber desactivado alguno a
+      // propósito por su cuenta, y no hay forma de distinguir ese caso.
+      if (!valor) {
+        const { error: errorProductos } = await supabase
+          .from('productos')
+          .update({ disponible: false })
+          .eq('categoria_id', id)
+
+        if (errorProductos) {
+          return {
+            exito: false,
+            error: new Error('No se pudieron desactivar los productos de esta categoría.'),
+          }
+        }
+      }
+
       const { error: errorActualizar } = await supabase.from('categorias').update({ activo: valor }).eq('id', id)
 
       if (errorActualizar) {
-        // El trigger de la base de datos bloquea desactivar una categoría con productos y
-        // devuelve un error crudo de Postgres; se reemplaza por un mensaje entendible en vez
-        // de mostrárselo tal cual a quien usa el panel.
-        const mensaje = !valor
-          ? 'No puedes desactivar esta categoría porque tiene productos. Reasigna o elimina esos productos primero.'
-          : errorActualizar.message
-        return { exito: false, error: new Error(mensaje) }
+        return { exito: false, error: errorActualizar }
       }
 
       await recargar()

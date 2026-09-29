@@ -1340,6 +1340,10 @@ p {
   gap: var(--espacio-3);
 }
 
+.categoria-admin-item--clicable {
+  cursor: pointer;
+}
+
 .categoria-admin-item__acciones {
   display: flex;
   align-items: center;
