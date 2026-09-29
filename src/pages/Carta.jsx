@@ -61,7 +61,15 @@ export function Carta() {
   const indiceCategoria = categoriasConTodas.indexOf(categoriaSeleccionada)
 
   const swipe = useSwipeNavegacion({
-    onSwipeIzquierda: () => {
+    onSwipeIzquierda: ({ enNav } = {}) => {
+      // Un swipe que arranca sobre el nav inferior cambia de sección directo, incluso en
+      // Menú: el dedo ya tocó el control de navegación, no el contenido, así que no tiene
+      // sentido recorrer categorías primero.
+      if (enNav) {
+        if (seccion === 'inicio') setSeccion('menu')
+        else if (seccion === 'menu') setSeccion('carrito')
+        return
+      }
       if (seccion === 'inicio') {
         setSeccion('menu')
       } else if (seccion === 'menu') {
@@ -72,7 +80,12 @@ export function Carta() {
         }
       }
     },
-    onSwipeDerecha: () => {
+    onSwipeDerecha: ({ enNav } = {}) => {
+      if (enNav) {
+        if (seccion === 'carrito') setSeccion('menu')
+        else if (seccion === 'menu') setSeccion('inicio')
+        return
+      }
       if (seccion === 'carrito') {
         setSeccion('menu')
       } else if (seccion === 'menu') {
