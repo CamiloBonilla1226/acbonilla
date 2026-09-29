@@ -1576,8 +1576,8 @@ body.body--con-nav-inferior .toast-contenedor {
 /* --- Inicio de la carta: logo --- */
 .seccion-inicio__logo {
   display: block;
-  max-width: 220px;
-  margin: var(--espacio-3) auto;
+  width: 100%;
+  margin: var(--espacio-3) 0;
 }
 
 /* --- Inicio de la carta: tarjeta de oferta ---
