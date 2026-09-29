@@ -7,6 +7,7 @@ import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
 import { alSoltarFondo } from '../../lib/superposicion'
 import { useToast } from '../../hooks/useToast'
 import { useConfirmacion } from '../../hooks/useConfirmacion'
+import { mensajeAmigablePostgres } from '../../lib/erroresAmigables'
 
 export function Categorias() {
   const { categorias, cargando, error, crearCategoria, actualizarCategoria, eliminarCategoria, toggleActivo } =
@@ -37,7 +38,7 @@ export function Categorias() {
 
     const { exito, error: errorEliminar } = await eliminarCategoria(id)
     mostrarToast(
-      exito ? 'Categoría eliminada' : errorEliminar?.message ?? 'No se pudo eliminar la categoría.',
+      exito ? 'Categoría eliminada' : mensajeAmigablePostgres(errorEliminar, 'No se pudo eliminar la categoría.'),
       exito ? 'exito' : 'error'
     )
   }

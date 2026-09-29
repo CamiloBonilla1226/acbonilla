@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Interruptor } from './Interruptor'
 import { DIAS_ORDEN_SEMANA, ETIQUETA_DIA } from '../../lib/horario'
+import { mensajeAmigablePostgres } from '../../lib/erroresAmigables'
 
 const DIAS_FORMULARIO = DIAS_ORDEN_SEMANA
 const OFERTA_TITULO_MAX = 38
@@ -101,7 +102,7 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
 
     setGuardando(false)
     if (resultado && !resultado.exito) {
-      setError(resultado.error?.message ?? 'No se pudo guardar la configuración.')
+      setError(mensajeAmigablePostgres(resultado.error, 'No se pudo guardar la configuración.'))
     }
   }
 

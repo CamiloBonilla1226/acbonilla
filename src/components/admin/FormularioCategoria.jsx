@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { mensajeAmigablePostgres } from '../../lib/erroresAmigables'
 
 export function FormularioCategoria({ categoriaInicial, onGuardar, onCancelar }) {
   const [nombre, setNombre] = useState(categoriaInicial?.nombre ?? '')
@@ -20,7 +21,7 @@ export function FormularioCategoria({ categoriaInicial, onGuardar, onCancelar })
 
     setGuardando(false)
     if (resultado && !resultado.exito) {
-      setError(resultado.error?.message ?? 'No se pudo guardar la categoría.')
+      setError(mensajeAmigablePostgres(resultado.error, 'No se pudo guardar la categoría.'))
     }
   }
 

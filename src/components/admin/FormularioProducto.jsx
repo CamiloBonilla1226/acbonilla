@@ -4,6 +4,7 @@ import { Interruptor } from './Interruptor'
 import { subirImagenProducto } from '../../lib/storage'
 import { negocioConfig } from '../../config/negocio.config'
 import { useVariantesProducto } from '../../hooks/useVariantesProducto'
+import { mensajeAmigablePostgres } from '../../lib/erroresAmigables'
 
 const MAX_VARIANTES = 5
 const VARIANTE_VACIA = { nombre: '', precio: '' }
@@ -148,7 +149,7 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
 
     setGuardando(false)
     if (resultado && !resultado.exito) {
-      setErrorGuardado(resultado.error?.message ?? 'No se pudo guardar el producto.')
+      setErrorGuardado(mensajeAmigablePostgres(resultado.error, 'No se pudo guardar el producto.'))
     }
   }
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { negocioConfig } from '../config/negocio.config'
+import { mensajeAmigableEdgeFunction } from '../lib/erroresAmigables'
 
 // Gestión de usuarios_admin (dueño/empleados) del negocio. Igual que useGruposOpciones,
 // no estaba en la lista original de hooks del brief, pero es necesaria para el punto 8
@@ -46,7 +47,16 @@ export function useUsuariosAdmin() {
         body: { numero, contrasena, nombre, rol: 'empleado' },
       })
 
-      if (errorFuncion) return { exito: false, error: errorFuncion }
+      // errorFuncion.message NUNCA trae el motivo real (ej. "Ya existe un usuario con ese
+      // número en este negocio"): supabase-js lo reemplaza por un genérico "non-2xx status
+      // code" en cualquier respuesta con error — el mensaje real hay que leerlo aparte.
+      if (errorFuncion) {
+        const mensaje = await mensajeAmigableEdgeFunction(
+          errorFuncion,
+          'No se pudo crear el empleado. Intenta de nuevo en un momento.'
+        )
+        return { exito: false, error: new Error(mensaje) }
+      }
       if (data?.error) return { exito: false, error: new Error(data.error) }
 
       await recargar()
@@ -65,7 +75,13 @@ export function useUsuariosAdmin() {
         body: { id },
       })
 
-      if (errorFuncion) return { exito: false, error: errorFuncion }
+      if (errorFuncion) {
+        const mensaje = await mensajeAmigableEdgeFunction(
+          errorFuncion,
+          'No se pudo eliminar el usuario. Intenta de nuevo en un momento.'
+        )
+        return { exito: false, error: new Error(mensaje) }
+      }
       if (data?.error) return { exito: false, error: new Error(data.error) }
 
       await recargar()

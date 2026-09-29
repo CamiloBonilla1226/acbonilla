@@ -37,8 +37,11 @@ export function Usuarios() {
     const confirmado = await confirmar('¿Eliminar este usuario? Ya no podrá iniciar sesión en el panel.')
     if (!confirmado) return
 
-    const { exito } = await eliminarUsuario(id)
-    mostrarToast(exito ? 'Usuario eliminado' : 'No se pudo eliminar el usuario', exito ? 'exito' : 'error')
+    const { exito, error: errorEliminar } = await eliminarUsuario(id)
+    mostrarToast(
+      exito ? 'Usuario eliminado' : errorEliminar?.message || 'No se pudo eliminar el usuario',
+      exito ? 'exito' : 'error'
+    )
   }
 
   const cambiarActivo = async (id, valor) => {

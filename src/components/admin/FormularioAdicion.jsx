@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ImagenProducto } from '../menu/ImagenProducto'
 import { subirImagenProducto } from '../../lib/storage'
 import { negocioConfig } from '../../config/negocio.config'
+import { mensajeAmigablePostgres } from '../../lib/erroresAmigables'
 
 const VACIO = {
   nombre: '',
@@ -72,7 +73,7 @@ export function FormularioAdicion({ adicionInicial, onGuardar, onCancelar }) {
 
     setGuardando(false)
     if (resultado && !resultado.exito) {
-      setErrorGuardado(resultado.error?.message ?? 'No se pudo guardar la adición.')
+      setErrorGuardado(mensajeAmigablePostgres(resultado.error, 'No se pudo guardar la adición.'))
     }
   }
 

@@ -23,8 +23,7 @@ export function FormularioEmpleado({ onGuardar, onCancelar }) {
 
     setGuardando(false)
     if (!exito) {
-      setError('No se pudo crear el empleado. Revisa el nombre, el número y la contraseña.')
-      console.error(errorCreacion)
+      setError(errorCreacion?.message || 'No se pudo crear el empleado. Intenta de nuevo en un momento.')
     }
   }
 
