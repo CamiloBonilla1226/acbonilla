@@ -1,4 +1,5 @@
 import { Interruptor } from './Interruptor'
+import { ImagenProducto } from '../menu/ImagenProducto'
 import { precioMinimo, variantesDisponibles } from '../../lib/variantes'
 
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
@@ -22,17 +23,28 @@ export function TablaProductos({ productos, onEditar, onEliminar, onToggleDispon
             className="tarjeta producto-admin-item producto-admin-item--clicable"
             onClick={() => onEditar(producto)}
           >
+            <div className="producto-admin-item__imagen">
+              <ImagenProducto src={producto.imagen_url} alt={producto.nombre} />
+            </div>
             <div className="producto-admin-item__info">
-              <strong>
+              <strong className="producto-admin-item__nombre" title={producto.nombre}>
                 {producto.nombre}
-                {producto.destacado && ' · ★ Destacado'}
               </strong>
-              <span className="texto-suave">{producto.categoria?.nombre ?? 'Sin categoría'}</span>
-              <span>
+              <span className="texto-suave producto-admin-item__categoria">
+                {producto.categoria?.nombre ?? 'Sin categoría'}
+              </span>
+              <span className="producto-admin-item__precio">
                 {variantes.length > 0
                   ? `Desde ${formatoPrecio.format(precioMinimo(variantes))}`
                   : formatoPrecio.format(producto.precio_oferta ?? producto.precio)}
-                {!producto.disponible && ' · Agotado'}
+              </span>
+              <span className="producto-admin-item__etiquetas">
+                {producto.destacado && <span className="producto-admin-item__etiqueta">★ Destacado</span>}
+                {!producto.disponible && (
+                  <span className="producto-admin-item__etiqueta producto-admin-item__etiqueta--agotado">
+                    Agotado
+                  </span>
+                )}
               </span>
             </div>
             <div className="producto-admin-item__acciones" onClick={(evento) => evento.stopPropagation()}>
