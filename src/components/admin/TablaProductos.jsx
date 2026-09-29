@@ -17,7 +17,11 @@ export function TablaProductos({ productos, onEditar, onEliminar, onToggleDispon
       {productos.map((producto) => {
         const variantes = variantesDisponibles(producto)
         return (
-          <li key={producto.id} className="tarjeta producto-admin-item">
+          <li
+            key={producto.id}
+            className="tarjeta producto-admin-item producto-admin-item--clicable"
+            onClick={() => onEditar(producto)}
+          >
             <div className="producto-admin-item__info">
               <strong>
                 {producto.nombre}
@@ -31,14 +35,11 @@ export function TablaProductos({ productos, onEditar, onEliminar, onToggleDispon
                 {!producto.disponible && ' · Agotado'}
               </span>
             </div>
-            <div className="producto-admin-item__acciones">
+            <div className="producto-admin-item__acciones" onClick={(evento) => evento.stopPropagation()}>
               <Interruptor
                 activo={producto.disponible}
                 onCambiar={(valor) => onToggleDisponible(producto.id, valor)}
               />
-              <button type="button" className="boton boton--secundario boton--pequeno" onClick={() => onEditar(producto)}>
-                Editar
-              </button>
               <button type="button" className="carrito__quitar" onClick={() => onEliminar(producto.id)}>
                 Eliminar
               </button>

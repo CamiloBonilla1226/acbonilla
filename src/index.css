@@ -1076,6 +1076,10 @@ p {
   transition: box-shadow 0.15s ease;
 }
 
+.producto-admin-item--clicable {
+  cursor: pointer;
+}
+
 /* Ligera elevación al pasar el mouse sobre cualquier fila de las listas admin: un detalle
    moderno y sutil (no cambia layout, no interfiere con el tacto en móvil). */
 .producto-admin-item:hover,
@@ -1222,99 +1226,81 @@ p {
   padding: var(--espacio-1) var(--espacio-2);
 }
 
-/* Usuarios admin: tabla real (no lista de tarjetas), con encabezado de columnas. */
-.tabla-usuarios-admin__contenedor {
-  margin-bottom: var(--espacio-4);
-  border: 1px solid var(--color-borde);
-  background: var(--color-fondo);
-  overflow-x: auto;
+/* Usuarios admin: lista de tarjetas colapsadas (nombre + número), cada una se expande al
+   tocarla para mostrar los permisos y "Eliminar" — evita una tabla ancha con muchas
+   columnas de interruptores visibles todo el tiempo. */
+.lista-usuarios-admin {
+  list-style: none;
+  margin: 0 0 var(--espacio-4);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
 }
 
-.tabla-usuarios-admin {
+.usuario-admin-item {
+  padding: 0;
+  overflow: hidden;
+}
+
+.usuario-admin-item__encabezado {
   width: 100%;
-  border-collapse: collapse;
-}
-
-.tabla-usuarios-admin th,
-.tabla-usuarios-admin td {
-  padding: var(--espacio-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding: var(--espacio-2) var(--espacio-3);
+  background: none;
+  border: none;
+  cursor: pointer;
   text-align: left;
-  border-bottom: 1px solid var(--color-borde);
+  font: inherit;
+  color: inherit;
 }
 
-.tabla-usuarios-admin th {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-texto-suave);
-  background: var(--color-superficie, #f7f7f8);
+.usuario-admin-item__resumen {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.tabla-usuarios-admin tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.tabla-usuarios-admin tbody tr:hover {
-  background: var(--color-superficie, #f7f7f8);
-}
-
-.tabla-usuarios-admin td:first-child {
+.usuario-admin-item__nombre {
   font-weight: 600;
 }
 
-/* Por debajo de 480px, la tabla (4 columnas con padding generoso) no cabe sin scroll
-   horizontal — y ahí quedaba "Eliminar" fuera de vista. Se convierte en una lista de
-   tarjetas apiladas (usa el `data-etiqueta` que ya traía cada <td>), sin perder la
-   semántica de tabla en pantallas más anchas. */
-@media (max-width: 480px) {
-  .tabla-usuarios-admin__contenedor {
-    overflow-x: visible;
-    border: none;
-  }
-
-  .tabla-usuarios-admin thead {
-    display: none;
-  }
-
-  .tabla-usuarios-admin,
-  .tabla-usuarios-admin tbody,
-  .tabla-usuarios-admin tr,
-  .tabla-usuarios-admin td {
-    display: block;
-    width: 100%;
-  }
-
-  .tabla-usuarios-admin tr {
-    border: 1px solid var(--color-borde);
-    margin-bottom: var(--espacio-2);
-  }
-
-  .tabla-usuarios-admin td {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--espacio-2);
-    border-bottom: 1px solid var(--color-borde);
-  }
-
-  .tabla-usuarios-admin tr td:last-child {
-    border-bottom: none;
-  }
-
-  .tabla-usuarios-admin td::before {
-    content: attr(data-etiqueta);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-texto-suave);
-  }
+.usuario-admin-item__flecha {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+  color: var(--color-texto-suave);
 }
 
-.tabla-usuarios-admin__acciones {
-  text-align: right;
-  white-space: nowrap;
+.usuario-admin-item__flecha--abierta {
+  transform: rotate(180deg);
+}
+
+.usuario-admin-item__detalle {
+  padding: 0 var(--espacio-3) var(--espacio-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+  border-top: 1px solid var(--color-borde);
+  padding-top: var(--espacio-3);
+}
+
+.usuario-admin-item__fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-2);
+}
+
+.usuario-admin-item__detalle .carrito__quitar {
+  align-self: flex-start;
+}
+
+.rol-badge--dueno {
+  border-color: var(--color-acento);
+  color: var(--color-acento);
 }
 
 .rol-badge--dueno {

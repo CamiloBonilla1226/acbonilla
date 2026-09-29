@@ -1,4 +1,64 @@
+import { useState } from 'react'
 import { Interruptor } from './Interruptor'
+
+function TarjetaUsuario({ usuario, onEliminar, onToggleActivo, onTogglePermiso }) {
+  const [abierta, setAbierta] = useState(false)
+
+  return (
+    <li className="tarjeta usuario-admin-item">
+      <button
+        type="button"
+        className="usuario-admin-item__encabezado"
+        onClick={() => setAbierta((actual) => !actual)}
+        aria-expanded={abierta}
+      >
+        <span className="usuario-admin-item__resumen">
+          <span className="usuario-admin-item__nombre">{usuario.nombre}</span>
+          <span className="texto-suave">{usuario.numero}</span>
+        </span>
+        <span className={`usuario-admin-item__flecha${abierta ? ' usuario-admin-item__flecha--abierta' : ''}`} aria-hidden="true">
+          ▾
+        </span>
+      </button>
+
+      {abierta && (
+        <div className="usuario-admin-item__detalle">
+          <div className="usuario-admin-item__fila">
+            <span>Activo</span>
+            <Interruptor activo={usuario.activo} etiqueta="" onCambiar={(valor) => onToggleActivo(usuario.id, valor)} />
+          </div>
+          <div className="usuario-admin-item__fila">
+            <span>Puede gestionar productos</span>
+            <Interruptor
+              activo={usuario.puede_productos}
+              etiqueta=""
+              onCambiar={(valor) => onTogglePermiso(usuario.id, 'puede_productos', valor)}
+            />
+          </div>
+          <div className="usuario-admin-item__fila">
+            <span>Puede gestionar categorías</span>
+            <Interruptor
+              activo={usuario.puede_categorias}
+              etiqueta=""
+              onCambiar={(valor) => onTogglePermiso(usuario.id, 'puede_categorias', valor)}
+            />
+          </div>
+          <div className="usuario-admin-item__fila">
+            <span>Puede gestionar adiciones</span>
+            <Interruptor
+              activo={usuario.puede_adiciones}
+              etiqueta=""
+              onCambiar={(valor) => onTogglePermiso(usuario.id, 'puede_adiciones', valor)}
+            />
+          </div>
+          <button type="button" className="carrito__quitar" onClick={() => onEliminar(usuario.id)}>
+            Eliminar
+          </button>
+        </div>
+      )}
+    </li>
+  )
+}
 
 export function TablaUsuarios({ usuarios, onEliminar, onToggleActivo, onTogglePermiso }) {
   if (usuarios.length === 0) {
@@ -6,61 +66,16 @@ export function TablaUsuarios({ usuarios, onEliminar, onToggleActivo, onTogglePe
   }
 
   return (
-    <div className="tabla-usuarios-admin__contenedor">
-      <table className="tabla-usuarios-admin">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Celular</th>
-            <th>Activo</th>
-            <th>Productos</th>
-            <th>Categorías</th>
-            <th>Adiciones</th>
-            <th aria-label="Acciones"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.map((usuario) => (
-            <tr key={usuario.id}>
-              <td data-etiqueta="Nombre">{usuario.nombre}</td>
-              <td data-etiqueta="Celular">{usuario.numero}</td>
-              <td data-etiqueta="Activo">
-                <Interruptor
-                  activo={usuario.activo}
-                  etiqueta=""
-                  onCambiar={(valor) => onToggleActivo(usuario.id, valor)}
-                />
-              </td>
-              <td data-etiqueta="Productos">
-                <Interruptor
-                  activo={usuario.puede_productos}
-                  etiqueta=""
-                  onCambiar={(valor) => onTogglePermiso(usuario.id, 'puede_productos', valor)}
-                />
-              </td>
-              <td data-etiqueta="Categorías">
-                <Interruptor
-                  activo={usuario.puede_categorias}
-                  etiqueta=""
-                  onCambiar={(valor) => onTogglePermiso(usuario.id, 'puede_categorias', valor)}
-                />
-              </td>
-              <td data-etiqueta="Adiciones">
-                <Interruptor
-                  activo={usuario.puede_adiciones}
-                  etiqueta=""
-                  onCambiar={(valor) => onTogglePermiso(usuario.id, 'puede_adiciones', valor)}
-                />
-              </td>
-              <td data-etiqueta="Acciones" className="tabla-usuarios-admin__acciones">
-                <button type="button" className="carrito__quitar" onClick={() => onEliminar(usuario.id)}>
-                  Eliminar
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <ul className="lista-usuarios-admin">
+      {usuarios.map((usuario) => (
+        <TarjetaUsuario
+          key={usuario.id}
+          usuario={usuario}
+          onEliminar={onEliminar}
+          onToggleActivo={onToggleActivo}
+          onTogglePermiso={onTogglePermiso}
+        />
+      ))}
+    </ul>
   )
 }

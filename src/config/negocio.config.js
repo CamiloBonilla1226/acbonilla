@@ -16,7 +16,7 @@ export const negocioConfig = {
 
   // Número de WhatsApp del negocio, en formato internacional sin signos (ej. 573001234567).
   // Se usa para armar el link wa.me del checkout.
-  whatsappContacto: '573000000000',
+  whatsappContacto: '573146032055',
 
   // Paleta neutra de partida para el proyecto base. Cada negocio, al personalizarse,
   // reemplaza estos valores por su propia identidad (ver brief, sección 3).
