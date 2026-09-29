@@ -3,6 +3,11 @@ import { supabase } from '../lib/supabaseClient'
 import { correoInternoANumero, numeroACorreoInterno } from '../lib/phoneAuth'
 import { negocioConfig } from '../config/negocio.config'
 
+// Compartida entre todas las instancias de useAuth() del árbol (ver el efecto de abajo que
+// la usa) — no puede vivir dentro del hook porque cada componente que llama useAuth() tiene
+// su propio estado local independiente.
+let cerrandoSesionInvalida = false
+
 function extraerSesion(session) {
   if (!session?.user) {
     return { usuario: null, rol: null, negocioId: null }
@@ -100,10 +105,24 @@ export function useAuth() {
   // `autenticado` se queda en true con datos viejos y RutaProtegida.jsx, al redirigir a
   // /admin/login, rebotaría de vuelta a /admin en un loop (Login.jsx también navega a
   // /admin mientras `autenticado` sea true).
+  //
+  // `scope: 'local'` en vez del 'global' por defecto: si la cuenta de Auth ya no existe
+  // (ej. se eliminó con eliminar-usuario-admin), el servidor no puede revocar esa sesión y
+  // /logout devuelve 403 una y otra vez — con scope 'global' eso deja la sesión local sin
+  // limpiar nunca y el rebote se vuelve infinito de verdad. 'local' borra el almacenamiento
+  // del navegador de inmediato sin depender de que el servidor confirme nada.
+  //
+  // `cerrandoSesionInvalida` es de módulo (compartido por todas las instancias de
+  // useAuth() — Login.jsx, RutaProtegida.jsx, AdminNav.jsx llaman a este hook por separado,
+  // cada una con su propio efecto) para que solo se dispare un signOut a la vez, en vez de
+  // 3-4 llamadas simultáneas.
   useEffect(() => {
     if (!estado.usuario || cargandoPerfil) return
-    if (perfil === null || perfil.activo === false) {
-      supabase.auth.signOut()
+    if ((perfil === null || perfil.activo === false) && !cerrandoSesionInvalida) {
+      cerrandoSesionInvalida = true
+      supabase.auth.signOut({ scope: 'local' }).finally(() => {
+        cerrandoSesionInvalida = false
+      })
     }
   }, [estado.usuario, cargandoPerfil, perfil])
 
