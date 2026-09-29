@@ -52,8 +52,8 @@ Deno.serve(async (req) => {
     if (!['dueño', 'empleado'].includes(rol)) {
       return respuesta({ error: 'Rol inválido.' }, 400)
     }
-    if (String(contrasena).length < 6) {
-      return respuesta({ error: 'La contraseña debe tener al menos 6 caracteres.' }, 400)
+    if (String(contrasena).length < 4) {
+      return respuesta({ error: 'La contraseña debe tener al menos 4 caracteres.' }, 400)
     }
 
     const authHeader = req.headers.get('Authorization')
