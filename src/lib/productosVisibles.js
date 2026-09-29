@@ -11,3 +11,10 @@ export function filtrarProductosVisibles(productos, campoVisibilidad) {
       (producto.categoria.activo !== false && producto.categoria[campoVisibilidad] !== false)
   )
 }
+
+// Productos marcados manualmente como destacados desde el admin (ver FormularioProducto.jsx),
+// para el carrusel de Inicio de la carta de domicilios. `max` limita a 5 por defecto porque
+// esa es la cantidad de tarjetas que pide el diseño del carrusel.
+export function productosDestacados(productos, max = 5) {
+  return productos.filter((producto) => producto.destacado).slice(0, max)
+}

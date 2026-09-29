@@ -10,6 +10,7 @@ import { Categorias } from './pages/admin/Categorias'
 import { Adiciones } from './pages/admin/Adiciones'
 import { Pedidos } from './pages/admin/Pedidos'
 import { Usuarios } from './pages/admin/Usuarios'
+import { Negocio } from './pages/admin/Negocio'
 import { RutaProtegida } from './components/admin/RutaProtegida'
 import { ToastProvider } from './components/ui/ToastProvider'
 import { ConfirmProvider } from './components/ui/ConfirmProvider'
@@ -87,6 +88,14 @@ function App() {
               element={
                 <RutaProtegida soloDueno>
                   <Usuarios />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path="/admin/negocio"
+              element={
+                <RutaProtegida soloDueno>
+                  <Negocio />
                 </RutaProtegida>
               }
             />

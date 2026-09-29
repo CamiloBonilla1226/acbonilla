@@ -35,6 +35,11 @@ html,
 body {
   margin: 0;
   padding: 0;
+  /* Evita que un swipe horizontal (ej. en el carrusel o el filtro de categorías) se
+     interprete como el gesto de "atrás/adelante" del navegador y saque de la app — sin
+     esto, deslizar dentro de un contenedor con scroll horizontal puede terminar
+     navegando a la página anterior en el historial. */
+  overscroll-behavior-x: none;
 }
 
 body {
@@ -462,7 +467,10 @@ p {
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: flex-end;
-  z-index: 20;
+  /* Por encima del nav-inferior (z-index 30) de la carta de domicilios: si no, el nav fijo
+     queda encima del modal y tapa lo último del contenido (ej. el botón "Agregar" de
+     OpcionesProducto). */
+  z-index: 35;
 }
 
 @media (min-width: 640px) {
@@ -1402,6 +1410,382 @@ p {
     opacity: 0;
     transform: translateY(8px);
   }
+}
+
+/* --- Carta de domicilios: shell de pestañas (Inicio / Menú / Carrito) --- */
+:root {
+  --alto-nav-inferior: 64px;
+}
+
+/* Mientras NavInferior está montado (solo en la carta de domicilios), empuja el toast
+   global por encima del nav fijo y deja espacio al final del contenido para que el nav no
+   tape la última fila de productos ni el botón de checkout. Fuera de esa página (admin,
+   Inicio, carta física) esta clase no se aplica y todo queda como estaba. */
+body.body--con-nav-inferior .toast-contenedor {
+  bottom: calc(var(--espacio-4) + var(--alto-nav-inferior));
+}
+
+.pagina-carta--tabs {
+  padding-bottom: calc(var(--espacio-6) + var(--alto-nav-inferior));
+}
+
+.header-negocio {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-fondo);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.header-negocio__contenido {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: var(--espacio-3);
+}
+
+.header-negocio__nombre {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.header-negocio__estado {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: var(--espacio-1) var(--espacio-2);
+  border: 1px solid currentColor;
+}
+
+.header-negocio__estado--abierto {
+  color: var(--color-exito);
+}
+
+.header-negocio__estado--cerrado {
+  color: var(--color-error);
+}
+
+.nav-inferior {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  background: var(--color-fondo);
+  border-top: 1px solid var(--color-borde);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.nav-inferior__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: transparent;
+  border: none;
+  padding: var(--espacio-2) var(--espacio-1);
+  color: var(--color-texto-suave);
+}
+
+.nav-inferior__item[aria-current='page'] {
+  color: var(--color-acento);
+}
+
+.nav-inferior__icono {
+  position: relative;
+  display: inline-flex;
+}
+
+.nav-inferior__icono--rebote {
+  animation: nav-inferior-rebote 0.3s ease;
+}
+
+@keyframes nav-inferior-rebote {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.nav-inferior__contador {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 0;
+  background: var(--color-error);
+  color: var(--color-fondo);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  transition: transform 0.15s ease;
+}
+
+.nav-inferior__etiqueta {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* --- Inicio de la carta: carrusel de destacados --- */
+.carrusel-destacados__titulo {
+  text-align: center;
+}
+
+.carrusel-destacados__subtitulo {
+  text-align: left;
+  margin-bottom: var(--espacio-3);
+}
+
+.carrusel-destacados__pista {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  gap: var(--espacio-3);
+  padding-bottom: var(--espacio-2);
+  scrollbar-width: none;
+}
+
+.carrusel-destacados__pista::-webkit-scrollbar {
+  display: none;
+}
+
+.carrusel-destacados__tarjeta {
+  flex: 0 0 31%;
+  scroll-snap-align: start;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 640px) {
+  .carrusel-destacados__tarjeta {
+    flex-basis: 22%;
+  }
+}
+
+.carrusel-destacados__info {
+  padding: var(--espacio-2) 2px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--espacio-1);
+  width: 100%;
+  /* Alto fijo (una línea de nombre + una de precio, cada una truncada con "…" si no cabe —
+     ver reglas de abajo) para que todas las tarjetas midan lo mismo sin importar el nombre
+     del producto ni si tiene precio de oferta. */
+  min-height: 2.8em;
+}
+
+.carrusel-destacados__nombre,
+.carrusel-destacados__precio {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.carrusel-destacados__nombre {
+  font-size: 0.9rem;
+}
+
+.carrusel-destacados__precio {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.carrusel-destacados__puntos {
+  display: flex;
+  justify-content: center;
+  gap: var(--espacio-2);
+  margin-top: var(--espacio-2);
+}
+
+.carrusel-destacados__punto {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 1px solid var(--color-texto-suave);
+  background: transparent;
+}
+
+.carrusel-destacados__punto--activo {
+  background: var(--color-acento);
+  border-color: var(--color-acento);
+}
+
+/* --- Inicio de la carta: categorías --- */
+.seccion-categorias {
+  margin-top: var(--espacio-5);
+}
+
+.seccion-categorias__grid {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: var(--espacio-2);
+  padding-bottom: var(--espacio-1);
+  scrollbar-width: none;
+}
+
+.seccion-categorias__grid::-webkit-scrollbar {
+  display: none;
+}
+
+.chip-categoria {
+  flex: 0 0 auto;
+  border: 1px solid var(--color-borde);
+  background: transparent;
+  padding: var(--espacio-2) var(--espacio-3);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* --- Inicio de la carta: Sobre nosotros --- */
+.sobre-nosotros {
+  margin-top: var(--espacio-5);
+  padding-top: var(--espacio-4);
+  border-top: 1px solid var(--color-borde);
+}
+
+.sobre-nosotros__subtitulo {
+  margin-top: var(--espacio-4);
+  font-size: 1rem;
+}
+
+.sobre-nosotros__horario {
+  list-style: none;
+  margin: var(--espacio-2) 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+}
+
+.sobre-nosotros__horario li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--espacio-2);
+  max-width: 420px;
+}
+
+.sobre-nosotros__redes {
+  display: flex;
+  gap: var(--espacio-3);
+  margin-top: var(--espacio-2);
+}
+
+.sobre-nosotros__redes a {
+  font-weight: 600;
+  color: var(--color-acento);
+  text-decoration: none;
+}
+
+/* --- Menú: buscador --- */
+.buscador-productos {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  border: 1px solid var(--color-borde);
+  padding: var(--espacio-2) var(--espacio-3);
+  margin-bottom: var(--espacio-3);
+}
+
+.buscador-productos__icono {
+  flex: 0 0 auto;
+  color: var(--color-texto-suave);
+}
+
+.buscador-productos input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+/* --- Menú: lista de productos (tarjeta horizontal) --- */
+.lista-productos-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+}
+
+.producto-lista-item {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  border: 1px solid var(--color-borde);
+  padding: var(--espacio-2);
+  cursor: pointer;
+}
+
+.producto-lista-item--agotado {
+  opacity: 0.6;
+}
+
+.producto-lista-item__imagen {
+  flex: 0 0 auto;
+  width: 64px;
+}
+
+.producto-lista-item__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.producto-lista-item__nombre {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.producto-lista-item__categoria {
+  font-size: 0.8rem;
+}
+
+.producto-lista-item__pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-2);
+  margin-top: var(--espacio-1);
+}
+
+.producto-lista-item__estado {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-exito);
+}
+
+.producto-lista-item__estado--agotado {
+  color: var(--color-error);
+}
+
+.producto-lista-item__agregar {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 1.2rem;
+  line-height: 1;
 }
 
 /* --- Confirmación (reemplaza window.confirm) --- */

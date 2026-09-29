@@ -18,6 +18,7 @@ const VACIO = {
   disponible: true,
   visible_domicilios: true,
   visible_carta_fisica: true,
+  destacado: false,
 }
 
 // Formulario único de producto: si tiene variantes (switch "¿Tiene variantes?"), se
@@ -39,6 +40,7 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
           disponible: productoInicial.disponible,
           visible_domicilios: productoInicial.visible_domicilios ?? true,
           visible_carta_fisica: productoInicial.visible_carta_fisica ?? true,
+          destacado: productoInicial.destacado ?? false,
         }
       : VACIO
   )
@@ -138,6 +140,7 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
         disponible: valores.disponible,
         visible_domicilios: valores.visible_domicilios,
         visible_carta_fisica: valores.visible_carta_fisica,
+        destacado: valores.destacado,
         tiene_variantes: tieneVariantes,
       },
       tieneVariantes ? variantesValidas : []
@@ -272,6 +275,11 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
       <label className="campo campo--linea">
         <input type="checkbox" checked={valores.visible_carta_fisica} onChange={actualizar('visible_carta_fisica')} />
         <span>Mostrar en carta física</span>
+      </label>
+
+      <label className="campo campo--linea">
+        <input type="checkbox" checked={valores.destacado} onChange={actualizar('destacado')} />
+        <span>Destacado (carrusel de Inicio en la carta de domicilios, máximo 5)</span>
       </label>
 
       {errorGuardado && <p className="campo__error">{errorGuardado}</p>}

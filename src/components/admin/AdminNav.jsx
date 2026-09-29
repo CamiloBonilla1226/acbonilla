@@ -83,6 +83,11 @@ export function AdminNav() {
               Usuarios
             </NavLink>
           )}
+          {esDueno && (
+            <NavLink to="/admin/negocio" className={claseEnlace} onClick={cerrar}>
+              Negocio
+            </NavLink>
+          )}
         </div>
 
         <div className="admin-drawer__pie">

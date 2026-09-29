@@ -19,7 +19,10 @@ export function TablaProductos({ productos, onEditar, onEliminar, onToggleDispon
         return (
           <li key={producto.id} className="tarjeta producto-admin-item">
             <div className="producto-admin-item__info">
-              <strong>{producto.nombre}</strong>
+              <strong>
+                {producto.nombre}
+                {producto.destacado && ' · ★ Destacado'}
+              </strong>
               <span className="texto-suave">{producto.categoria?.nombre ?? 'Sin categoría'}</span>
               <span>
                 {variantes.length > 0

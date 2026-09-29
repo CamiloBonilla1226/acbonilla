@@ -1,8 +1,12 @@
-import { useState } from 'react'
-import { Nav } from '../components/layout/Nav'
-import { Footer } from '../components/layout/Footer'
+import { useMemo, useState } from 'react'
+import { HeaderNegocio } from '../components/layout/HeaderNegocio'
+import { NavInferior } from '../components/layout/NavInferior'
+import { SobreNosotros } from '../components/layout/SobreNosotros'
+import { CarruselDestacados } from '../components/menu/CarruselDestacados'
+import { SeccionCategorias } from '../components/menu/SeccionCategorias'
+import { BuscadorProductos } from '../components/menu/BuscadorProductos'
+import { ProductoListaItem } from '../components/menu/ProductoListaItem'
 import { CategoriaFiltro } from '../components/menu/CategoriaFiltro'
-import { ProductoCard } from '../components/menu/ProductoCard'
 import { OpcionesProducto } from '../components/menu/OpcionesProducto'
 import { Carrito } from '../components/carrito/Carrito'
 import { Checkout } from '../components/carrito/Checkout'
@@ -10,19 +14,19 @@ import { useCategorias } from '../hooks/useCategorias'
 import { useProductos } from '../hooks/useProductos'
 import { useAdiciones } from '../hooks/useAdiciones'
 import { useCarrito } from '../hooks/useCarrito'
-import { useSwipeParaCerrar } from '../hooks/useSwipeParaCerrar'
+import { useToast } from '../hooks/useToast'
+import { useSwipeNavegacion } from '../hooks/useSwipeNavegacion'
 import { alSoltarFondo } from '../lib/superposicion'
-import { filtrarProductosVisibles } from '../lib/productosVisibles'
+import { filtrarProductosVisibles, productosDestacados } from '../lib/productosVisibles'
 import { variantesDisponibles } from '../lib/variantes'
-
-const formatoPrecio = new Intl.NumberFormat('es-CO', {
-  style: 'currency',
-  currency: 'COP',
-  maximumFractionDigits: 0,
-})
+import { normalizarTexto } from '../lib/texto'
 
 export function Carta() {
-  const [categoriaActivaId, setCategoriaActivaId] = useState(null)
+  const [seccion, setSeccion] = useState('inicio') // 'inicio' | 'menu' | 'carrito'
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null)
+  const [busqueda, setBusqueda] = useState('')
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null)
+
   const { categorias, cargando: cargandoCategorias, error: errorCategorias } = useCategorias({
     soloActivas: true,
     soloVisibleDomicilios: true,
@@ -31,69 +35,152 @@ export function Carta() {
     productos: productosCargados,
     cargando: cargandoProductos,
     error: errorProductos,
-  } = useProductos({ categoriaId: categoriaActivaId, soloDisponibles: true, soloVisibleDomicilios: true })
-  const productos = filtrarProductosVisibles(productosCargados, 'visible_domicilios')
+  } = useProductos({ soloDisponibles: true, soloVisibleDomicilios: true })
+  const productosVisibles = filtrarProductosVisibles(productosCargados, 'visible_domicilios')
+  const destacados = useMemo(() => productosDestacados(productosVisibles), [productosVisibles])
+
+  const productosMenu = useMemo(() => {
+    const textoBuscado = normalizarTexto(busqueda)
+    return productosVisibles.filter((producto) => {
+      const coincideCategoria = !categoriaSeleccionada || producto.categoria_id === categoriaSeleccionada
+      const coincideBusqueda = !textoBuscado || normalizarTexto(producto.nombre).includes(textoBuscado)
+      return coincideCategoria && coincideBusqueda
+    })
+  }, [productosVisibles, categoriaSeleccionada, busqueda])
+
   const { adiciones } = useAdiciones({ soloDisponibles: true, soloVisibleDomicilios: true })
 
   const carrito = useCarrito()
-  const [productoSeleccionado, setProductoSeleccionado] = useState(null)
-  const [vista, setVista] = useState('cerrado') // 'cerrado' | 'carrito' | 'checkout'
+  const mostrarToast = useToast()
 
-  const manejarSeleccionProducto = (producto) => {
-    // Si el producto tiene variantes (tamaños, sabores), elegir una es obligatorio, así que
-    // se fuerza el modal aunque no haya adiciones.
-    if (adiciones.length > 0 || variantesDisponibles(producto).length > 0) {
+  const irACategoria = (categoriaId) => {
+    setCategoriaSeleccionada(categoriaId)
+    setSeccion('menu')
+  }
+
+  // "Todas" (categoriaSeleccionada === null) cuenta como la primera posición, igual que ya
+  // se ve en CategoriaFiltro. El swipe en Menú recorre esta lista antes de cambiar de
+  // sección: solo pasa a Carrito/Inicio cuando ya está en el último/primer extremo.
+  const categoriasConTodas = useMemo(() => [null, ...categorias.map((c) => c.id)], [categorias])
+  const indiceCategoria = categoriasConTodas.indexOf(categoriaSeleccionada)
+
+  const swipe = useSwipeNavegacion({
+    onSwipeIzquierda: () => {
+      if (seccion === 'inicio') {
+        setSeccion('menu')
+      } else if (seccion === 'menu') {
+        if (indiceCategoria < categoriasConTodas.length - 1) {
+          setCategoriaSeleccionada(categoriasConTodas[indiceCategoria + 1])
+        } else {
+          setSeccion('carrito')
+        }
+      }
+    },
+    onSwipeDerecha: () => {
+      if (seccion === 'carrito') {
+        setSeccion('menu')
+      } else if (seccion === 'menu') {
+        if (indiceCategoria > 0) {
+          setCategoriaSeleccionada(categoriasConTodas[indiceCategoria - 1])
+        } else {
+          setSeccion('inicio')
+        }
+      }
+    },
+  })
+
+  // Las adiciones son extras opcionales (ver useAdiciones): que el negocio tenga adiciones
+  // configuradas no debe forzar el modal de "+" rápido. Solo la variante es obligatoria, así
+  // que solo ella determina si hace falta abrir el detalle antes de poder agregar.
+  const agregarRapido = (producto) => {
+    if (variantesDisponibles(producto).length > 0) {
       setProductoSeleccionado(producto)
     } else {
       carrito.agregarProducto(producto, [], 1)
+      mostrarToast('Agregado al carrito')
     }
   }
 
   const confirmarOpciones = (cantidad, opcionesElegidas, variante) => {
     carrito.agregarProducto(productoSeleccionado, opcionesElegidas, cantidad, variante)
     setProductoSeleccionado(null)
+    mostrarToast('Agregado al carrito')
   }
-
-  const cerrarVista = () => setVista('cerrado')
-  const swipeCarritoCheckout = useSwipeParaCerrar(cerrarVista)
 
   return (
     <>
-      <Nav />
-      <main className="contenedor pagina-carta">
-        {errorCategorias && <p className="campo__error">No se pudieron cargar las categorías.</p>}
-        {!cargandoCategorias && categorias.length > 0 && (
-          <CategoriaFiltro
-            categorias={categorias}
-            categoriaActivaId={categoriaActivaId}
-            onSeleccionar={setCategoriaActivaId}
-          />
-        )}
+      <HeaderNegocio />
 
-        {cargandoProductos && <p className="texto-suave">Cargando productos…</p>}
-        {errorProductos && <p className="campo__error">No se pudieron cargar los productos. Intenta de nuevo.</p>}
-        {!cargandoProductos && !errorProductos && productos.length === 0 && (
-          <p className="texto-suave">No hay productos en esta categoría todavía.</p>
-        )}
+      <main
+        className="contenedor pagina-carta pagina-carta--tabs"
+        onTouchStart={swipe.onTouchStart}
+        onTouchEnd={swipe.onTouchEnd}
+      >
+        <section hidden={seccion !== 'inicio'} className="seccion-inicio">
+          <CarruselDestacados productos={destacados} onAbrirDetalle={setProductoSeleccionado} />
+          <SeccionCategorias categorias={categorias} onSeleccionar={irACategoria} />
+          <SobreNosotros />
+        </section>
 
-        <div className="grid-productos">
-          {productos.map((producto) => (
-            <ProductoCard
-              key={producto.id}
-              producto={producto}
-              interactivo
-              onSeleccionar={manejarSeleccionProducto}
+        <section hidden={seccion !== 'menu'} className="seccion-menu">
+          <BuscadorProductos valor={busqueda} onCambiar={setBusqueda} />
+
+          {errorCategorias && <p className="campo__error">No se pudieron cargar las categorías.</p>}
+          {!cargandoCategorias && categorias.length > 0 && (
+            <CategoriaFiltro
+              categorias={categorias}
+              categoriaActivaId={categoriaSeleccionada}
+              onSeleccionar={setCategoriaSeleccionada}
             />
-          ))}
-        </div>
-      </main>
-      <Footer />
+          )}
 
-      {carrito.cantidadTotal > 0 && vista === 'cerrado' && (
-        <button type="button" className="boton carrito-flotante" onClick={() => setVista('carrito')}>
-          Ver carrito · {carrito.cantidadTotal} · {formatoPrecio.format(carrito.total)}
-        </button>
-      )}
+          {cargandoProductos && <p className="texto-suave">Cargando productos…</p>}
+          {errorProductos && <p className="campo__error">No se pudieron cargar los productos. Intenta de nuevo.</p>}
+          {!cargandoProductos && !errorProductos && productosMenu.length === 0 && (
+            <p className="texto-suave">No hay productos que coincidan con la búsqueda.</p>
+          )}
+
+          <div className="lista-productos-menu">
+            {productosMenu.map((producto) => (
+              <ProductoListaItem
+                key={producto.id}
+                producto={producto}
+                onAbrirDetalle={setProductoSeleccionado}
+                onAgregarRapido={agregarRapido}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section hidden={seccion !== 'carrito'} className="seccion-carrito">
+          <Carrito
+            items={carrito.items}
+            total={carrito.total}
+            onQuitar={carrito.quitarItem}
+            onCambiarCantidad={carrito.cambiarCantidad}
+            onIrACheckout={() => setSeccion('checkout')}
+          />
+        </section>
+
+        {seccion === 'checkout' && (
+          <section className="seccion-checkout">
+            <Checkout
+              items={carrito.items}
+              total={carrito.total}
+              onPedidoConfirmado={() => {
+                carrito.vaciarCarrito()
+                setSeccion('inicio')
+              }}
+            />
+          </section>
+        )}
+      </main>
+
+      <NavInferior
+        seccionActiva={seccion === 'checkout' ? 'carrito' : seccion}
+        onCambiarSeccion={setSeccion}
+        cantidadTotal={carrito.cantidadTotal}
+      />
 
       {productoSeleccionado && (
         <div
@@ -108,43 +195,6 @@ export function Carta() {
             onConfirmar={confirmarOpciones}
             onCancelar={() => setProductoSeleccionado(null)}
           />
-        </div>
-      )}
-
-      {vista !== 'cerrado' && (
-        <div className="superposicion" role="dialog" aria-modal="true" onClick={alSoltarFondo(cerrarVista)}>
-          <div
-            className="superposicion__panel"
-            style={swipeCarritoCheckout.estilo}
-            onTouchStart={swipeCarritoCheckout.onTouchStart}
-            onTouchMove={swipeCarritoCheckout.onTouchMove}
-            onTouchEnd={swipeCarritoCheckout.onTouchEnd}
-          >
-            <button type="button" className="superposicion__cerrar" onClick={cerrarVista}>
-              Cerrar
-            </button>
-
-            {vista === 'carrito' && (
-              <Carrito
-                items={carrito.items}
-                total={carrito.total}
-                onQuitar={carrito.quitarItem}
-                onCambiarCantidad={carrito.cambiarCantidad}
-                onIrACheckout={() => setVista('checkout')}
-              />
-            )}
-
-            {vista === 'checkout' && (
-              <Checkout
-                items={carrito.items}
-                total={carrito.total}
-                onPedidoConfirmado={() => {
-                  carrito.vaciarCarrito()
-                  setVista('cerrado')
-                }}
-              />
-            )}
-          </div>
         </div>
       )}
     </>
