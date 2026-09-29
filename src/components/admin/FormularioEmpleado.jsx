@@ -47,7 +47,7 @@ export function FormularioEmpleado({ onGuardar, onCancelar }) {
             type={mostrarContrasena ? 'text' : 'password'}
             value={contrasena}
             onChange={(e) => setContrasena(e.target.value)}
-            minLength={4}
+            minLength={6}
             required
           />
           <button
