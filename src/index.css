@@ -925,8 +925,13 @@ p {
 .admin-productos,
 .admin-categorias,
 .admin-adiciones,
-.admin-usuarios {
+.admin-usuarios,
+.admin-negocio {
   padding-block: var(--espacio-4) var(--espacio-6);
+}
+
+.admin-negocio h1 {
+  margin-bottom: var(--espacio-4);
 }
 
 .admin-dashboard__resumen {
@@ -1412,7 +1417,24 @@ p {
   }
 }
 
-/* --- Formulario admin de negocio: tarjeta de oferta --- */
+/* --- Formulario admin de negocio: secciones como recuadros con título, en vez del
+   border-top plano que hereda .grupo-opciones (compartida con FormularioProducto) — separa
+   mejor "Tarjeta de oferta" de "Horario de atención" dentro de un formulario largo. */
+.formulario-negocio__oferta,
+.formulario-negocio__horario {
+  border: 1px solid var(--color-borde);
+  padding: var(--espacio-4);
+  margin: var(--espacio-2) 0 0;
+}
+
+.formulario-negocio__oferta > legend,
+.formulario-negocio__horario > legend {
+  padding: 0 var(--espacio-2);
+  margin-left: var(--espacio-2);
+  font-size: 0.95rem;
+  background: var(--color-fondo);
+}
+
 .formulario-negocio__oferta {
   display: flex;
   flex-direction: column;

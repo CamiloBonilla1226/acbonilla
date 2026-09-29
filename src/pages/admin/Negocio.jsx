@@ -20,10 +20,6 @@ export function Negocio() {
       <AdminNav />
       <main className="contenedor admin-negocio">
         <h1>Negocio</h1>
-        <p className="texto-suave">
-          Esta información se muestra en "Sobre nosotros" y en el indicador Abierto/Cerrado de la carta de
-          domicilios.
-        </p>
 
         {cargando && <p className="texto-suave">Cargando…</p>}
         {error && <p className="campo__error">No se pudo cargar la configuración del negocio.</p>}
