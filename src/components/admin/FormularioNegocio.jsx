@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Interruptor } from './Interruptor'
 import { DIAS_ORDEN_SEMANA, ETIQUETA_DIA } from '../../lib/horario'
 
 const DIAS_FORMULARIO = DIAS_ORDEN_SEMANA
@@ -130,14 +131,12 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
         <legend className="grupo-opciones__titulo">Horario de atención</legend>
         {DIAS_FORMULARIO.map((dia) => (
           <div key={dia} className="formulario-negocio__dia">
-            <label className="campo campo--linea formulario-negocio__dia-checkbox">
-              <input
-                type="checkbox"
-                checked={!horario[dia].cerrado}
-                onChange={(e) => actualizarDia(dia, 'cerrado', !e.target.checked)}
-              />
-              <span>{ETIQUETA_DIA[dia]}</span>
-            </label>
+            <span className="formulario-negocio__dia-nombre">{ETIQUETA_DIA[dia]}</span>
+            <Interruptor
+              activo={!horario[dia].cerrado}
+              etiqueta={horario[dia].cerrado ? 'Cerrado' : 'Abierto'}
+              onCambiar={(valor) => actualizarDia(dia, 'cerrado', !valor)}
+            />
             {!horario[dia].cerrado && (
               <div className="formulario-negocio__dia-horas">
                 <input

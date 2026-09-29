@@ -1412,6 +1412,35 @@ p {
   }
 }
 
+/* --- Formulario admin de negocio: horario por día --- */
+.formulario-negocio__dia {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--espacio-2);
+  padding: var(--espacio-3) 0;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.formulario-negocio__dia:last-child {
+  border-bottom: none;
+}
+
+.formulario-negocio__dia-nombre {
+  font-weight: 600;
+}
+
+.formulario-negocio__dia-horas {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-2);
+}
+
+.formulario-negocio__dia-horas input {
+  border: 1px solid var(--color-borde);
+  padding: var(--espacio-1) var(--espacio-2);
+}
+
 /* --- Carta de domicilios: shell de pestañas (Inicio / Menú / Carrito) --- */
 :root {
   --alto-nav-inferior: 64px;
@@ -1663,24 +1692,36 @@ body.body--con-nav-inferior .toast-contenedor {
 
 .sobre-nosotros__subtitulo {
   margin-top: var(--espacio-4);
-  font-size: 1rem;
+  margin-bottom: var(--espacio-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
 }
 
 .sobre-nosotros__horario {
   list-style: none;
-  margin: var(--espacio-2) 0;
+  margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--espacio-1);
 }
 
 .sobre-nosotros__horario li {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--espacio-2);
-  max-width: 420px;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--espacio-2) 0;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.sobre-nosotros__horario li:last-child {
+  border-bottom: none;
+}
+
+.sobre-nosotros__horario li > span:first-child {
+  font-weight: 600;
 }
 
 .sobre-nosotros__redes {
@@ -1693,6 +1734,12 @@ body.body--con-nav-inferior .toast-contenedor {
   font-weight: 600;
   color: var(--color-acento);
   text-decoration: none;
+}
+
+.sobre-nosotros__direccion {
+  display: inline-block;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* --- Menú: buscador --- */

@@ -43,7 +43,14 @@ export function SobreNosotros() {
       {direccion && (
         <>
           <h3 className="sobre-nosotros__subtitulo">Ubicación</h3>
-          <p className="texto-suave">{direccion}</p>
+          <a
+            className="texto-suave sobre-nosotros__direccion"
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccion)}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {direccion}
+          </a>
         </>
       )}
 
