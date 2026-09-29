@@ -12,8 +12,6 @@ export function Dashboard() {
       <AdminNav />
       <main className="contenedor admin-dashboard">
         <h1>Dashboard</h1>
-        <p className="texto-suave">{esDueno ? 'Acceso completo (dueño).' : 'Acceso limitado a pedidos (empleado).'}</p>
-
         <div className="tarjeta admin-dashboard__resumen">
           <span className="texto-suave">Pedidos nuevos</span>
           <strong>{cargando ? '—' : pedidosNuevos}</strong>
