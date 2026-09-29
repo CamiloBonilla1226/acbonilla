@@ -44,6 +44,12 @@ export function useAuth() {
   // consulta a usuarios_admin (asíncrona) no había terminado en el primer render tras
   // iniciar sesión.
   const [cargandoPerfil, setCargandoPerfil] = useState(true)
+  // Distingue "la consulta corrió bien y no encontró fila" (usuario realmente eliminado) de
+  // "la consulta falló" (RLS, red, lo que sea — ver el log de abajo, este problema ya se
+  // había visto antes). Solo el primer caso debe poder cerrar la sesión de alguien: si se
+  // tratara cualquier error de red/RLS como "cuenta inválida", una consulta que falla una
+  // vez por lo que sea sacaría del panel hasta al dueño con credenciales correctas.
+  const [perfilError, setPerfilError] = useState(false)
 
   useEffect(() => {
     let activo = true
@@ -69,6 +75,7 @@ export function useAuth() {
 
     if (!estado.usuario?.email) {
       setPerfil(null)
+      setPerfilError(false)
       setCargandoPerfil(false)
       return undefined
     }
@@ -92,6 +99,7 @@ export function useAuth() {
           console.warn('[useAuth] usuarios_admin no tiene ninguna fila para este usuario:', { numero })
         }
         setPerfil(data ?? null)
+        setPerfilError(Boolean(errorPerfil))
         setCargandoPerfil(false)
       })
 
@@ -118,13 +126,16 @@ export function useAuth() {
   // 3-4 llamadas simultáneas.
   useEffect(() => {
     if (!estado.usuario || cargandoPerfil) return
-    if ((perfil === null || perfil.activo === false) && !cerrandoSesionInvalida) {
+    // `!perfilError`: si la consulta falló (en vez de correr bien y no encontrar nada), no
+    // se puede saber si la cuenta sigue existiendo — no cerrar sesión en ese caso ambiguo.
+    const confirmadoInvalido = !perfilError && (perfil === null || perfil.activo === false)
+    if (confirmadoInvalido && !cerrandoSesionInvalida) {
       cerrandoSesionInvalida = true
       supabase.auth.signOut({ scope: 'local' }).finally(() => {
         cerrandoSesionInvalida = false
       })
     }
-  }, [estado.usuario, cargandoPerfil, perfil])
+  }, [estado.usuario, cargandoPerfil, perfil, perfilError])
 
   const iniciarSesion = useCallback(async (numero, contrasena) => {
     setError(null)
@@ -188,7 +199,10 @@ export function useAuth() {
   // expire. `cuentaValida` es lo que RutaProtegida.jsx usa como el verdadero portón de
   // acceso, no `autenticado` a secas — evita el "flash" de contenido admin para un usuario
   // ya eliminado/desactivado mientras esta consulta todavía está en camino.
-  const cuentaValida = Boolean(estado.usuario) && !cargandoPerfil && perfil !== null && perfil.activo !== false
+  // Igual que en el efecto de arriba: si la consulta falló (perfilError), no se trata como
+  // cuenta inválida — solo una fila confirmada ausente/inactiva bloquea el acceso.
+  const cuentaValida =
+    Boolean(estado.usuario) && !cargandoPerfil && (perfilError || (perfil !== null && perfil.activo !== false))
 
   return {
     usuario: estado.usuario,
