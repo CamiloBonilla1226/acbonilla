@@ -60,8 +60,19 @@ function useAuthInterno() {
   useEffect(() => {
     let activo = true
 
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(({ data, error: errorSesion }) => {
       if (!activo) return
+      // getSession() intenta renovar automáticamente el token guardado en localStorage. Si
+      // ese token quedó de una sesión que el servidor ya invalidó (visto en producción tras
+      // mucho probar login/logout: queda "atascado" ahí, y hasta un login nuevo con
+      // credenciales correctas se ve afectado porque el cliente de Supabase arranca en un
+      // estado roto), se limpia esa sesión local para que la app arranque desde cero.
+      if (errorSesion) {
+        console.warn('[useAuth] Sesión guardada inválida al arrancar, se limpia:', errorSesion)
+        setEstado({ usuario: null, rol: null, negocioId: null, cargando: false })
+        supabase.auth.signOut({ scope: 'local' })
+        return
+      }
       setEstado({ ...extraerSesion(data.session), cargando: false })
     })
 
