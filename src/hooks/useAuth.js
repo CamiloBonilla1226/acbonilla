@@ -145,7 +145,10 @@ export function useAuth() {
     // configurado. Si por alguna razón la sesión trae otro negocio_id, se cierra.
     const negocioIdSesion = data.user?.app_metadata?.negocio_id
     if (negocioIdSesion !== negocioConfig.negocioId) {
-      await supabase.auth.signOut()
+      // scope 'local' (no el 'global' por defecto): si esta cuenta no es válida aquí, no
+      // hay garantía de que el servidor pueda revocarla igual (ver el efecto de abajo, que
+      // tiene el mismo motivo) — 'local' limpia el navegador sin depender de esa respuesta.
+      await supabase.auth.signOut({ scope: 'local' })
       setError('Este usuario no pertenece a este negocio.')
       return { exito: false, error: new Error('negocio_id no coincide') }
     }
@@ -163,8 +166,11 @@ export function useAuth() {
       .maybeSingle()
 
     if (errorFila || !filaUsuario || filaUsuario.activo === false) {
-      await supabase.auth.signOut()
-      setError('Esta cuenta está desactivada.')
+      // Igual que arriba: si la fila ya no existe (usuario eliminado), la cuenta de Auth
+      // puede estar a medio borrar o ya no existir, y /logout con scope global puede
+      // devolver 403 en vez de confirmar. 'local' no depende de esa respuesta.
+      await supabase.auth.signOut({ scope: 'local' })
+      setError(filaUsuario === null ? 'Esta cuenta ya no existe.' : 'Esta cuenta está desactivada.')
       return { exito: false, error: new Error('usuario desactivado') }
     }
 
