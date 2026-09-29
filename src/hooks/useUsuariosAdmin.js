@@ -57,9 +57,19 @@ export function useUsuariosAdmin() {
 
   const eliminarUsuario = useCallback(
     async (id) => {
-      const { error: errorEliminar } = await supabase.from('usuarios_admin').delete().eq('id', id)
-      if (!errorEliminar) await recargar()
-      return { exito: !errorEliminar, error: errorEliminar }
+      // Igual que crearEmpleado: se hace en una Edge Function con service_role, porque
+      // borrar solo la fila de usuarios_admin desde aquí dejaba viva la cuenta de Auth
+      // (con su correo interno derivado del número), bloqueando ese número para siempre —
+      // ver eliminar-usuario-admin/index.ts para el detalle completo.
+      const { data, error: errorFuncion } = await supabase.functions.invoke('eliminar-usuario-admin', {
+        body: { id },
+      })
+
+      if (errorFuncion) return { exito: false, error: errorFuncion }
+      if (data?.error) return { exito: false, error: new Error(data.error) }
+
+      await recargar()
+      return { exito: true }
     },
     [recargar]
   )

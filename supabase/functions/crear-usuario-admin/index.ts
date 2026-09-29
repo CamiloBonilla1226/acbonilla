@@ -123,7 +123,12 @@ Deno.serve(async (req) => {
     // un usuario "fantasma": creado en auth.users con su app_metadata correcta, pero sin fila
     // en usuarios_admin. Haciendo ambos pasos en el servidor, todo el alta queda como una
     // sola operación: si el insert falla, se revierte el usuario de Auth igual que arriba.
+    //
+    // `id` se fija igual al uid de auth.users (en vez de dejar que usuarios_admin genere el
+    // suyo propio) para que eliminar-usuario-admin pueda borrar la cuenta de Auth
+    // correspondiente sin tener que buscarla por email — ver ese archivo para el porqué.
     const { error: errorInsertar } = await clienteAdmin.from('usuarios_admin').insert({
+      id: usuarioCreado.user.id,
       negocio_id: negocioId,
       numero: numero.replace(/\D/g, ''),
       nombre: String(nombre).trim(),

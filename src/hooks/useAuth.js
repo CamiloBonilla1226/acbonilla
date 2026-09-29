@@ -72,7 +72,7 @@ export function useAuth() {
     const numero = correoInternoANumero(estado.usuario.email)
     supabase
       .from('usuarios_admin')
-      .select('nombre, puede_productos, puede_categorias, puede_adiciones')
+      .select('nombre, activo, puede_productos, puede_categorias, puede_adiciones')
       .eq('negocio_id', negocioConfig.negocioId)
       .eq('numero', numero)
       .maybeSingle()
@@ -94,6 +94,18 @@ export function useAuth() {
       activo = false
     }
   }, [estado.usuario])
+
+  // Si la sesión de Auth sigue viva (JWT todavía válido) pero la fila en usuarios_admin ya
+  // no existe o quedó desactivada, hay que cerrar esa sesión activamente. Sin esto,
+  // `autenticado` se queda en true con datos viejos y RutaProtegida.jsx, al redirigir a
+  // /admin/login, rebotaría de vuelta a /admin en un loop (Login.jsx también navega a
+  // /admin mientras `autenticado` sea true).
+  useEffect(() => {
+    if (!estado.usuario || cargandoPerfil) return
+    if (perfil === null || perfil.activo === false) {
+      supabase.auth.signOut()
+    }
+  }, [estado.usuario, cargandoPerfil, perfil])
 
   const iniciarSesion = useCallback(async (numero, contrasena) => {
     setError(null)
@@ -145,6 +157,13 @@ export function useAuth() {
   }, [])
 
   const esDueno = estado.rol === 'dueño'
+  // Que Supabase Auth acepte la sesión no basta: si el dueño ya borró (o desactivó) la
+  // fila de este usuario en usuarios_admin, la cuenta de Auth puede seguir viva un rato
+  // (ver eliminarUsuario en useUsuariosAdmin.js) o el JWT seguir siendo válido hasta que
+  // expire. `cuentaValida` es lo que RutaProtegida.jsx usa como el verdadero portón de
+  // acceso, no `autenticado` a secas — evita el "flash" de contenido admin para un usuario
+  // ya eliminado/desactivado mientras esta consulta todavía está en camino.
+  const cuentaValida = Boolean(estado.usuario) && !cargandoPerfil && perfil !== null && perfil.activo !== false
 
   return {
     usuario: estado.usuario,
@@ -153,6 +172,7 @@ export function useAuth() {
     cargando: estado.cargando,
     cargandoPerfil,
     autenticado: Boolean(estado.usuario),
+    cuentaValida,
     esDueno,
     esEmpleado: estado.rol === 'empleado',
     nombre: perfil?.nombre ?? null,

@@ -8,18 +8,20 @@ import { useAuth } from '../../hooks/useAuth'
 // restricción real de datos vive en RLS, no aquí).
 export function RutaProtegida({ children, soloDueno = false, permiso }) {
   const auth = useAuth()
-  const { autenticado, cargando, cargandoPerfil, esDueno } = auth
+  const { autenticado, cargando, cargandoPerfil, cuentaValida, esDueno } = auth
 
   if (cargando) return <p className="texto-suave admin-cargando">Cargando…</p>
   if (!autenticado) return <Navigate to="/admin/login" replace />
+
+  // `autenticado` solo dice que Supabase Auth aceptó el token — no que la fila de este
+  // usuario en usuarios_admin siga existiendo y activa (el dueño pudo haberla borrado o
+  // desactivado). Sin esperar `cargandoPerfil` aquí, una cuenta recién eliminada alcanza a
+  // ver el contenido admin durante uno o dos renders antes de que el signOut la saque.
+  if (cargandoPerfil) return <p className="texto-suave admin-cargando">Cargando…</p>
+  if (!cuentaValida) return <Navigate to="/admin/login" replace />
+
   if (soloDueno && !esDueno) return <Navigate to="/admin/pedidos" replace />
-  // El permiso de un empleado se consulta aparte (usuarios_admin, no viene en el JWT) — hay
-  // que esperar a que esa consulta termine antes de decidir, o un empleado con permiso real
-  // sería redirigido igual, solo por llegar aquí antes de que el dato cargara.
-  if (permiso) {
-    if (cargandoPerfil) return <p className="texto-suave admin-cargando">Cargando…</p>
-    if (!auth[permiso]) return <Navigate to="/admin/pedidos" replace />
-  }
+  if (permiso && !auth[permiso]) return <Navigate to="/admin/pedidos" replace />
 
   return children
 }
