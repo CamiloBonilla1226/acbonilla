@@ -34,6 +34,18 @@ export function CarruselDestacados({ productos, onAbrirDetalle }) {
     const contenedor = contenedorRef.current
     const paso = obtenerPaso()
     if (!contenedor || !paso) return
+
+    // Como se ven varias tarjetas a la vez, el scroll máximo real (scrollWidth - clientWidth)
+    // es menor que (cantidad - 1) * paso — nunca se llega a ese scrollLeft exacto, así que el
+    // índice calculado por división nunca alcanzaba el último punto aunque la pista ya
+    // estuviera pegada al final. Se detecta ese caso aparte (con 1px de margen por redondeo
+    // de subpíxeles) y se fuerza el último punto.
+    const alFinal = contenedor.scrollLeft + contenedor.clientWidth >= contenedor.scrollWidth - 1
+    if (alFinal) {
+      setIndiceActivo(productos.length - 1)
+      return
+    }
+
     const indice = Math.round(contenedor.scrollLeft / paso)
     setIndiceActivo(Math.min(Math.max(indice, 0), productos.length - 1))
   }
