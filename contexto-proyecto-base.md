@@ -20,7 +20,7 @@ Plataforma que se vende como servicio a negocios pequeños/medianos (restaurante
 
 - El login es por **número de teléfono + contraseña**, sin email visible para el usuario.
 - Por debajo, se usa Supabase Auth (que internamente requiere un correo): el número se transforma en un correo falso interno, ej. `3001234567@tuapp.interno`, de forma transparente para el usuario.
-- Al crear el usuario admin, se guarda `negocio_id` y `rol` en los `user_metadata` de Supabase Auth. Esto es lo que usan las políticas de RLS para filtrar qué datos puede ver/editar cada usuario.
+- Al crear el usuario admin, se guarda `negocio_id` y `rol` en los `app_metadata` de Supabase Auth (nunca en `user_metadata`: ese lo puede reescribir el propio usuario autenticado con `supabase.auth.updateUser()`, así que un admin podría cambiarse a sí mismo el negocio_id y acceder a datos de otro negocio — `app_metadata` solo lo escribe el servidor, con la service_role key, desde la Edge Function `crear-usuario-admin`). Esto es lo que usan las políticas de RLS para filtrar qué datos puede ver/editar cada usuario.
 - Roles: `dueño` (acceso total) y `empleado` (solo ve pedidos y cambia su estado; no puede tocar productos, precios ni categorías).
 
 ## Modelo de datos (ya creado en Supabase)
@@ -113,7 +113,7 @@ Ejemplo de `productos_detalle`:
 
 - Lectura pública (sin login) permitida en: `negocios` (solo si `activo = true`), `categorias`, `productos`, `grupos_opciones`, `opciones`. Esto es lo que permite que el menú/carta cargue sin que el cliente final tenga que iniciar sesión.
 - Inserción pública permitida en `pedidos` (el cliente final crea su pedido sin login).
-- Todo lo demás (crear/editar/eliminar productos, categorías, opciones; ver y actualizar pedidos) requiere sesión de `usuarios_admin`, y las políticas filtran por `negocio_id` extraído de los metadatos del usuario autenticado (`auth.jwt() -> 'user_metadata' ->> 'negocio_id'`).
+- Todo lo demás (crear/editar/eliminar productos, categorías, opciones; ver y actualizar pedidos) requiere sesión de `usuarios_admin`, y las políticas filtran por `negocio_id` extraído de los metadatos del usuario autenticado (`auth.jwt() -> 'app_metadata' ->> 'negocio_id'`).
 - Como cada negocio corre en su propio proyecto React con su propio deploy, en la práctica cada frontend solo interactúa con su propio `negocio_id`, pero el RLS es la barrera real de seguridad (evita que alguien, inspeccionando el código o las credenciales públicas del proyecto, acceda a datos de otro negocio).
 
 ## Flujo de pantallas por perfil
