@@ -3,8 +3,8 @@ import { Interruptor } from './Interruptor'
 import { DIAS_ORDEN_SEMANA, ETIQUETA_DIA } from '../../lib/horario'
 
 const DIAS_FORMULARIO = DIAS_ORDEN_SEMANA
-const OFERTA_TITULO_MAX = 60
-const OFERTA_SUBTITULO_MAX = 30
+const OFERTA_TITULO_MAX = 38
+const OFERTA_SUBTITULO_MAX = 22
 
 function horarioVacio() {
   return Object.fromEntries(DIAS_FORMULARIO.map((dia) => [dia, { cerrado: true, abre: '10:00', cierra: '22:00' }]))
