@@ -14,7 +14,7 @@ export function TarjetaOferta() {
     <div className="tarjeta-oferta">
       <span className="tarjeta-oferta__brillo" aria-hidden="true" />
       <span className="tarjeta-oferta__icono" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.6">
           <rect x="3" y="8" width="18" height="12" />
           <line x1="3" y1="12" x2="21" y2="12" />
           <line x1="12" y1="8" x2="12" y2="20" />
