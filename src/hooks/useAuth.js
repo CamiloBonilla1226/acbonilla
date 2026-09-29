@@ -1,12 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { createContext, createElement, useCallback, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { correoInternoANumero, numeroACorreoInterno } from '../lib/phoneAuth'
 import { negocioConfig } from '../config/negocio.config'
 
-// Compartida entre todas las instancias de useAuth() del árbol (ver el efecto de abajo que
-// la usa) — no puede vivir dentro del hook porque cada componente que llama useAuth() tiene
-// su propio estado local independiente.
-let cerrandoSesionInvalida = false
+const AuthContext = createContext(null)
 
 function extraerSesion(session) {
   if (!session?.user) {
@@ -27,7 +24,16 @@ function extraerSesion(session) {
   }
 }
 
-export function useAuth() {
+// Lógica real de autenticación. Vive en una función aparte (no exportada) porque solo debe
+// correr UNA VEZ por toda la app, dentro de AuthProvider — antes, cada componente que llamaba
+// useAuth() directamente (Login.jsx, RutaProtegida.jsx, AdminNav.jsx, Dashboard.jsx) traía su
+// propia copia de este estado y disparaba su propia consulta a usuarios_admin por separado,
+// todas casi al mismo tiempo justo después de iniciar sesión. Con 3-4 consultas idénticas
+// corriendo en paralelo, bastaba con que UNA de ellas se comportara distinto (en la build de
+// producción minificada, donde esto se reprodujo de forma consistente aunque los datos y el
+// RLS estaban bien) para que ese componente en particular concluyera "cuenta inválida" — con
+// una sola fuente de verdad compartida, ese modo de falla ya no puede ocurrir.
+function useAuthInterno() {
   const [estado, setEstado] = useState({
     usuario: null,
     rol: null,
@@ -139,22 +145,22 @@ export function useAuth() {
   // limpiar nunca y el rebote se vuelve infinito de verdad. 'local' borra el almacenamiento
   // del navegador de inmediato sin depender de que el servidor confirme nada.
   //
-  // `cerrandoSesionInvalida` es de módulo (compartido por todas las instancias de
-  // useAuth() — Login.jsx, RutaProtegida.jsx, AdminNav.jsx llaman a este hook por separado,
-  // cada una con su propio efecto) para que solo se dispare un signOut a la vez, en vez de
-  // 3-4 llamadas simultáneas.
+  // Como este efecto ahora corre una sola vez para toda la app (useAuthInterno vive dentro
+  // de AuthProvider, no en cada componente que consume useAuth), ya no hace falta el flag de
+  // módulo que antes evitaba que 3-4 instancias dispararan signOut a la vez.
+  const [cerrandoSesionInvalida, setCerrandoSesionInvalida] = useState(false)
   useEffect(() => {
     if (!estado.usuario || cargandoPerfil) return
     // `!perfilError`: si la consulta falló (en vez de correr bien y no encontrar nada), no
     // se puede saber si la cuenta sigue existiendo — no cerrar sesión en ese caso ambiguo.
     const confirmadoInvalido = !perfilError && (perfil === null || perfil.activo === false)
     if (confirmadoInvalido && !cerrandoSesionInvalida) {
-      cerrandoSesionInvalida = true
+      setCerrandoSesionInvalida(true)
       supabase.auth.signOut({ scope: 'local' }).finally(() => {
-        cerrandoSesionInvalida = false
+        setCerrandoSesionInvalida(false)
       })
     }
-  }, [estado.usuario, cargandoPerfil, perfil, perfilError])
+  }, [estado.usuario, cargandoPerfil, perfil, perfilError, cerrandoSesionInvalida])
 
   const iniciarSesion = useCallback(async (numero, contrasena) => {
     setError(null)
@@ -230,4 +236,17 @@ export function useAuth() {
     iniciarSesion,
     cerrarSesion,
   }
+}
+
+export function AuthProvider({ children }) {
+  const auth = useAuthInterno()
+  return createElement(AuthContext.Provider, { value: auth }, children)
+}
+
+export function useAuth() {
+  const auth = useContext(AuthContext)
+  if (!auth) {
+    throw new Error('useAuth() debe usarse dentro de <AuthProvider>.')
+  }
+  return auth
 }
