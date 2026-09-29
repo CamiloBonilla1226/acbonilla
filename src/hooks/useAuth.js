@@ -113,6 +113,24 @@ function useAuthInterno() {
       }
 
       if (!activo) return
+
+      // Caso aparte: el error no es "no se pudo verificar" (RLS, red) sino "esta sesión ya
+      // no existe" — el token que quedó guardado en el navegador apunta a una sesión que el
+      // servidor ya invalidó (ej. quedó de una prueba anterior, o se revocó desde otro
+      // dispositivo). Tratarlo como perfilError (fail-open) no sirve de nada acá: si la
+      // sesión en sí está rota, ninguna consulta va a funcionar aunque se deje pasar. Hay
+      // que limpiarla para que la persona vea el formulario de login de nuevo, en vez de
+      // quedar atascada sin poder hacer nada.
+      if (errorPerfil?.code === 'session_not_found') {
+        console.warn('[useAuth] La sesión guardada ya no existe en el servidor, se limpia:', errorPerfil)
+        setPerfil(null)
+        setPerfilError(false)
+        setCargandoPerfil(false)
+        setError('Tu sesión expiró. Inicia sesión de nuevo.')
+        await supabase.auth.signOut({ scope: 'local' })
+        return
+      }
+
       // Log temporal de diagnóstico: si la consulta falla (RLS, columna inexistente,
       // numero que no matchea) o no encuentra fila, se ve en la consola en vez de fallar
       // en silencio con "sin permisos" como único síntoma visible.
