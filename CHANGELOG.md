@@ -418,3 +418,10 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 ## 2026-09-29 (19)
 - **Pedidos: contador "14 de 26" engañoso**: el contador del botón Filtros comparaba los pedidos mostrados contra **todos** los de la base, incluidos los de más de 30 días que esta pantalla nunca muestra. Ahora el total es el de los últimos 30 días, así que sin filtros dice "N en total" y con filtros "X de N" sobre lo realmente consultable.
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (20)
+- **Recomendaciones del asistente con varias versiones cada una**: antes cada recomendación tenía un único mensaje fijo. Ahora hay 7 situaciones (pocos datos, día con menos domicilios, día con más domicilios, producto estrella, productos sin ventas, ventas por debajo y por encima del mes anterior) y cada una tiene 4–6 versiones con estrategias distintas (promo fija, envío gratis, combos, mensajes a clientes, oferta relámpago, stock, rapidez, pre-pedidos, reseñas, referidos, sorteos, revisar márgenes, etc.), 40 en total, en tono cercano y redactadas con los datos reales del negocio (días, productos, cantidades y montos).
+  - Las plantillas viven en `src/lib/recomendacionesNegocio.js`; `analisisNegocio.js` solo decide qué situaciones aplican (mismas condiciones de antes) y arma el contexto con los números.
+  - La versión que se muestra cambia sola cada día y no parpadea al recargar; cada tarjeta tiene el botón "Otra idea ↻" para pasar a la siguiente versión.
+  - Documentación: `docs/recomendaciones-asistente.md` (cómo funciona, cuándo aparece cada situación, qué datos usa y todos los mensajes con un negocio de ejemplo), generada con `node scripts/generar-doc-recomendaciones.mjs` a partir del código real para que no se desincronice.
+- Verificación: `npm run build`, `npm run lint` y prueba en Node con pedidos sintéticos (incluido el caso de un día sin pedidos) revisando que ninguna versión salga con `undefined`/`NaN`.

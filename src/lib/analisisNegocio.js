@@ -1,3 +1,5 @@
+import { PLANTILLAS } from './recomendacionesNegocio.js'
+
 // Análisis del negocio a partir de los pedidos, sin IA externa ni costo: todo se calcula en
 // el navegador con los datos que el panel ya tiene. Las "recomendaciones" son reglas
 // simples (umbrales sobre los números), no predicciones — por eso solo se generan cuando
@@ -92,57 +94,57 @@ export function analizarNegocio(pedidos, productos = [], ahora = new Date()) {
   const sinVentas = productos.filter((p) => p.disponible && !vendidos.has(p.nombre)).map((p) => p.nombre)
 
   // ---- Recomendaciones ----
-  const recomendaciones = []
-
-  if (!suficientesDatos) {
-    recomendaciones.push({
-      titulo: 'Aún hay pocos datos',
-      texto: `Con ${recientes.length} pedidos en los últimos ${DIAS_VENTANA} días todavía no se pueden detectar patrones fiables. A medida que lleguen más pedidos, aquí aparecerán recomendaciones sobre días, productos y ofertas.`,
-    })
-  } else {
-    if (diaMasFlojo.pedidos < diaMasFuerte.pedidos * 0.6) {
-      const estrella = topProductos[0]?.nombre
-      recomendaciones.push({
-        titulo: `Impulsa los ${plural(diaMasFlojo.nombre)}`,
-        texto: `Es el día con menos domicilios (${diaMasFlojo.pedidos} pedidos en ${DIAS_VENTANA} días, frente a ${diaMasFuerte.pedidos} los ${plural(diaMasFuerte.nombre)}). Prueba una promoción solo para ese día${
-          estrella ? `, por ejemplo un descuento o combo con ${estrella}` : ''
-        }, o envío gratis, y anúnciala por WhatsApp e Instagram la víspera.`,
-      })
-    }
-
-    recomendaciones.push({
-      titulo: `Refuerza los ${plural(diaMasFuerte.nombre)}`,
-      texto: `Es tu día más fuerte (${diaMasFuerte.pedidos} pedidos). Asegúrate de tener inventario y personal suficiente, y aprovecha para ofrecer adiciones y combos que suban el valor de cada pedido.`,
-    })
-
-    const estrella = topProductos[0]
-    if (estrella) {
-      recomendaciones.push({
-        titulo: `${estrella.nombre} es tu producto estrella`,
-        texto: `Se han vendido ${estrella.unidades} unidades en ${DIAS_VENTANA} días. Márcalo como destacado y úsalo de gancho: ofertas combinadas con productos de menor rotación suelen ayudar a moverlos.`,
-      })
-    }
-
-    if (sinVentas.length > 0) {
-      const lista = sinVentas.slice(0, 3).join(', ')
-      recomendaciones.push({
-        titulo: 'Productos que no se están vendiendo',
-        texto: `${lista}${sinVentas.length > 3 ? ` y ${sinVentas.length - 3} más` : ''} no tienen ventas en los últimos ${DIAS_VENTANA} días. Considera una oferta, destacarlos en la carta o revisar su precio y foto.`,
-      })
-    }
-
-    if (variacion !== null && variacion <= -15) {
-      recomendaciones.push({
-        titulo: 'Las ventas van por debajo del mes anterior',
-        texto: `Llevas ${dinero(totalMes)} contra ${dinero(totalMesAnterior)} en el mismo tramo del mes pasado (${variacion.toFixed(0)}%). Puede ser buen momento para una oferta relámpago o reactivar clientes por WhatsApp.`,
-      })
-    } else if (variacion !== null && variacion >= 15) {
-      recomendaciones.push({
-        titulo: 'Vas mejor que el mes pasado',
-        texto: `Llevas ${dinero(totalMes)}, un ${variacion.toFixed(0)}% más que en el mismo tramo del mes anterior. Mantén lo que está funcionando y evita quedarte sin stock de los productos más pedidos.`,
-      })
-    }
+  // Aquí solo se decide QUÉ situaciones aplican (con las mismas condiciones de siempre); el
+  // texto de cada una sale de recomendacionesNegocio.js, que tiene varias versiones por
+  // situación. Cada recomendación devuelve todas sus versiones ya redactadas con los datos del
+  // negocio, y la pantalla elige cuál mostrar.
+  const estrella = topProductos[0] ?? null
+  const razon = diaMasFlojo.pedidos > 0 ? diaMasFuerte.pedidos / diaMasFlojo.pedidos : null
+  const ctx = {
+    mes: nombreMes(ahora),
+    ventana: DIAS_VENTANA,
+    totalPedidos: recientes.length,
+    dinero,
+    totalMes,
+    totalMesAnterior,
+    pedidosMes,
+    variacionPct: variacion === null ? 0 : Math.abs(Math.round(variacion)),
+    diferencia: Math.abs(totalMes - totalMesAnterior),
+    fuerte: { nombre: diaMasFuerte.nombre, plural: plural(diaMasFuerte.nombre), pedidos: diaMasFuerte.pedidos },
+    flojo: { nombre: diaMasFlojo.nombre, plural: plural(diaMasFlojo.nombre), pedidos: diaMasFlojo.pedidos },
+    pctFuerte: recientes.length > 0 ? Math.round((diaMasFuerte.pedidos / recientes.length) * 100) : 0,
+    comparativo:
+      razon === null
+        ? `El ${diaMasFuerte.nombre} tiene ${diaMasFuerte.pedidos} pedidos y el ${diaMasFlojo.nombre}, ninguno`
+        : `El ${diaMasFuerte.nombre} vende ${razon.toFixed(1).replace('.', ',')} veces más que el ${diaMasFlojo.nombre}`,
+    conteoFlojo:
+      diaMasFlojo.pedidos === 0
+        ? 'ningún pedido'
+        : `solo ${diaMasFlojo.pedidos} ${diaMasFlojo.pedidos === 1 ? 'pedido' : 'pedidos'}`,
+    producto: estrella?.nombre ?? 'tu producto más pedido',
+    estrella: estrella ? { ...estrella, mejorDiaPlural: plural(estrella.mejorDia) } : null,
+    segundo: topProductos[1]?.nombre ?? null,
+    sinVentas,
+    lista: sinVentas.slice(0, 3).join(', '),
+    restantes: sinVentas.length > 3 ? ` y ${sinVentas.length - 3} más` : '',
   }
+
+  const situaciones = []
+  if (!suficientesDatos) {
+    situaciones.push('pocosDatos')
+  } else {
+    if (diaMasFlojo.pedidos < diaMasFuerte.pedidos * 0.6) situaciones.push('diaFlojo')
+    situaciones.push('diaFuerte')
+    if (estrella) situaciones.push('estrella')
+    if (sinVentas.length > 0) situaciones.push('sinVentas')
+    if (variacion !== null && variacion <= -15) situaciones.push('ventasBajan')
+    else if (variacion !== null && variacion >= 15) situaciones.push('ventasSuben')
+  }
+
+  const recomendaciones = situaciones.map((clave) => ({
+    clave,
+    variantes: PLANTILLAS[clave].map((plantilla) => plantilla(ctx)),
+  }))
 
   return {
     mes: nombreMes(ahora),
@@ -156,6 +158,8 @@ export function analizarNegocio(pedidos, productos = [], ahora = new Date()) {
     suficientesDatos,
     diasVentana: DIAS_VENTANA,
     recomendaciones,
+    // Cambia cada día: la pantalla lo usa para rotar qué versión de cada recomendación muestra.
+    semilla: Math.floor(ahora.getTime() / MS_DIA),
     dinero,
   }
 }

@@ -1,5 +1,6 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { analizarNegocio } from '../../lib/analisisNegocio'
+import { indiceVariante } from '../../lib/recomendacionesNegocio'
 
 const mayuscula = (texto) => texto.charAt(0).toUpperCase() + texto.slice(1)
 
@@ -7,6 +8,9 @@ const mayuscula = (texto) => texto.charAt(0).toUpperCase() + texto.slice(1)
 // recomendaciones. Todo se calcula con los pedidos ya cargados (ver lib/analisisNegocio.js).
 export function AsistenteNegocio({ pedidos, productos, cargando }) {
   const analisis = useMemo(() => analizarNegocio(pedidos, productos), [pedidos, productos])
+
+  // Cuántas veces se pidió "Otra idea" en cada recomendación (clave -> desplazamiento).
+  const [desplazamientos, setDesplazamientos] = useState({})
 
   if (cargando) return null
 
@@ -73,12 +77,25 @@ export function AsistenteNegocio({ pedidos, productos, cargando }) {
 
       <div className="asistente__recomendaciones">
         <h3>Recomendaciones</h3>
-        {analisis.recomendaciones.map((recomendacion) => (
-          <article key={recomendacion.titulo} className="tarjeta asistente__recomendacion">
-            <strong>{recomendacion.titulo}</strong>
-            <p>{recomendacion.texto}</p>
-          </article>
-        ))}
+        {analisis.recomendaciones.map(({ clave, variantes }) => {
+          const indice = indiceVariante(clave, variantes.length, analisis.semilla, desplazamientos[clave] ?? 0)
+          const { titulo, texto } = variantes[indice]
+          return (
+            <article key={clave} className="tarjeta asistente__recomendacion">
+              <strong>{titulo}</strong>
+              <p>{texto}</p>
+              {variantes.length > 1 && (
+                <button
+                  type="button"
+                  className="asistente__otra"
+                  onClick={() => setDesplazamientos((actual) => ({ ...actual, [clave]: (actual[clave] ?? 0) + 1 }))}
+                >
+                  Otra idea ↻
+                </button>
+              )}
+            </article>
+          )
+        })}
       </div>
     </section>
   )

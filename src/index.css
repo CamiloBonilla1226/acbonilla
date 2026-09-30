@@ -2875,6 +2875,8 @@ body.admin .admin-crear--boton {
 }
 
 .asistente__recomendacion {
+  display: flex;
+  flex-direction: column;
   padding: var(--espacio-3) var(--espacio-4);
   border-left: 3px solid var(--color-texto);
 }
@@ -2888,4 +2890,17 @@ body.admin .admin-crear--boton {
   font-size: 0.88rem;
   line-height: 1.5;
   color: var(--color-texto-suave);
+}
+
+.asistente__otra {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-texto);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
