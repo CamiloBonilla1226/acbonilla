@@ -437,3 +437,10 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - Detalles: se copia `history.state` al agregar la entrada porque React Router guarda ahí su índice de navegación, y una bandera evita interpretar como "atrás" el `history.back()` que hace el propio hook al limpiar.
   - Alcance: solo los detalles de producto de las dos cartas públicas. Estando en Inicio/Menú/Carrito sin ningún detalle abierto, "atrás" sigue saliendo de la página (como antes); si se quiere que también recorra las secciones, es un cambio aparte.
 - Verificación: `npm run build` y `npm run lint`. No se pudo probar en un Android real desde esta sesión.
+
+## 2026-09-29 (23)
+- **Botón "atrás" recorre las secciones de la carta**: nuevo hook `useSeccionesConHistorial` (usado en `Carta.jsx`). Cada cambio de sección (Inicio, Menú, Carrito, Checkout) agrega una entrada al historial del navegador, así "atrás" del celular vuelve a la sección anterior (Carrito → Menú → Inicio) y solo desde Inicio sale de la página. Funciona igual si el cambio vino del nav inferior, de un swipe, de la tarjeta de oferta o del botón de checkout.
+  - La sección se guarda en `history.state` (junto con lo que ya guardaba React Router), por lo que al recargar la página se vuelve a la sección en que se estaba; si era el checkout, se vuelve al carrito porque el formulario no se conserva.
+  - Al confirmar un pedido se pasa a Inicio **reemplazando** la entrada del checkout (`{ reemplazar: true }`), para que "atrás" no devuelva a un checkout ya enviado.
+  - Convive con `useCerrarConAtras` (detalle de producto): el detalle abierto es la entrada más reciente, así que el primer "atrás" lo cierra y los siguientes recorren las secciones.
+- Verificación: `npm run build` y `npm run lint`. No se pudo probar en un Android real desde esta sesión.

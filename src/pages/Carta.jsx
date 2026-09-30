@@ -18,13 +18,16 @@ import { useCarrito } from '../hooks/useCarrito'
 import { useToast } from '../hooks/useToast'
 import { useSwipeNavegacion } from '../hooks/useSwipeNavegacion'
 import { useCerrarConAtras } from '../hooks/useCerrarConAtras'
+import { useSeccionesConHistorial } from '../hooks/useSeccionesConHistorial'
 import { alSoltarFondo } from '../lib/superposicion'
 import { filtrarProductosVisibles, productosDestacados } from '../lib/productosVisibles'
 import { variantesDisponibles } from '../lib/variantes'
 import { normalizarTexto } from '../lib/texto'
 
 export function Carta() {
-  const [seccion, setSeccion] = useState('inicio') // 'inicio' | 'menu' | 'carrito'
+  // 'inicio' | 'menu' | 'carrito' | 'checkout'. Cada cambio queda en el historial del navegador,
+  // así "atrás" del celular recorre las secciones antes de salir de la página.
+  const [seccion, setSeccion] = useSeccionesConHistorial()
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null)
   const [busqueda, setBusqueda] = useState('')
   const [productoSeleccionado, setProductoSeleccionado] = useState(null)
@@ -183,7 +186,7 @@ export function Carta() {
               total={carrito.total}
               onPedidoConfirmado={() => {
                 carrito.vaciarCarrito()
-                setSeccion('inicio')
+                setSeccion('inicio', { reemplazar: true })
               }}
             />
           </section>
@@ -192,7 +195,7 @@ export function Carta() {
 
       <NavInferior
         seccionActiva={seccion === 'checkout' ? 'carrito' : seccion}
-        onCambiarSeccion={setSeccion}
+        onCambiarSeccion={(nueva) => setSeccion(nueva)}
         cantidadTotal={carrito.cantidadTotal}
       />
       </div>
