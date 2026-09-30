@@ -39,9 +39,9 @@ export function ProductoListaItem({ producto, onAbrirDetalle, onAgregarRapido })
           ) : (
             <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
           )}
-          <span className={`producto-lista-item__estado ${agotado ? 'producto-lista-item__estado--agotado' : ''}`}>
-            {agotado ? 'Agotado' : 'Disponible'}
-          </span>
+          {agotado && (
+            <span className="producto-lista-item__estado producto-lista-item__estado--agotado">Agotado</span>
+          )}
         </div>
       </div>
 

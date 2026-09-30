@@ -369,3 +369,7 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - Dentro del panel cada grupo es un control segmentado (una pista gris con la opción activa en blanco y sombra suave), mucho más compacto que botones sueltos; los rangos de fecha de Pedidos van en dos campos lado a lado.
   - Se reemplazaron `GrupoFiltro`/`FiltrosAdmin` en `FiltrosAdmin.jsx`; los tres `Filtros*.jsx` ahora pasan `activos` (número) en vez de `hayFiltros`.
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (10)
+- **Menú de la carta**: se quitó la etiqueta "Disponible" de las tarjetas de producto (`ProductoListaItem.jsx`). La carta pública solo lista productos disponibles, así que la etiqueta no aportaba nada; "Agotado" se conserva por si algún producto llegara a mostrarse sin estar disponible.
+- Verificación: `npm run build` y `npm run lint`.
