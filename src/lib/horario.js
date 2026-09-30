@@ -69,6 +69,7 @@ export function agruparHorario(horario) {
   return Array.from(diasPorClave.entries()).map(([clave, dias]) => {
     const primerDia = horario[dias[0]]
     return {
+      claves: dias,
       etiquetaDias: dias.map((dia) => ETIQUETA_DIA[dia]).join(', '),
       texto: clave === 'cerrado' ? 'Cerrado' : `${formatearHora12(primerDia.abre)} - ${formatearHora12(primerDia.cierra)}`,
     }

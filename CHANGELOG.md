@@ -425,3 +425,8 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - La versión que se muestra cambia sola cada día y no parpadea al recargar; cada tarjeta tiene el botón "Otra idea ↻" para pasar a la siguiente versión.
   - Documentación: `docs/recomendaciones-asistente.md` (cómo funciona, cuándo aparece cada situación, qué datos usa y todos los mensajes con un negocio de ejemplo), generada con `node scripts/generar-doc-recomendaciones.mjs` a partir del código real para que no se desincronice.
 - Verificación: `npm run build`, `npm run lint` y prueba en Node con pedidos sintéticos (incluido el caso de un día sin pedidos) revisando que ninguna versión salga con `undefined`/`NaN`.
+
+## 2026-09-29 (21)
+- **Carta, sección "Sobre nosotros" compacta**: ocupaba mucho espacio (un título por cada dato, horario con una fila por grupo de días siempre visible). Ahora es una descripción corta y **una fila por dato**, separadas por una línea fina: **Horario** muestra solo el de hoy ("Hoy · 5:00pm - 1:00am") y se despliega al tocarlo para ver la semana completa; **Ubicación** es una fila que abre Google Maps (con flecha ↗); **Redes** lista los enlaces en una sola línea. Títulos y márgenes más pequeños. Si un dato no está configurado, su fila no aparece (igual que antes).
+  - `agruparHorario` (`lib/horario.js`) ahora devuelve también `claves` (los días de cada grupo) para poder encontrar el horario de hoy; no cambia nada de lo que ya usaba.
+- Verificación: `npm run build` y `npm run lint`.

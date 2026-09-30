@@ -1905,63 +1905,114 @@ body.body--con-nav-inferior .toast-contenedor {
   white-space: nowrap;
 }
 
-/* --- Inicio de la carta: Sobre nosotros --- */
+/* --- Inicio de la carta: Sobre nosotros ---
+   Compacto: descripción corta y una fila por dato (horario / ubicación / redes), separadas
+   por una línea fina. El horario se despliega solo al tocarlo. */
 .sobre-nosotros {
-  margin-top: var(--espacio-5);
-  padding-top: var(--espacio-4);
+  margin-top: var(--espacio-4);
+  padding-top: var(--espacio-3);
   border-top: 1px solid var(--color-borde);
 }
 
-.sobre-nosotros__subtitulo {
-  margin-top: var(--espacio-4);
-  margin-bottom: var(--espacio-2);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+.sobre-nosotros h2 {
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+
+.sobre-nosotros__descripcion {
+  margin: 0 0 var(--espacio-2);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--color-texto-suave);
+}
+
+.sobre-nosotros__filas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sobre-nosotros__filas > li {
+  border-top: 1px solid var(--color-borde);
+}
+
+/* Fila: etiqueta pequeña a la izquierda, valor a la derecha, flecha opcional al final. */
+.sobre-nosotros__fila,
+.sobre-nosotros__horario summary {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  padding: 11px 0;
+  min-height: 44px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.88rem;
+}
+
+.sobre-nosotros__horario summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.sobre-nosotros__horario summary::-webkit-details-marker {
+  display: none;
+}
+
+.sobre-nosotros__etiqueta {
+  flex: 0 0 76px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--color-texto-suave);
 }
 
-.sobre-nosotros__horario {
+.sobre-nosotros__valor {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.sobre-nosotros__flecha {
+  flex-shrink: 0;
+  color: var(--color-texto-suave);
+  transition: transform 0.15s ease;
+}
+
+.sobre-nosotros__horario[open] .sobre-nosotros__flecha {
+  transform: rotate(180deg);
+}
+
+.sobre-nosotros__semana {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 0 10px 88px;
   display: flex;
   flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
 }
 
-.sobre-nosotros__horario li {
+.sobre-nosotros__semana li {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: var(--espacio-2) 0;
-  border-bottom: 1px solid var(--color-borde);
-}
-
-.sobre-nosotros__horario li:last-child {
-  border-bottom: none;
-}
-
-.sobre-nosotros__horario li > span:first-child {
-  font-weight: 600;
+  gap: 1px;
 }
 
 .sobre-nosotros__redes {
+  flex: 1;
   display: flex;
-  gap: var(--espacio-3);
-  margin-top: var(--espacio-2);
+  flex-wrap: wrap;
+  gap: 6px 14px;
 }
 
 .sobre-nosotros__redes a {
   font-weight: 600;
   color: var(--color-acento);
   text-decoration: none;
-}
-
-.sobre-nosotros__direccion {
-  display: inline-block;
-  text-decoration: underline;
-  text-underline-offset: 2px;
 }
 
 /* --- Menú: buscador --- */
