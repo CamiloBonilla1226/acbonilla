@@ -414,3 +414,7 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 ## 2026-09-29 (18)
 - **Inicio: el total de pedidos no coincidía con la lista**: la tarjeta de Pedidos contaba todos los pedidos de la base (ej. 26), pero la pantalla Pedidos solo lista los de los últimos 30 días, así que los más antiguos parecían "perdidos". Ahora la tarjeta cuenta solo los de los últimos 30 días (con el mismo filtro que la lista) y lo indica en el detalle. Los pedidos más antiguos siguen en la base de datos.
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (19)
+- **Pedidos: contador "14 de 26" engañoso**: el contador del botón Filtros comparaba los pedidos mostrados contra **todos** los de la base, incluidos los de más de 30 días que esta pantalla nunca muestra. Ahora el total es el de los últimos 30 días, así que sin filtros dice "N en total" y con filtros "X de N" sobre lo realmente consultable.
+- Verificación: `npm run build` y `npm run lint`.

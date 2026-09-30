@@ -15,6 +15,9 @@ export function Pedidos() {
   const { nombre } = useAuth()
   const mostrarToast = useToast()
   const [filtros, setFiltros] = useState(FILTROS_PEDIDOS_INICIALES)
+  // El "total" del contador son los pedidos de los últimos 30 días (lo máximo consultable),
+  // no todos los de la base: así "14 de 26" no cuenta pedidos que esta pantalla nunca muestra.
+  const pedidosConsultables = aplicarFiltrosPedidos(pedidos, FILTROS_PEDIDOS_INICIALES)
   const pedidosFiltrados = aplicarFiltrosPedidos(pedidos, filtros)
 
   const cambiarEstado = async (id, estado) => {
@@ -34,7 +37,7 @@ export function Pedidos() {
             <FiltrosPedidos
               filtros={filtros}
               onCambiar={setFiltros}
-              total={pedidos.length}
+              total={pedidosConsultables.length}
               mostrados={pedidosFiltrados.length}
             />
             <TablaPedidos pedidos={pedidosFiltrados} onActualizarEstado={cambiarEstado} />
