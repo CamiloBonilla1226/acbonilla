@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { AdminNav } from '../../components/admin/AdminNav'
+import { AsistenteNegocio } from '../../components/admin/AsistenteNegocio'
 import { useAuth } from '../../hooks/useAuth'
 import { usePedidos } from '../../hooks/usePedidos'
 import { useProductos } from '../../hooks/useProductos'
@@ -97,6 +98,8 @@ export function Dashboard() {
             />
           )}
         </div>
+
+        <AsistenteNegocio pedidos={pedidos} productos={productos} cargando={cargandoPedidos || cargandoProductos} />
       </main>
     </>
   )

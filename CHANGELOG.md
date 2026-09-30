@@ -391,3 +391,13 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 ## 2026-09-29 (14)
 - **Dashboard, métricas clicables**: cada tarjeta (Pedidos, Productos, Categorías, Adiciones y Empleados) ahora es un enlace a su sección del panel, con una flecha y un efecto al pasar el mouse. Si el usuario no tiene permiso para esa sección (un empleado sin acceso a Productos, Categorías o Adiciones), la tarjeta se muestra igual pero sin enlace, para no llevarlo a una ruta que lo rebotaría.
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (15)
+- **Asistente del negocio en el Dashboard** (sin IA externa ni costo): nueva sección al final del dashboard que analiza los pedidos ya cargados y muestra:
+  - **Ventas del mes en curso** (total, cantidad de pedidos, ticket promedio y variación contra el mismo tramo del mes anterior). No cuenta pedidos rechazados; sí cuenta los "nuevos", porque ya son demanda real.
+  - **Pedidos por día de la semana** (últimos 90 días), con barras y el día más fuerte resaltado.
+  - **Qué día se compra más cada producto** (top 5 por unidades; solo aparece un producto si su mejor día tiene al menos 3 unidades, para no sacar conclusiones de una sola venta).
+  - **Recomendaciones** generadas por reglas: promoción para el día con menos domicilios (si tiene menos del 60% de los pedidos del día más fuerte), reforzar inventario el día más fuerte, destacar el producto estrella, oferta o revisión para productos disponibles sin ventas en 90 días, y aviso si las ventas van 15% o más por debajo o por encima del mes anterior. Con menos de 10 pedidos en la ventana solo muestra "Aún hay pocos datos".
+  - Archivos: `lib/analisisNegocio.js` (cálculo puro, sin dependencias), `AsistenteNegocio.jsx` y estilos `.asistente*` en `index.css`. Son reglas con umbrales, no predicciones: si más adelante se quiere lenguaje natural, se puede sumar una IA gratuita encima con estos mismos números.
+  - Probado con datos sintéticos en Node (ventas del mes, día flojo/fuerte, producto estrella, productos sin ventas, comparación con el mes anterior y caso sin datos).
+- Verificación: `npm run build` y `npm run lint`.
