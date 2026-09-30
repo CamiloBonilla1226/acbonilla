@@ -454,3 +454,7 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - Para no estorbar el scroll: el gesto vertical solo cuenta si el contenido del panel estaba en lo más alto al empezar el toque (`scrollTop` 0); si no, es scroll normal. El eje (horizontal o vertical) se decide con el primer movimiento claro y no cambia durante ese gesto.
   - `overscroll-behavior: contain` en los paneles (`.superposicion__panel`, `.opciones-producto`) para que arrastrar hacia abajo en lo más alto no dispare "tirar para recargar" del navegador en Android ni mueva el fondo.
 - Verificación: `npm run build` y `npm run lint`. No se pudo probar en un celular real desde esta sesión.
+
+## 2026-09-29 (26)
+- **Se quitó el banner de Inicio** (el de `piano-bar-banner.png` agregado en la entrada (24)): se eliminó la imagen de `Carta.jsx` y sus estilos `.seccion-inicio__banner`. El archivo `public/piano-bar-banner.png` se conserva en la carpeta por si se quiere reutilizar.
+- Verificación: `npm run build` y `npm run lint`.

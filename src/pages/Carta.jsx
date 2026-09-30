@@ -136,15 +136,6 @@ export function Carta() {
           <img src="/imagenprueba.png" alt={negocioConfig.nombre} className="seccion-inicio__logo" />
           <TarjetaOferta onClick={() => setSeccion('menu')} />
           <CarruselDestacados productos={destacados} onAbrirDetalle={setProductoSeleccionado} />
-          <img
-            src="/piano-bar-banner.png"
-            alt="Lounge bar: buena música, buenos tragos. Pide a domicilio desde nuestra carta."
-            className="seccion-inicio__banner"
-            width="1800"
-            height="900"
-            loading="lazy"
-            decoding="async"
-          />
           <SobreNosotros />
         </section>
 
