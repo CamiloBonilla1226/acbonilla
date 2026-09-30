@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { AdminNav } from '../../components/admin/AdminNav'
 import { TablaProductos } from '../../components/admin/TablaProductos'
+import {
+  FiltrosProductos,
+  FILTROS_PRODUCTOS_INICIALES,
+  aplicarFiltrosProductos,
+} from '../../components/admin/FiltrosProductos'
 import { FormularioProducto } from '../../components/admin/FormularioProducto'
 import { useCategorias } from '../../hooks/useCategorias'
 import { useProductos } from '../../hooks/useProductos'
@@ -15,6 +20,8 @@ export function Productos() {
     useProductos()
 
   const [productoEnEdicion, setProductoEnEdicion] = useState(null) // objeto o 'nuevo'
+  const [filtros, setFiltros] = useState(FILTROS_PRODUCTOS_INICIALES)
+  const productosFiltrados = aplicarFiltrosProductos(productos, filtros)
   const cerrarModal = () => setProductoEnEdicion(null)
   const swipe = useSwipeParaCerrar(cerrarModal)
   const mostrarToast = useToast()
@@ -57,12 +64,20 @@ export function Productos() {
         {cargando && <p className="texto-suave">Cargando productos…</p>}
         {error && <p className="campo__error">No se pudieron cargar los productos.</p>}
         {!cargando && !error && (
-          <TablaProductos
-            productos={productos}
-            onEditar={setProductoEnEdicion}
-            onEliminar={confirmarEliminar}
-            onToggleDisponible={toggleDisponible}
-          />
+          <>
+            <FiltrosProductos
+              filtros={filtros}
+              onCambiar={setFiltros}
+              total={productos.length}
+              mostrados={productosFiltrados.length}
+            />
+            <TablaProductos
+              productos={productosFiltrados}
+              onEditar={setProductoEnEdicion}
+              onEliminar={confirmarEliminar}
+              onToggleDisponible={toggleDisponible}
+            />
+          </>
         )}
       </main>
 

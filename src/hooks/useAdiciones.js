@@ -15,8 +15,8 @@ export function useAdiciones({
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
 
-  const recargar = useCallback(async () => {
-    setCargando(true)
+  const recargar = useCallback(async (silencioso = false) => {
+    if (!silencioso) setCargando(true)
     setError(null)
 
     let consulta = supabase
@@ -73,7 +73,7 @@ export function useAdiciones({
         .from('adiciones')
         .insert({ ...adicion, nombre: nombreLimpio, negocio_id: negocioConfig.negocioId })
 
-      if (!errorCrear) await recargar()
+      if (!errorCrear) await recargar(true)
       return { exito: !errorCrear, error: errorCrear }
     },
     [recargar]
@@ -107,7 +107,7 @@ export function useAdiciones({
 
       const { error: errorActualizar } = await supabase.from('adiciones').update(cambios).eq('id', id)
 
-      if (!errorActualizar) await recargar()
+      if (!errorActualizar) await recargar(true)
       return { exito: !errorActualizar, error: errorActualizar }
     },
     [recargar]
@@ -117,7 +117,7 @@ export function useAdiciones({
     async (id) => {
       const { error: errorEliminar } = await supabase.from('adiciones').delete().eq('id', id)
 
-      if (!errorEliminar) await recargar()
+      if (!errorEliminar) await recargar(true)
       return { exito: !errorEliminar, error: errorEliminar }
     },
     [recargar]
@@ -130,7 +130,7 @@ export function useAdiciones({
         .update({ disponible: valor })
         .eq('id', id)
 
-      if (!errorActualizar) await recargar()
+      if (!errorActualizar) await recargar(true)
       return { exito: !errorActualizar, error: errorActualizar }
     },
     [recargar]

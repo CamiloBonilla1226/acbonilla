@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { AdminNav } from '../../components/admin/AdminNav'
 import { TablaAdiciones } from '../../components/admin/TablaAdiciones'
+import {
+  FiltrosAdiciones,
+  FILTROS_ADICIONES_INICIALES,
+  aplicarFiltrosAdiciones,
+} from '../../components/admin/FiltrosAdiciones'
 import { FormularioAdicion } from '../../components/admin/FormularioAdicion'
 import { useAdiciones } from '../../hooks/useAdiciones'
 import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
@@ -13,6 +18,8 @@ export function Adiciones() {
     useAdiciones()
 
   const [adicionEnEdicion, setAdicionEnEdicion] = useState(null) // objeto o 'nuevo'
+  const [filtros, setFiltros] = useState(FILTROS_ADICIONES_INICIALES)
+  const adicionesFiltradas = aplicarFiltrosAdiciones(adiciones, filtros)
   const cerrarModal = () => setAdicionEnEdicion(null)
   const swipe = useSwipeParaCerrar(cerrarModal)
   const mostrarToast = useToast()
@@ -53,12 +60,20 @@ export function Adiciones() {
         {cargando && <p className="texto-suave">Cargando adiciones…</p>}
         {error && <p className="campo__error">No se pudieron cargar las adiciones.</p>}
         {!cargando && !error && (
-          <TablaAdiciones
-            adiciones={adiciones}
-            onEditar={setAdicionEnEdicion}
-            onEliminar={confirmarEliminar}
-            onToggleDisponible={toggleDisponible}
-          />
+          <>
+            <FiltrosAdiciones
+              filtros={filtros}
+              onCambiar={setFiltros}
+              total={adiciones.length}
+              mostrados={adicionesFiltradas.length}
+            />
+            <TablaAdiciones
+              adiciones={adicionesFiltradas}
+              onEditar={setAdicionEnEdicion}
+              onEliminar={confirmarEliminar}
+              onToggleDisponible={toggleDisponible}
+            />
+          </>
         )}
       </main>
 

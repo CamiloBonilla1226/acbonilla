@@ -11,8 +11,8 @@ export function useUsuariosAdmin() {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
 
-  const recargar = useCallback(async () => {
-    setCargando(true)
+  const recargar = useCallback(async (silencioso = false) => {
+    if (!silencioso) setCargando(true)
     setError(null)
 
     const { data, error: errorConsulta } = await supabase
@@ -59,7 +59,7 @@ export function useUsuariosAdmin() {
       }
       if (data?.error) return { exito: false, error: new Error(data.error) }
 
-      await recargar()
+      await recargar(true)
       return { exito: true }
     },
     [recargar]
@@ -84,7 +84,7 @@ export function useUsuariosAdmin() {
       }
       if (data?.error) return { exito: false, error: new Error(data.error) }
 
-      await recargar()
+      await recargar(true)
       return { exito: true }
     },
     [recargar]
@@ -93,7 +93,7 @@ export function useUsuariosAdmin() {
   const toggleActivo = useCallback(
     async (id, valor) => {
       const { error: errorActualizar } = await supabase.from('usuarios_admin').update({ activo: valor }).eq('id', id)
-      if (!errorActualizar) await recargar()
+      if (!errorActualizar) await recargar(true)
       return { exito: !errorActualizar, error: errorActualizar }
     },
     [recargar]
@@ -108,7 +108,7 @@ export function useUsuariosAdmin() {
         .from('usuarios_admin')
         .update({ [permiso]: valor })
         .eq('id', id)
-      if (!errorActualizar) await recargar()
+      if (!errorActualizar) await recargar(true)
       return { exito: !errorActualizar, error: errorActualizar }
     },
     [recargar]

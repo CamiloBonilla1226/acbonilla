@@ -2431,3 +2431,120 @@ body.admin .admin-login__boton {
   padding-block: 13px;
   font-size: 1rem;
 }
+
+/* =====================================================================================
+   Filtros de las listas admin (Productos / Adiciones) y tarjeta de adición simétrica
+   ===================================================================================== */
+.filtros-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 var(--espacio-3);
+  padding: 14px 16px;
+  background: var(--color-fondo);
+  border: 1px solid var(--color-borde);
+  border-radius: 12px;
+}
+
+.filtros-admin__grupo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filtros-admin__titulo {
+  flex: 0 0 76px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+.filtros-admin__chips {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 0;
+}
+
+.filtros-admin__chips::-webkit-scrollbar {
+  display: none;
+}
+
+.filtros-admin__chip {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border: 1px solid var(--color-borde);
+  border-radius: 999px;
+  background: var(--color-fondo);
+  color: var(--color-texto-suave);
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.filtros-admin__chip:hover {
+  border-color: #c4c4cc;
+  color: var(--color-texto);
+}
+
+.filtros-admin__chip--activo,
+.filtros-admin__chip--activo:hover {
+  background: var(--color-texto);
+  border-color: var(--color-texto);
+  color: var(--color-fondo);
+  font-weight: 600;
+}
+
+.filtros-admin__pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-borde);
+  font-size: 0.8rem;
+}
+
+.filtros-admin__limpiar {
+  border: none;
+  background: none;
+  padding: 2px 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-texto);
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .filtros-admin__grupo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .filtros-admin__chips {
+    width: 100%;
+  }
+}
+
+/* Adiciones: mismo esquema que el producto pero sin imagen (info | acciones), con el mismo
+   alto mínimo para que todas las tarjetas queden idénticas. */
+.adicion-admin-item {
+  padding: var(--espacio-3);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--espacio-3);
+  min-height: 112px;
+  transition: box-shadow 0.15s ease;
+}
+
+.adicion-admin-item:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-color: #d9d9df;
+}

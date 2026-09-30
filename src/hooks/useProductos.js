@@ -46,8 +46,8 @@ export function useProductos({
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
 
-  const recargar = useCallback(async () => {
-    setCargando(true)
+  const recargar = useCallback(async (silencioso = false) => {
+    if (!silencioso) setCargando(true)
     setError(null)
 
     let consulta = supabase
@@ -124,7 +124,7 @@ export function useProductos({
         }
       }
 
-      await recargar()
+      await recargar(true)
       return { exito: true, producto: data }
     },
     [recargar]
@@ -172,7 +172,7 @@ export function useProductos({
         }
       }
 
-      await recargar()
+      await recargar(true)
       return { exito: true }
     },
     [recargar]
@@ -182,7 +182,7 @@ export function useProductos({
     async (id) => {
       const { error: errorEliminar } = await supabase.from('productos').delete().eq('id', id)
 
-      if (!errorEliminar) await recargar()
+      if (!errorEliminar) await recargar(true)
       return { exito: !errorEliminar, error: errorEliminar }
     },
     [recargar]
@@ -195,7 +195,7 @@ export function useProductos({
         .update({ disponible: valor })
         .eq('id', id)
 
-      if (!errorActualizar) await recargar()
+      if (!errorActualizar) await recargar(true)
       return { exito: !errorActualizar, error: errorActualizar }
     },
     [recargar]

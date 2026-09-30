@@ -10,7 +10,7 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
 
 export function TablaProductos({ productos, onEditar, onEliminar, onToggleDisponible }) {
   if (productos.length === 0) {
-    return <p className="texto-suave">Todavía no hay productos. Crea el primero.</p>
+    return <p className="texto-suave">No hay productos para mostrar.</p>
   }
 
   return (

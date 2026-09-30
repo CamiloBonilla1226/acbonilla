@@ -8,29 +8,35 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
 
 export function TablaAdiciones({ adiciones, onEditar, onEliminar, onToggleDisponible }) {
   if (adiciones.length === 0) {
-    return <p className="texto-suave">Todavía no hay adiciones. Crea la primera.</p>
+    return <p className="texto-suave">No hay adiciones para mostrar.</p>
   }
 
   return (
     <ul className="lista-productos-admin">
       {adiciones.map((adicion) => (
-        <li key={adicion.id} className="tarjeta producto-admin-item">
+        <li
+          key={adicion.id}
+          className="tarjeta adicion-admin-item producto-admin-item--clicable"
+          onClick={() => onEditar(adicion)}
+        >
           <div className="producto-admin-item__info">
-            <strong>{adicion.nombre}</strong>
-            {adicion.descripcion && <span className="texto-suave">{adicion.descripcion}</span>}
-            <span>
-              {formatoPrecio.format(adicion.precio)}
-              {!adicion.disponible && ' · No disponible'}
+            <strong className="producto-admin-item__nombre" title={adicion.nombre}>
+              {adicion.nombre}
+            </strong>
+            <span className="texto-suave producto-admin-item__categoria">
+              {adicion.descripcion || 'Sin descripción'}
+            </span>
+            <span className="producto-admin-item__precio">{formatoPrecio.format(adicion.precio)}</span>
+            <span className="producto-admin-item__etiquetas">
+              {!adicion.disponible && (
+                <span className="producto-admin-item__etiqueta producto-admin-item__etiqueta--agotado">
+                  No disponible
+                </span>
+              )}
             </span>
           </div>
-          <div className="producto-admin-item__acciones">
-            <Interruptor
-              activo={adicion.disponible}
-              onCambiar={(valor) => onToggleDisponible(adicion.id, valor)}
-            />
-            <button type="button" className="boton boton--secundario boton--pequeno" onClick={() => onEditar(adicion)}>
-              Editar
-            </button>
+          <div className="producto-admin-item__acciones" onClick={(evento) => evento.stopPropagation()}>
+            <Interruptor activo={adicion.disponible} onCambiar={(valor) => onToggleDisponible(adicion.id, valor)} />
             <button type="button" className="carrito__quitar" onClick={() => onEliminar(adicion.id)}>
               Eliminar
             </button>
