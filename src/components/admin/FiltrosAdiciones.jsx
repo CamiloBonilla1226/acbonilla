@@ -22,15 +22,15 @@ export function aplicarFiltrosAdiciones(adiciones, filtros) {
 
 export function FiltrosAdiciones({ filtros, onCambiar, total, mostrados }) {
   const cambiar = (clave) => (valor) => onCambiar({ ...filtros, [clave]: valor })
-  const hayFiltros = Object.keys(FILTROS_ADICIONES_INICIALES).some(
+  const activos = Object.keys(FILTROS_ADICIONES_INICIALES).filter(
     (clave) => filtros[clave] !== FILTROS_ADICIONES_INICIALES[clave]
-  )
+  ).length
 
   return (
     <FiltrosAdmin
       total={total}
       mostrados={mostrados}
-      hayFiltros={hayFiltros}
+      activos={activos}
       onLimpiar={() => onCambiar(FILTROS_ADICIONES_INICIALES)}
     >
       <GrupoFiltro

@@ -60,7 +60,7 @@ export function FiltrosPedidos({ filtros, onCambiar, total, mostrados }) {
     <FiltrosAdmin
       total={total}
       mostrados={mostrados}
-      hayFiltros={filtros.rapido !== '30'}
+      activos={filtros.rapido !== '30' ? 1 : 0}
       onLimpiar={() => onCambiar(filtrosPedidosIniciales())}
     >
       <GrupoFiltro
@@ -70,12 +70,12 @@ export function FiltrosPedidos({ filtros, onCambiar, total, mostrados }) {
         opciones={[
           { valor: 'hoy', texto: 'Hoy' },
           { valor: 'ayer', texto: 'Ayer' },
-          { valor: '7', texto: 'Últimos 7 días' },
-          { valor: '30', texto: 'Últimos 30 días' },
+          { valor: '7', texto: '7 días' },
+          { valor: '30', texto: '30 días' },
         ]}
       />
       <div className="filtros-admin__grupo">
-        <span className="filtros-admin__titulo">Fechas</span>
+        <span className="filtros-admin__titulo">Rango (máx. 30 días)</span>
         <div className="filtros-admin__fechas">
           <label className="filtros-admin__fecha">
             <span>Desde</span>
@@ -87,7 +87,6 @@ export function FiltrosPedidos({ filtros, onCambiar, total, mostrados }) {
           </label>
         </div>
       </div>
-      <p className="filtros-admin__nota">Solo se pueden consultar los últimos 30 días.</p>
     </FiltrosAdmin>
   )
 }

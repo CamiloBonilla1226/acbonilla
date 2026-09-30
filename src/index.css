@@ -2433,103 +2433,157 @@ body.admin .admin-login__boton {
 }
 
 /* =====================================================================================
-   Filtros de las listas admin (Productos / Adiciones) y tarjeta de adición simétrica
+   Filtros de las listas admin (Productos / Adiciones / Pedidos): una barra de una línea
+   con botón "Filtros" + resultados; las opciones se despliegan en un panel solo al pedirlo.
    ===================================================================================== */
 .filtros-admin {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
   margin: 0 0 var(--espacio-3);
-  padding: 14px 16px;
-  background: var(--color-fondo);
-  border: 1px solid var(--color-borde);
-  border-radius: 12px;
 }
 
-.filtros-admin__grupo {
+.filtros-admin__barra {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.filtros-admin__titulo {
-  flex: 0 0 76px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-texto-suave);
-}
-
-.filtros-admin__chips {
-  display: flex;
-  gap: 6px;
-  min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding: 2px 0;
-}
-
-.filtros-admin__chips::-webkit-scrollbar {
-  display: none;
-}
-
-.filtros-admin__chip {
-  flex-shrink: 0;
-  padding: 6px 14px;
+.filtros-admin__boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
   border: 1px solid var(--color-borde);
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--color-fondo);
-  color: var(--color-texto-suave);
-  font-size: 0.85rem;
-  font-weight: 500;
-  white-space: nowrap;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.filtros-admin__chip:hover {
-  border-color: #c4c4cc;
   color: var(--color-texto);
-}
-
-.filtros-admin__chip--activo,
-.filtros-admin__chip--activo:hover {
-  background: var(--color-texto);
-  border-color: var(--color-texto);
-  color: var(--color-fondo);
+  font-size: 0.875rem;
   font-weight: 600;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.filtros-admin__pie {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-top: 10px;
-  border-top: 1px solid var(--color-borde);
+.filtros-admin__boton:hover,
+.filtros-admin__boton--abierto {
+  border-color: var(--color-texto);
+}
+
+.filtros-admin__contador {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--color-texto);
+  color: var(--color-fondo);
+  font-size: 0.7rem;
+  line-height: 18px;
+  text-align: center;
+}
+
+.filtros-admin__resultado {
+  margin-left: auto;
   font-size: 0.8rem;
+  color: var(--color-texto-suave);
 }
 
 .filtros-admin__limpiar {
   border: none;
   background: none;
-  padding: 2px 4px;
+  padding: 4px;
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-texto);
   text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-@media (max-width: 480px) {
-  .filtros-admin__grupo {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
+.filtros-admin__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 10px;
+  padding: 16px;
+  background: var(--color-fondo);
+  border: 1px solid var(--color-borde);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  animation: filtros-entrada 0.15s ease;
+}
 
-  .filtros-admin__chips {
-    width: 100%;
+@keyframes filtros-entrada {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
   }
+}
+
+.filtros-admin__grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filtros-admin__titulo {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+/* Control segmentado: una sola pista gris, la opción activa "flota" en blanco encima. */
+.filtros-admin__segmentos {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: #f0f0f2;
+  border-radius: 9px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.filtros-admin__segmento {
+  flex: 1 1 0;
+  padding: 7px 8px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--color-texto-suave);
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.filtros-admin__segmento:hover {
+  color: var(--color-texto);
+}
+
+.filtros-admin__segmento--activo,
+.filtros-admin__segmento--activo:hover {
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.filtros-admin__fechas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.filtros-admin__fecha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--color-texto-suave);
+}
+
+.filtros-admin__fecha input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--color-borde);
+  border-radius: 8px;
+  background: var(--color-fondo);
 }
 
 /* Adiciones: mismo esquema que el producto pero sin imagen (info | acciones), con el mismo
@@ -2615,31 +2669,4 @@ body.admin .admin-crear--boton {
   .admin-dashboard__metricas {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-}
-
-.filtros-admin__fechas {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.filtros-admin__fecha {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  color: var(--color-texto-suave);
-}
-
-.filtros-admin__fecha input {
-  padding: 6px 10px;
-  border: 1px solid var(--color-borde);
-  border-radius: 10px;
-  background: var(--color-fondo);
-}
-
-.filtros-admin__nota {
-  margin: 0;
-  font-size: 0.78rem;
-  color: var(--color-texto-suave);
 }

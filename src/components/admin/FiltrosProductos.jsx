@@ -32,15 +32,15 @@ export function aplicarFiltrosProductos(productos, filtros) {
 
 export function FiltrosProductos({ filtros, onCambiar, total, mostrados }) {
   const cambiar = (clave) => (valor) => onCambiar({ ...filtros, [clave]: valor })
-  const hayFiltros = Object.keys(FILTROS_PRODUCTOS_INICIALES).some(
+  const activos = Object.keys(FILTROS_PRODUCTOS_INICIALES).filter(
     (clave) => filtros[clave] !== FILTROS_PRODUCTOS_INICIALES[clave]
-  )
+  ).length
 
   return (
     <FiltrosAdmin
       total={total}
       mostrados={mostrados}
-      hayFiltros={hayFiltros}
+      activos={activos}
       onLimpiar={() => onCambiar(FILTROS_PRODUCTOS_INICIALES)}
     >
       <GrupoFiltro

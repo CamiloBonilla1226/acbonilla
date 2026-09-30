@@ -363,3 +363,9 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 - **Pedidos: filtro por fechas, máximo un mes** (`FiltrosPedidos.jsx`): atajos Hoy / Ayer / Últimos 7 días / Últimos 30 días (por defecto) y selectores Desde / Hasta. Los `<input type="date">` tienen `min` = hace 30 días y `max` = hoy, y `aplicarFiltrosPedidos` además recorta cualquier valor fuera de esa ventana, así que nunca se listan pedidos de más de 30 días. Si el usuario deja el rango invertido, el otro extremo se ajusta. El filtro se hace en el cliente sobre `creado_en` (día local).
   - Consecuencia a tener en cuenta: los pedidos de más de 30 días siguen en la base de datos pero ya no aparecen en el panel.
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (9)
+- **Filtros rediseñados (Productos, Adiciones y Pedidos)**: antes ocupaban una tarjeta grande con una fila de botones por cada filtro, empujando la lista fuera de la pantalla. Ahora son una barra de una sola línea: botón "Filtros" (con icono y un contador de cuántos hay activos), a la derecha la cantidad de resultados ("5 de 12") y un enlace "Limpiar" cuando hay filtros aplicados. Las opciones se despliegan en un panel solo al tocar el botón (cerrado por defecto).
+  - Dentro del panel cada grupo es un control segmentado (una pista gris con la opción activa en blanco y sombra suave), mucho más compacto que botones sueltos; los rangos de fecha de Pedidos van en dos campos lado a lado.
+  - Se reemplazaron `GrupoFiltro`/`FiltrosAdmin` en `FiltrosAdmin.jsx`; los tres `Filtros*.jsx` ahora pasan `activos` (número) en vez de `hayFiltros`.
+- Verificación: `npm run build` y `npm run lint`.
