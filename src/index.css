@@ -486,6 +486,9 @@ p {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  /* Evita que arrastrar hacia abajo en lo más alto del panel recargue la página (Android) o
+     desplace el fondo: ese gesto se usa para cerrar el panel (useSwipeParaCerrar). */
+  overscroll-behavior: contain;
 }
 
 @media (min-width: 640px) {

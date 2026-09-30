@@ -448,3 +448,9 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 ## 2026-09-29 (24)
 - **Banner en Inicio de la carta**: se agregó `public/piano-bar-banner.png` (1800×900) justo arriba de "Sobre nosotros". Como la imagen ya lleva el texto incrustado, se muestra **completa y sin recortar** al ancho del contenido (`width: 100%`, `height: auto`), con `width`/`height` y `aspect-ratio: 2 / 1` para reservar el espacio antes de cargar (sin saltos de layout), carga diferida (`loading="lazy"`) y un texto alternativo descriptivo. Estilos `.seccion-inicio__banner` en `index.css`.
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (25)
+- **Cerrar el detalle de un producto deslizando de arriba hacia abajo**: `useSwipeParaCerrar` ahora reconoce dos gestos: el de izquierda a derecha que ya existía y uno nuevo de arriba hacia abajo, en el que el panel sigue al dedo y se cierra al soltar pasados 80px. Aplica a todos los paneles que usan el hook (detalle de producto en la carta de domicilios y en la carta física, y los formularios de crear/editar del admin).
+  - Para no estorbar el scroll: el gesto vertical solo cuenta si el contenido del panel estaba en lo más alto al empezar el toque (`scrollTop` 0); si no, es scroll normal. El eje (horizontal o vertical) se decide con el primer movimiento claro y no cambia durante ese gesto.
+  - `overscroll-behavior: contain` en los paneles (`.superposicion__panel`, `.opciones-producto`) para que arrastrar hacia abajo en lo más alto no dispare "tirar para recargar" del navegador en Android ni mueva el fondo.
+- Verificación: `npm run build` y `npm run lint`. No se pudo probar en un celular real desde esta sesión.
