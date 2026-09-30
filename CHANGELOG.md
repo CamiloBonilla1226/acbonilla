@@ -383,3 +383,7 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - El botón "Guardar cambios" queda fijo al borde inferior de la pantalla (con fondo translúcido) para no tener que bajar hasta el final del formulario.
   - Solo cambió la presentación (`FormularioNegocio.jsx` e `index.css`); los datos, la validación y el guardado son los mismos. Se eliminaron los estilos `.formulario-negocio__*` que quedaron sin uso.
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (13)
+- **Horario de atención (pantalla Negocio)**: las horas se salían de la ficha en pantallas angostas porque cada día era una sola fila con anchos fijos (nombre + interruptor + dos campos de hora). Ahora cada día es una ficha de dos líneas: arriba el nombre y el interruptor (con "Cerrado" debajo del nombre si está apagado) y, solo si está abierto, abajo las dos horas repartidas al ancho completo (`minmax(0, 1fr)`), así nunca desbordan. Solo CSS (`index.css`).
+- Verificación: `npm run build` y `npm run lint`.

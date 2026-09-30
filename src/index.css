@@ -1484,7 +1484,9 @@ p {
   color: var(--color-texto-suave);
 }
 
-/* Horario: una fila por día (nombre | interruptor | horas), separadas por línea fina. */
+/* Horario: cada día es una ficha de dos líneas — arriba el nombre (con "Cerrado" si aplica)
+   y el interruptor; abajo, solo si está abierto, las dos horas repartidas al ancho completo.
+   Así las horas nunca se salen de la ficha, sin importar lo angosta que sea la pantalla. */
 .negocio-horario {
   display: flex;
   flex-direction: column;
@@ -1492,11 +1494,10 @@ p {
 
 .negocio-horario__dia {
   display: grid;
-  grid-template-columns: 96px auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
-  min-height: 56px;
-  padding: 8px 0;
+  gap: 10px 12px;
+  padding: 12px 0;
   border-bottom: 1px solid var(--color-borde);
 }
 
@@ -1506,41 +1507,34 @@ p {
 
 .negocio-horario__nombre {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
 }
 
 .negocio-horario__cerrado {
-  justify-self: end;
-  font-size: 0.85rem;
+  grid-column: 1;
+  grid-row: 2;
+  margin-top: -6px;
+  font-size: 0.82rem;
   color: var(--color-texto-suave);
 }
 
 .negocio-horario__horas {
-  display: flex;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
+  gap: 8px;
   color: var(--color-texto-suave);
 }
 
 .negocio-horario__horas input {
-  width: 108px;
-  padding: 7px 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
   border: 1px solid var(--color-borde);
   border-radius: 8px;
   background: var(--color-fondo);
-  font-size: 0.88rem;
-}
-
-@media (max-width: 400px) {
-  .negocio-horario__dia {
-    grid-template-columns: 80px auto 1fr;
-    gap: 8px;
-  }
-
-  .negocio-horario__horas input {
-    width: 92px;
-  }
+  font-size: 0.9rem;
 }
 
 /* Barra de guardar pegada al borde inferior de la pantalla mientras se edita. */
