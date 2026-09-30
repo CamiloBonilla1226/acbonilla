@@ -24,7 +24,7 @@ const ETIQUETA_ESTADO = {
 
 export function TablaPedidos({ pedidos, onActualizarEstado }) {
   if (pedidos.length === 0) {
-    return <p className="texto-suave">No hay pedidos todavía.</p>
+    return <p className="texto-suave">No hay pedidos en este periodo.</p>
   }
 
   return (

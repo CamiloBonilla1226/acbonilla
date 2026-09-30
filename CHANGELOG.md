@@ -356,3 +356,10 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 - **Aspecto de los filtros**: chips tipo píldora dentro de un recuadro blanco, el seleccionado en oscuro; en móvil cada fila se desliza en horizontal en lugar de partirse en varias líneas.
 - **Adiciones, tarjetas simétricas**: mismo esquema que las de producto (info | acciones, alto mínimo común, nombre y descripción a una línea con puntos suspensivos, fila de etiquetas con altura reservada para "No disponible"). Toda la tarjeta abre el editor (se quitó el botón "Editar"), igual que Productos y Categorías.
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (8)
+- **Botones "crear"** (Nuevo producto, Nueva adición, Crear empleado, etc., clase `admin-crear--boton`): se mantiene el color oscuro pero pasan de píldora a rectángulo (esquinas de 6px).
+- **Dashboard**: arriba una tarjeta con la información del negocio (nombre desde `negocioConfig.nombre` y nombre del dueño, leído de `usuarios_admin` con rol `dueño`; si no se puede leer o no existe muestra "Sin registrar"). Abajo, una cuadrícula de métricas: pedidos (total y nuevos), productos (total y activos), categorías (total y activas), adiciones (total y disponibles) y empleados (esta última solo la ve el dueño). Reemplaza la tarjeta única de "Pedidos nuevos".
+- **Pedidos: filtro por fechas, máximo un mes** (`FiltrosPedidos.jsx`): atajos Hoy / Ayer / Últimos 7 días / Últimos 30 días (por defecto) y selectores Desde / Hasta. Los `<input type="date">` tienen `min` = hace 30 días y `max` = hoy, y `aplicarFiltrosPedidos` además recorta cualquier valor fuera de esa ventana, así que nunca se listan pedidos de más de 30 días. Si el usuario deja el rango invertido, el otro extremo se ajusta. El filtro se hace en el cliente sobre `creado_en` (día local).
+  - Consecuencia a tener en cuenta: los pedidos de más de 30 días siguen en la base de datos pero ya no aparecen en el panel.
+- Verificación: `npm run build` y `npm run lint`.

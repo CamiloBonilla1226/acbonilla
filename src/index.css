@@ -2548,3 +2548,98 @@ body.admin .admin-login__boton {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   border-color: #d9d9df;
 }
+
+/* =====================================================================================
+   Dashboard (negocio + métricas), filtro de fechas de pedidos y botones "crear" rectos
+   ===================================================================================== */
+body.admin .admin-crear--boton {
+  border-radius: 6px;
+}
+
+.admin-dashboard__negocio {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--espacio-4);
+  margin-bottom: var(--espacio-3);
+}
+
+.admin-dashboard__etiqueta {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+.admin-dashboard__negocio h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.admin-dashboard__dueno {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: var(--espacio-3);
+  padding-top: var(--espacio-3);
+  border-top: 1px solid var(--color-borde);
+}
+
+.admin-dashboard__metricas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--espacio-2);
+}
+
+.admin-dashboard__metrica {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--espacio-3);
+  min-height: 116px;
+}
+
+.admin-dashboard__metrica strong {
+  font-size: 2.2rem;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.admin-dashboard__detalle {
+  font-size: 0.8rem;
+  color: var(--color-texto-suave);
+}
+
+@media (min-width: 560px) {
+  .admin-dashboard__metricas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.filtros-admin__fechas {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filtros-admin__fecha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--color-texto-suave);
+}
+
+.filtros-admin__fecha input {
+  padding: 6px 10px;
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  background: var(--color-fondo);
+}
+
+.filtros-admin__nota {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-texto-suave);
+}

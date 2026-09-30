@@ -1,4 +1,10 @@
+import { useState } from 'react'
 import { AdminNav } from '../../components/admin/AdminNav'
+import {
+  FiltrosPedidos,
+  aplicarFiltrosPedidos,
+  filtrosPedidosIniciales,
+} from '../../components/admin/FiltrosPedidos'
 import { TablaPedidos } from '../../components/admin/TablaPedidos'
 import { usePedidos } from '../../hooks/usePedidos'
 import { useAuth } from '../../hooks/useAuth'
@@ -8,6 +14,8 @@ export function Pedidos() {
   const { pedidos, cargando, error, actualizarEstadoPedido } = usePedidos({ tiempoReal: true })
   const { nombre } = useAuth()
   const mostrarToast = useToast()
+  const [filtros, setFiltros] = useState(filtrosPedidosIniciales)
+  const pedidosFiltrados = aplicarFiltrosPedidos(pedidos, filtros)
 
   const cambiarEstado = async (id, estado) => {
     const { exito } = await actualizarEstadoPedido(id, estado, nombre)
@@ -21,7 +29,17 @@ export function Pedidos() {
         <h1>Pedidos</h1>
         {cargando && <p className="texto-suave">Cargando pedidos…</p>}
         {error && <p className="campo__error">No se pudieron cargar los pedidos.</p>}
-        {!cargando && !error && <TablaPedidos pedidos={pedidos} onActualizarEstado={cambiarEstado} />}
+        {!cargando && !error && (
+          <>
+            <FiltrosPedidos
+              filtros={filtros}
+              onCambiar={setFiltros}
+              total={pedidos.length}
+              mostrados={pedidosFiltrados.length}
+            />
+            <TablaPedidos pedidos={pedidosFiltrados} onActualizarEstado={cambiarEstado} />
+          </>
+        )}
       </main>
     </>
   )
