@@ -58,7 +58,7 @@ export function AdminNav() {
 
         <div className="admin-drawer__enlaces">
           <NavLink to="/admin" end className={claseEnlace} onClick={cerrar}>
-            Dashboard
+            Inicio
           </NavLink>
           <NavLink to="/admin/pedidos" className={claseEnlace} onClick={cerrar}>
             Pedidos

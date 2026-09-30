@@ -4,8 +4,6 @@ import { AsistenteNegocio } from '../../components/admin/AsistenteNegocio'
 import { useAuth } from '../../hooks/useAuth'
 import { usePedidos } from '../../hooks/usePedidos'
 import { useProductos } from '../../hooks/useProductos'
-import { useCategorias } from '../../hooks/useCategorias'
-import { useAdiciones } from '../../hooks/useAdiciones'
 import { useUsuariosAdmin } from '../../hooks/useUsuariosAdmin'
 import { negocioConfig } from '../../config/negocio.config'
 
@@ -33,19 +31,14 @@ function Metrica({ titulo, valor, detalle, cargando, a }) {
 }
 
 export function Dashboard() {
-  const { esDueno, puedeProductos, puedeCategorias, puedeAdiciones } = useAuth()
+  const { puedeProductos } = useAuth()
   const { pedidos, cargando: cargandoPedidos } = usePedidos()
   const { productos, cargando: cargandoProductos } = useProductos()
-  const { categorias, cargando: cargandoCategorias } = useCategorias()
-  const { adiciones, cargando: cargandoAdiciones } = useAdiciones()
   const { usuarios, cargando: cargandoUsuarios } = useUsuariosAdmin()
 
   const pedidosNuevos = pedidos.filter((p) => p.estado === 'nuevo').length
   const productosActivos = productos.filter((p) => p.disponible).length
-  const categoriasActivas = categorias.filter((c) => c.activo).length
-  const adicionesDisponibles = adiciones.filter((a) => a.disponible).length
   const dueno = usuarios.find((u) => u.rol === 'dueño')
-  const empleados = usuarios.filter((u) => u.rol !== 'dueño')
 
   return (
     <>
@@ -75,28 +68,6 @@ export function Dashboard() {
             detalle={`${productosActivos} activos`}
             cargando={cargandoProductos}
           />
-          <Metrica
-            titulo="Categorías"
-            a={puedeCategorias ? '/admin/categorias' : undefined}
-            valor={categorias.length}
-            detalle={`${categoriasActivas} activas`}
-            cargando={cargandoCategorias}
-          />
-          <Metrica
-            titulo="Adiciones"
-            a={puedeAdiciones ? '/admin/adiciones' : undefined}
-            valor={adiciones.length}
-            detalle={`${adicionesDisponibles} disponibles`}
-            cargando={cargandoAdiciones}
-          />
-          {esDueno && (
-            <Metrica
-              titulo="Empleados"
-              a="/admin/usuarios"
-              valor={empleados.length}
-              cargando={cargandoUsuarios}
-            />
-          )}
         </div>
 
         <AsistenteNegocio pedidos={pedidos} productos={productos} cargando={cargandoPedidos || cargandoProductos} />

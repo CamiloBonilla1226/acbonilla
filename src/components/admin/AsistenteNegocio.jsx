@@ -25,7 +25,6 @@ export function AsistenteNegocio({ pedidos, productos, cargando }) {
         <strong>{analisis.dinero(analisis.totalMes)}</strong>
         <div className="asistente__dinero-detalle">
           <span>{analisis.pedidosMes} pedidos</span>
-          <span>Promedio {analisis.dinero(analisis.ticketPromedio)}</span>
           {variacion !== null && (
             <span className={variacion >= 0 ? 'asistente__sube' : 'asistente__baja'}>
               {variacion >= 0 ? '▲' : '▼'} {Math.abs(variacion).toFixed(0)}% vs. mes anterior

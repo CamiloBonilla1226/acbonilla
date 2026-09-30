@@ -401,3 +401,9 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - Archivos: `lib/analisisNegocio.js` (cálculo puro, sin dependencias), `AsistenteNegocio.jsx` y estilos `.asistente*` en `index.css`. Son reglas con umbrales, no predicciones: si más adelante se quiere lenguaje natural, se puede sumar una IA gratuita encima con estos mismos números.
   - Probado con datos sintéticos en Node (ventas del mes, día flojo/fuerte, producto estrella, productos sin ventas, comparación con el mes anterior y caso sin datos).
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (16)
+- **Dashboard renombrado a "Inicio"** en el menú lateral del admin (la ruta sigue siendo `/admin`).
+- **Inicio simplificado**: se quitaron las tarjetas de Categorías, Adiciones y Empleados; quedan Pedidos y Productos (en dos columnas). Se eliminaron las consultas que solo esas tarjetas usaban (`useCategorias`, `useAdiciones`); `useUsuariosAdmin` se conserva porque de ahí sale el nombre del dueño.
+- **Asistente del negocio**: se quitó el "Promedio $" de las ventas del mes (y su cálculo `ticketPromedio`). La lista "Qué día se compra más cada producto" pasó de 5 a un máximo de 3 productos para que no crezca.
+- Verificación: `npm run build` y `npm run lint`.

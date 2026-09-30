@@ -2705,11 +2705,6 @@ body.admin .admin-crear--boton {
   color: var(--color-texto-suave);
 }
 
-@media (min-width: 560px) {
-  .admin-dashboard__metricas {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
 
 /* Métricas del dashboard que llevan a su sección: se comportan como tarjetas-botón. */
 .admin-dashboard__metrica--enlace {

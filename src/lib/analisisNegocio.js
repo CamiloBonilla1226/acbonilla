@@ -87,8 +87,6 @@ export function analizarNegocio(pedidos, productos = [], ahora = new Date()) {
   const diaMasFlojo = [...porDia].sort((a, b) => a.pedidos - b.pedidos)[0]
   const maxPedidosDia = diaMasFuerte.pedidos
 
-  const ticketPromedio = ventas.length > 0 ? ventas.reduce((s, p) => s + (Number(p.total) || 0), 0) / ventas.length : 0
-
   // Productos disponibles sin una sola venta en la ventana: candidatos a oferta o a destacar.
   const vendidos = new Set(unidadesProducto.keys())
   const sinVentas = productos.filter((p) => p.disponible && !vendidos.has(p.nombre)).map((p) => p.nombre)
@@ -152,10 +150,9 @@ export function analizarNegocio(pedidos, productos = [], ahora = new Date()) {
     pedidosMes,
     totalMesAnterior,
     variacion,
-    ticketPromedio,
     porDia,
     maxPedidosDia,
-    topProductos: topProductos.slice(0, 5).filter((p) => p.unidadesMejorDia >= MIN_UNIDADES_PRODUCTO_DIA),
+    topProductos: topProductos.slice(0, 3).filter((p) => p.unidadesMejorDia >= MIN_UNIDADES_PRODUCTO_DIA),
     suficientesDatos,
     diasVentana: DIAS_VENTANA,
     recomendaciones,
