@@ -2960,3 +2960,16 @@ body.admin .admin-crear--boton {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* Banner de Inicio (arriba de "Sobre nosotros"): la imagen es 2:1 y lleva texto incrustado,
+   así que se muestra completa (sin recortar) al ancho del contenido, con la proporción
+   reservada desde el inicio para que no haya salto de layout al cargar. */
+.seccion-inicio__banner {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  margin-top: var(--espacio-4);
+  background: #0e0e0e;
+  border: 1px solid var(--color-borde);
+}

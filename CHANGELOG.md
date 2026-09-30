@@ -444,3 +444,7 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - Al confirmar un pedido se pasa a Inicio **reemplazando** la entrada del checkout (`{ reemplazar: true }`), para que "atrás" no devuelva a un checkout ya enviado.
   - Convive con `useCerrarConAtras` (detalle de producto): el detalle abierto es la entrada más reciente, así que el primer "atrás" lo cierra y los siguientes recorren las secciones.
 - Verificación: `npm run build` y `npm run lint`. No se pudo probar en un Android real desde esta sesión.
+
+## 2026-09-29 (24)
+- **Banner en Inicio de la carta**: se agregó `public/piano-bar-banner.png` (1800×900) justo arriba de "Sobre nosotros". Como la imagen ya lleva el texto incrustado, se muestra **completa y sin recortar** al ancho del contenido (`width: 100%`, `height: auto`), con `width`/`height` y `aspect-ratio: 2 / 1` para reservar el espacio antes de cargar (sin saltos de layout), carga diferida (`loading="lazy"`) y un texto alternativo descriptivo. Estilos `.seccion-inicio__banner` en `index.css`.
+- Verificación: `npm run build` y `npm run lint`.
