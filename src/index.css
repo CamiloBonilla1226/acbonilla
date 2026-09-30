@@ -2710,3 +2710,33 @@ body.admin .admin-crear--boton {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* Métricas del dashboard que llevan a su sección: se comportan como tarjetas-botón. */
+.admin-dashboard__metrica--enlace {
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.admin-dashboard__metrica--enlace:hover {
+  border-color: #d0d0d6;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+}
+
+.admin-dashboard__metrica--enlace:active {
+  transform: scale(0.98);
+}
+
+.admin-dashboard__flecha {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  color: var(--color-texto-suave);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.admin-dashboard__metrica--enlace:hover .admin-dashboard__flecha {
+  color: var(--color-texto);
+  transform: translateX(3px);
+}

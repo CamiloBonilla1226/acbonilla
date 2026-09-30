@@ -387,3 +387,7 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 ## 2026-09-29 (13)
 - **Horario de atención (pantalla Negocio)**: las horas se salían de la ficha en pantallas angostas porque cada día era una sola fila con anchos fijos (nombre + interruptor + dos campos de hora). Ahora cada día es una ficha de dos líneas: arriba el nombre y el interruptor (con "Cerrado" debajo del nombre si está apagado) y, solo si está abierto, abajo las dos horas repartidas al ancho completo (`minmax(0, 1fr)`), así nunca desbordan. Solo CSS (`index.css`).
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (14)
+- **Dashboard, métricas clicables**: cada tarjeta (Pedidos, Productos, Categorías, Adiciones y Empleados) ahora es un enlace a su sección del panel, con una flecha y un efecto al pasar el mouse. Si el usuario no tiene permiso para esa sección (un empleado sin acceso a Productos, Categorías o Adiciones), la tarjeta se muestra igual pero sin enlace, para no llevarlo a una ruta que lo rebotaría.
+- Verificación: `npm run build` y `npm run lint`.
