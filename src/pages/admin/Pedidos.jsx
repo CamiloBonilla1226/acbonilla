@@ -3,7 +3,7 @@ import { AdminNav } from '../../components/admin/AdminNav'
 import {
   FiltrosPedidos,
   aplicarFiltrosPedidos,
-  filtrosPedidosIniciales,
+  FILTROS_PEDIDOS_INICIALES,
 } from '../../components/admin/FiltrosPedidos'
 import { TablaPedidos } from '../../components/admin/TablaPedidos'
 import { usePedidos } from '../../hooks/usePedidos'
@@ -14,7 +14,7 @@ export function Pedidos() {
   const { pedidos, cargando, error, actualizarEstadoPedido } = usePedidos({ tiempoReal: true })
   const { nombre } = useAuth()
   const mostrarToast = useToast()
-  const [filtros, setFiltros] = useState(filtrosPedidosIniciales)
+  const [filtros, setFiltros] = useState(FILTROS_PEDIDOS_INICIALES)
   const pedidosFiltrados = aplicarFiltrosPedidos(pedidos, filtros)
 
   const cambiarEstado = async (id, estado) => {

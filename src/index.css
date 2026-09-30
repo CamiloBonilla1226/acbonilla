@@ -2564,27 +2564,6 @@ body.admin .admin-login__boton {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
-.filtros-admin__fechas {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.filtros-admin__fecha {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.78rem;
-  color: var(--color-texto-suave);
-}
-
-.filtros-admin__fecha input {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid var(--color-borde);
-  border-radius: 8px;
-  background: var(--color-fondo);
-}
 
 /* Adiciones: mismo esquema que el producto pero sin imagen (info | acciones), con el mismo
    alto mínimo para que todas las tarjetas queden idénticas. */

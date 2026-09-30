@@ -373,3 +373,7 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 ## 2026-09-29 (10)
 - **Menú de la carta**: se quitó la etiqueta "Disponible" de las tarjetas de producto (`ProductoListaItem.jsx`). La carta pública solo lista productos disponibles, así que la etiqueta no aportaba nada; "Agotado" se conserva por si algún producto llegara a mostrarse sin estar disponible.
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (11)
+- **Filtros de Pedidos**: se quitó el rango de fechas (Desde/Hasta). Ahora se filtra solo por **Periodo** (Hoy, Ayer, 7 días, 30 días; por defecto 30 días, que sigue siendo el máximo consultable) y por **Estado** (Todos, Nuevo, Aprobado, En preparación, Entregado, Rechazado). El estado y el periodo se combinan, y el contador del botón "Filtros" cuenta ambos.
+- Verificación: `npm run build` y `npm run lint`.
