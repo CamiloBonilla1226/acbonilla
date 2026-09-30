@@ -377,3 +377,9 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 ## 2026-09-29 (11)
 - **Filtros de Pedidos**: se quitó el rango de fechas (Desde/Hasta). Ahora se filtra solo por **Periodo** (Hoy, Ayer, 7 días, 30 días; por defecto 30 días, que sigue siendo el máximo consultable) y por **Estado** (Todos, Nuevo, Aprobado, En preparación, Entregado, Rechazado). El estado y el periodo se combinan, y el contador del botón "Filtros" cuenta ambos.
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-09-29 (12)
+- **Pantalla Negocio del admin, rediseño**: el formulario era una lista larga de campos sueltos. Ahora está dividido en tarjetas con título y una línea de ayuda: **Información** (descripción y dirección), **Redes sociales** (Instagram, Facebook, WhatsApp, con ejemplos en los placeholders), **Tarjeta de oferta** (el interruptor va en el encabezado y los campos de título/subtítulo, con contador de caracteres a la derecha, aparecen solo si está activa) y **Horario de atención** (una fila por día: nombre, interruptor y las dos horas alineadas a la derecha; "Cerrado" en gris cuando está apagado).
+  - El botón "Guardar cambios" queda fijo al borde inferior de la pantalla (con fondo translúcido) para no tener que bajar hasta el final del formulario.
+  - Solo cambió la presentación (`FormularioNegocio.jsx` e `index.css`); los datos, la validación y el guardado son los mismos. Se eliminaron los estilos `.formulario-negocio__*` que quedaron sin uso.
+- Verificación: `npm run build` y `npm run lint`.

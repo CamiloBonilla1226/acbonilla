@@ -107,56 +107,87 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
   }
 
   return (
-    <form className="checkout formulario-negocio" onSubmit={enviar} noValidate>
-      <label className="campo">
-        <span>Descripción corta</span>
-        <input type="text" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} maxLength={200} />
-      </label>
+    <form className="formulario-negocio" onSubmit={enviar} noValidate>
+      <section className="tarjeta negocio-seccion">
+        <header className="negocio-seccion__encabezado">
+          <h2>Información</h2>
+          <p>Lo que ven tus clientes en "Sobre nosotros".</p>
+        </header>
+        <label className="campo">
+          <span>Descripción corta</span>
+          <input
+            type="text"
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            maxLength={200}
+            placeholder="Ej. Licores y cocteles a domicilio"
+          />
+        </label>
+        <label className="campo">
+          <span>Dirección</span>
+          <input
+            type="text"
+            value={direccion}
+            onChange={(e) => setDireccion(e.target.value)}
+            maxLength={160}
+            placeholder="Ej. Calle 10 # 5-20"
+          />
+        </label>
+      </section>
 
-      <label className="campo">
-        <span>Dirección</span>
-        <input type="text" value={direccion} onChange={(e) => setDireccion(e.target.value)} maxLength={160} />
-      </label>
+      <section className="tarjeta negocio-seccion">
+        <header className="negocio-seccion__encabezado">
+          <h2>Redes sociales</h2>
+          <p>Enlaces completos, opcionales.</p>
+        </header>
+        <label className="campo">
+          <span>Instagram</span>
+          <input
+            type="url"
+            value={redes.instagram}
+            onChange={(e) => setRedes((r) => ({ ...r, instagram: e.target.value }))}
+            placeholder="https://instagram.com/tu_negocio"
+          />
+        </label>
+        <label className="campo">
+          <span>Facebook</span>
+          <input
+            type="url"
+            value={redes.facebook}
+            onChange={(e) => setRedes((r) => ({ ...r, facebook: e.target.value }))}
+            placeholder="https://facebook.com/tu_negocio"
+          />
+        </label>
+        <label className="campo">
+          <span>WhatsApp</span>
+          <input
+            type="url"
+            value={redes.whatsapp}
+            onChange={(e) => setRedes((r) => ({ ...r, whatsapp: e.target.value }))}
+            placeholder="https://wa.me/573001234567"
+          />
+        </label>
+      </section>
 
-      <label className="campo">
-        <span>Instagram (URL)</span>
-        <input
-          type="url"
-          value={redes.instagram}
-          onChange={(e) => setRedes((r) => ({ ...r, instagram: e.target.value }))}
-        />
-      </label>
-
-      <label className="campo">
-        <span>Facebook (URL)</span>
-        <input
-          type="url"
-          value={redes.facebook}
-          onChange={(e) => setRedes((r) => ({ ...r, facebook: e.target.value }))}
-        />
-      </label>
-
-      <label className="campo">
-        <span>WhatsApp para mostrar en "Sobre nosotros" (URL, opcional)</span>
-        <input
-          type="url"
-          value={redes.whatsapp}
-          onChange={(e) => setRedes((r) => ({ ...r, whatsapp: e.target.value }))}
-        />
-      </label>
-
-      <fieldset className="grupo-opciones formulario-negocio__oferta">
-        <legend className="grupo-opciones__titulo">Tarjeta de oferta en Inicio</legend>
-        <Interruptor
-          activo={oferta.activa}
-          etiqueta={oferta.activa ? 'Se muestra en Inicio' : 'No se muestra'}
-          onCambiar={(valor) => setOferta((actual) => ({ ...actual, activa: valor }))}
-        />
+      <section className="tarjeta negocio-seccion">
+        <header className="negocio-seccion__encabezado negocio-seccion__encabezado--fila">
+          <div>
+            <h2>Tarjeta de oferta</h2>
+            <p>{oferta.activa ? 'Se muestra en Inicio.' : 'No se muestra en Inicio.'}</p>
+          </div>
+          <Interruptor
+            activo={oferta.activa}
+            etiqueta=""
+            onCambiar={(valor) => setOferta((actual) => ({ ...actual, activa: valor }))}
+          />
+        </header>
 
         {oferta.activa && (
           <>
             <label className="campo">
-              <span>Título ({oferta.titulo.length}/{OFERTA_TITULO_MAX})</span>
+              <span>
+                Título <em className="negocio-seccion__contador">{oferta.titulo.length}/{OFERTA_TITULO_MAX}</em>
+              </span>
               <input
                 type="text"
                 value={oferta.titulo}
@@ -167,7 +198,12 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
             </label>
 
             <label className="campo">
-              <span>Subtítulo, opcional ({oferta.subtitulo.length}/{OFERTA_SUBTITULO_MAX})</span>
+              <span>
+                Subtítulo (opcional){' '}
+                <em className="negocio-seccion__contador">
+                  {oferta.subtitulo.length}/{OFERTA_SUBTITULO_MAX}
+                </em>
+              </span>
               <input
                 type="text"
                 value={oferta.subtitulo}
@@ -178,42 +214,52 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
             </label>
           </>
         )}
-      </fieldset>
+      </section>
 
-      <fieldset className="grupo-opciones formulario-negocio__horario">
-        <legend className="grupo-opciones__titulo">Horario de atención</legend>
-        {DIAS_FORMULARIO.map((dia) => (
-          <div key={dia} className="formulario-negocio__dia">
-            <span className="formulario-negocio__dia-nombre">{ETIQUETA_DIA[dia]}</span>
-            <Interruptor
-              activo={!horario[dia].cerrado}
-              etiqueta={horario[dia].cerrado ? 'Cerrado' : 'Abierto'}
-              onCambiar={(valor) => actualizarDia(dia, 'cerrado', !valor)}
-            />
-            {!horario[dia].cerrado && (
-              <div className="formulario-negocio__dia-horas">
-                <input
-                  type="time"
-                  value={horario[dia].abre}
-                  onChange={(e) => actualizarDia(dia, 'abre', e.target.value)}
-                />
-                <span>a</span>
-                <input
-                  type="time"
-                  value={horario[dia].cierra}
-                  onChange={(e) => actualizarDia(dia, 'cierra', e.target.value)}
-                />
-              </div>
-            )}
-          </div>
-        ))}
-      </fieldset>
+      <section className="tarjeta negocio-seccion">
+        <header className="negocio-seccion__encabezado">
+          <h2>Horario de atención</h2>
+          <p>Activa los días en que abres y define la hora.</p>
+        </header>
+        <div className="negocio-horario">
+          {DIAS_FORMULARIO.map((dia) => (
+            <div key={dia} className="negocio-horario__dia">
+              <span className="negocio-horario__nombre">{ETIQUETA_DIA[dia]}</span>
+              <Interruptor
+                activo={!horario[dia].cerrado}
+                etiqueta=""
+                onCambiar={(valor) => actualizarDia(dia, 'cerrado', !valor)}
+              />
+              {horario[dia].cerrado ? (
+                <span className="negocio-horario__cerrado">Cerrado</span>
+              ) : (
+                <div className="negocio-horario__horas">
+                  <input
+                    type="time"
+                    value={horario[dia].abre}
+                    onChange={(e) => actualizarDia(dia, 'abre', e.target.value)}
+                    aria-label={`${ETIQUETA_DIA[dia]}: hora de apertura`}
+                  />
+                  <span>–</span>
+                  <input
+                    type="time"
+                    value={horario[dia].cierra}
+                    onChange={(e) => actualizarDia(dia, 'cierra', e.target.value)}
+                    aria-label={`${ETIQUETA_DIA[dia]}: hora de cierre`}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {error && <p className="campo__error">{error}</p>}
-
-      <button type="submit" className="boton" disabled={guardando}>
-        {guardando ? 'Guardando…' : 'Guardar cambios'}
-      </button>
+      <div className="negocio-guardar">
+        {error && <p className="campo__error">{error}</p>}
+        <button type="submit" className="boton negocio-guardar__boton" disabled={guardando}>
+          {guardando ? 'Guardando…' : 'Guardar cambios'}
+        </button>
+      </div>
     </form>
   )
 }

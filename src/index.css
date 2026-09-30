@@ -1443,57 +1443,129 @@ p {
   }
 }
 
-/* --- Formulario admin de negocio: secciones como recuadros con título, en vez del
-   border-top plano que hereda .grupo-opciones (compartida con FormularioProducto) — separa
-   mejor "Tarjeta de oferta" de "Horario de atención" dentro de un formulario largo. */
-.formulario-negocio__oferta,
-.formulario-negocio__horario {
-  border: 1px solid var(--color-borde);
-  padding: var(--espacio-4);
-  margin: var(--espacio-2) 0 0;
-}
-
-.formulario-negocio__oferta > legend,
-.formulario-negocio__horario > legend {
-  padding: 0 var(--espacio-2);
-  margin-left: var(--espacio-2);
-  font-size: 0.95rem;
-  background: var(--color-fondo);
-}
-
-.formulario-negocio__oferta {
+/* --- Panel admin, pantalla Negocio: una tarjeta por tema (información, redes, oferta,
+   horario) y barra de guardar fija al pie para no tener que bajar hasta el final. --- */
+.formulario-negocio {
   display: flex;
   flex-direction: column;
   gap: var(--espacio-3);
 }
 
-/* --- Formulario admin de negocio: horario por día --- */
-.formulario-negocio__dia {
+.negocio-seccion {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: var(--espacio-2);
-  padding: var(--espacio-3) 0;
+  gap: 14px;
+  padding: 20px;
+}
+
+.negocio-seccion__encabezado h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+
+.negocio-seccion__encabezado p {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: var(--color-texto-suave);
+}
+
+.negocio-seccion__encabezado--fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+}
+
+.negocio-seccion__contador {
+  float: right;
+  font-style: normal;
+  font-weight: 400;
+  color: var(--color-texto-suave);
+}
+
+/* Horario: una fila por día (nombre | interruptor | horas), separadas por línea fina. */
+.negocio-horario {
+  display: flex;
+  flex-direction: column;
+}
+
+.negocio-horario__dia {
+  display: grid;
+  grid-template-columns: 96px auto 1fr;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 8px 0;
   border-bottom: 1px solid var(--color-borde);
 }
 
-.formulario-negocio__dia:last-child {
+.negocio-horario__dia:last-child {
   border-bottom: none;
 }
 
-.formulario-negocio__dia-nombre {
+.negocio-horario__nombre {
   font-weight: 600;
+  font-size: 0.9rem;
 }
 
-.formulario-negocio__dia-horas {
+.negocio-horario__cerrado {
+  justify-self: end;
+  font-size: 0.85rem;
+  color: var(--color-texto-suave);
+}
+
+.negocio-horario__horas {
   display: flex;
   align-items: center;
-  gap: var(--espacio-2);
+  justify-content: flex-end;
+  gap: 6px;
+  color: var(--color-texto-suave);
 }
 
-.formulario-negocio__dia-horas input {
+.negocio-horario__horas input {
+  width: 108px;
+  padding: 7px 8px;
   border: 1px solid var(--color-borde);
-  padding: var(--espacio-1) var(--espacio-2);
+  border-radius: 8px;
+  background: var(--color-fondo);
+  font-size: 0.88rem;
+}
+
+@media (max-width: 400px) {
+  .negocio-horario__dia {
+    grid-template-columns: 80px auto 1fr;
+    gap: 8px;
+  }
+
+  .negocio-horario__horas input {
+    width: 92px;
+  }
+}
+
+/* Barra de guardar pegada al borde inferior de la pantalla mientras se edita. */
+.negocio-guardar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 calc(var(--espacio-3) * -1);
+  padding: 12px var(--espacio-3) calc(12px + env(safe-area-inset-bottom));
+  background: rgba(245, 245, 247, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid var(--color-borde);
+}
+
+.negocio-guardar .campo__error {
+  margin: 0;
+}
+
+.negocio-guardar__boton {
+  width: 100%;
+  padding-block: 13px;
 }
 
 /* --- Carta de domicilios: shell de pestañas (Inicio / Menú / Carrito) --- */
@@ -2363,11 +2435,6 @@ body.admin .superposicion__panel {
   body.admin .confirmacion {
     border-radius: 16px;
   }
-}
-
-body.admin .formulario-negocio__oferta,
-body.admin .formulario-negocio__horario {
-  border-radius: var(--admin-radio);
 }
 
 /* Login: una sola columna centrada, sin adornos */
