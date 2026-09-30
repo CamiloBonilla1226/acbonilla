@@ -7,6 +7,7 @@ import { DetalleProductoFisico } from '../components/menu/DetalleProductoFisico'
 import { useCategorias } from '../hooks/useCategorias'
 import { useProductos } from '../hooks/useProductos'
 import { useAdiciones } from '../hooks/useAdiciones'
+import { useCerrarConAtras } from '../hooks/useCerrarConAtras'
 import { alSoltarFondo } from '../lib/superposicion'
 import { filtrarProductosVisibles } from '../lib/productosVisibles'
 import { Creditos } from '../components/layout/Creditos'
@@ -41,6 +42,8 @@ export function CartaFisica() {
 
   const [productoSeleccionado, setProductoSeleccionado] = useState(null)
   const cerrarDetalle = () => setProductoSeleccionado(null)
+  // "Atrás" del celular cierra el detalle en vez de salir de la página.
+  useCerrarConAtras(Boolean(productoSeleccionado), cerrarDetalle)
 
   return (
     <main className="contenedor pagina-carta carta-fisica">

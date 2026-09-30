@@ -17,6 +17,7 @@ import { useAdiciones } from '../hooks/useAdiciones'
 import { useCarrito } from '../hooks/useCarrito'
 import { useToast } from '../hooks/useToast'
 import { useSwipeNavegacion } from '../hooks/useSwipeNavegacion'
+import { useCerrarConAtras } from '../hooks/useCerrarConAtras'
 import { alSoltarFondo } from '../lib/superposicion'
 import { filtrarProductosVisibles, productosDestacados } from '../lib/productosVisibles'
 import { variantesDisponibles } from '../lib/variantes'
@@ -50,6 +51,9 @@ export function Carta() {
   }, [productosVisibles, categoriaSeleccionada, busqueda])
 
   const { adiciones } = useAdiciones({ soloDisponibles: true, soloVisibleDomicilios: true })
+
+  // "Atrás" del celular cierra el detalle del producto en vez de salir de la página.
+  useCerrarConAtras(Boolean(productoSeleccionado), () => setProductoSeleccionado(null))
 
   const carrito = useCarrito()
   const mostrarToast = useToast()
@@ -127,7 +131,7 @@ export function Carta() {
       <main className="contenedor pagina-carta pagina-carta--tabs">
         <section hidden={seccion !== 'inicio'} className="seccion-inicio">
           <img src="/imagenprueba.png" alt={negocioConfig.nombre} className="seccion-inicio__logo" />
-          <TarjetaOferta />
+          <TarjetaOferta onClick={() => setSeccion('menu')} />
           <CarruselDestacados productos={destacados} onAbrirDetalle={setProductoSeleccionado} />
           <SobreNosotros />
         </section>

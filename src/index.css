@@ -1701,6 +1701,11 @@ body.body--con-nav-inferior .toast-contenedor {
    minimalista. `color-mix` deja que el efecto se adapte al acento de cada negocio sin
    inventar un color fijo. */
 .tarjeta-oferta {
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
   position: relative;
   overflow: hidden;
   display: flex;

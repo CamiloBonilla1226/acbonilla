@@ -4,15 +4,15 @@ import { useNegocioConfig } from '../../hooks/useNegocioConfig'
 // (ícono, borde, tipografía) es el mismo para todos los negocios; el único texto que se
 // muestra es el que el dueño escribe en /admin/negocio (ver FormularioNegocio.jsx), sin
 // ningún rótulo fijo agregado. Si el dueño la desactiva, o no le puso título, no se
-// renderiza nada.
-export function TarjetaOferta() {
+// renderiza nada. Al tocarla lleva al Menú (`onClick`, ver Carta.jsx).
+export function TarjetaOferta({ onClick }) {
   const { config } = useNegocioConfig()
   const oferta = config?.oferta
 
   if (!oferta?.activa || !oferta?.titulo?.trim()) return null
 
   return (
-    <div className="tarjeta-oferta">
+    <button type="button" className="tarjeta-oferta" onClick={onClick}>
       <span className="tarjeta-oferta__brillo" aria-hidden="true" />
       <span className="tarjeta-oferta__icono" aria-hidden="true">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -22,10 +22,10 @@ export function TarjetaOferta() {
           <path d="M12 8c-1.6-3-6-3.4-6-0.4C6 8.3 8 8 12 8Zm0 0c1.6-3 6-3.4 6-0.4C18 8.3 16 8 12 8Z" />
         </svg>
       </span>
-      <div className="tarjeta-oferta__texto">
+      <span className="tarjeta-oferta__texto">
         <strong>{oferta.titulo}</strong>
         {oferta.subtitulo?.trim() && <span className="tarjeta-oferta__subtitulo">{oferta.subtitulo}</span>}
-      </div>
-    </div>
+      </span>
+    </button>
   )
 }
