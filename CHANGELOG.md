@@ -410,3 +410,7 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 
 ## 2026-09-29 (17)
 - **Script para simular pedidos** (`scripts/simular-pedidos.sql`), para probar el dashboard y el asistente del negocio: se pega en Supabase > SQL Editor y crea 20 pedidos entre el 2026-05-29 y el 2026-09-29 usando los productos reales del negocio (precio de oferta o normal, 1–3 productos y 1–3 unidades cada uno). Las fechas tienen más peso en viernes y sábado y muy poco en martes, para que el asistente encuentre un día fuerte y uno flojo; los de los últimos 2 días quedan en estado "nuevo" y el resto se reparte entre entregado, aprobado, en preparación y rechazado. Todos llevan `[SIM]` en el nombre del cliente para borrarlos después con `delete from pedidos where cliente_nombre like '[SIM]%';`. No se ejecutó desde aquí (no hay acceso a la base); lo corre el dueño.
+
+## 2026-09-29 (18)
+- **Inicio: el total de pedidos no coincidía con la lista**: la tarjeta de Pedidos contaba todos los pedidos de la base (ej. 26), pero la pantalla Pedidos solo lista los de los últimos 30 días, así que los más antiguos parecían "perdidos". Ahora la tarjeta cuenta solo los de los últimos 30 días (con el mismo filtro que la lista) y lo indica en el detalle. Los pedidos más antiguos siguen en la base de datos.
+- Verificación: `npm run build` y `npm run lint`.

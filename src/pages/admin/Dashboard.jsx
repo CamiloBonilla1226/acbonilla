@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { aplicarFiltrosPedidos, FILTROS_PEDIDOS_INICIALES } from '../../components/admin/FiltrosPedidos'
 import { AdminNav } from '../../components/admin/AdminNav'
 import { AsistenteNegocio } from '../../components/admin/AsistenteNegocio'
 import { useAuth } from '../../hooks/useAuth'
@@ -36,7 +37,10 @@ export function Dashboard() {
   const { productos, cargando: cargandoProductos } = useProductos()
   const { usuarios, cargando: cargandoUsuarios } = useUsuariosAdmin()
 
-  const pedidosNuevos = pedidos.filter((p) => p.estado === 'nuevo').length
+  // Mismo criterio que la pantalla Pedidos (últimos 30 días), para que el número de aquí
+  // coincida con los pedidos que se pueden listar allá.
+  const pedidosRecientes = aplicarFiltrosPedidos(pedidos, FILTROS_PEDIDOS_INICIALES)
+  const pedidosNuevos = pedidosRecientes.filter((p) => p.estado === 'nuevo').length
   const productosActivos = productos.filter((p) => p.disponible).length
   const dueno = usuarios.find((u) => u.rol === 'dueño')
 
@@ -57,8 +61,8 @@ export function Dashboard() {
           <Metrica
             titulo="Pedidos"
             a="/admin/pedidos"
-            valor={pedidos.length}
-            detalle={`${pedidosNuevos} nuevos`}
+            valor={pedidosRecientes.length}
+            detalle={`${pedidosNuevos} nuevos · últimos 30 días`}
             cargando={cargandoPedidos}
           />
           <Metrica
