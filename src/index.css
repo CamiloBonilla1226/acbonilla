@@ -1584,6 +1584,16 @@ body.body--con-nav-inferior .toast-contenedor {
   padding-bottom: calc(var(--espacio-6) + var(--alto-nav-inferior));
 }
 
+/* Zona donde useSwipeNavegacion escucha el deslizamiento horizontal (Carta.jsx). Sin esto,
+   en celulares reales el navegador podía quedarse con el gesto horizontal y cancelar el
+   toque, así que el swipe entre categorías del Menú no hacía nada. Con pan-y el navegador
+   solo maneja el scroll vertical y el zoom; lo horizontal queda para la página. Los
+   contenedores con scroll horizontal propio (chips, carrusel) no se ven afectados porque
+   touch-action se evalúa solo hasta el contenedor con scroll más cercano. */
+.carta-zona-swipe {
+  touch-action: pan-y pinch-zoom;
+}
+
 .header-negocio {
   position: sticky;
   top: 0;

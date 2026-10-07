@@ -130,7 +130,7 @@ export function Carta() {
       {/* El swipe se escucha en este contenedor, no solo en <main>, para que un gesto que
           arranca sobre el nav inferior (posición fija, pero DOM-hermano de <main>) también
           cambie de sección — antes solo funcionaba si el dedo tocaba primero el contenido. */}
-      <div onTouchStart={swipe.onTouchStart} onTouchEnd={swipe.onTouchEnd}>
+      <div className="carta-zona-swipe" onTouchStart={swipe.onTouchStart} onTouchEnd={swipe.onTouchEnd}>
       <main className="contenedor pagina-carta pagina-carta--tabs">
         <section hidden={seccion !== 'inicio'} className="seccion-inicio">
           <img src="/imagenprueba.png" alt={negocioConfig.nombre} className="seccion-inicio__logo" />
