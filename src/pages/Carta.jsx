@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { negocioConfig } from '../config/negocio.config'
 import { HeaderNegocio } from '../components/layout/HeaderNegocio'
 import { NavInferior } from '../components/layout/NavInferior'
@@ -31,6 +31,26 @@ export function Carta() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null)
   const [busqueda, setBusqueda] = useState('')
   const [productoSeleccionado, setProductoSeleccionado] = useState(null)
+
+  // Al cambiar de sección o de categoría el alto de la página cambia de golpe (ej. de la
+  // lista larga del Menú a Inicio). Si se conservaba el scroll, la página quedaba desplazada
+  // más allá de su nuevo final y en iPhone (WebKit) el nav inferior fijo se quedaba pegado a
+  // mitad de pantalla con espacio en blanco debajo. Se vuelve arriba antes de pintar.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+  }, [seccion, categoriaSeleccionada])
+
+  // Las secciones viven en el historial (useSeccionesConHistorial): con la restauración
+  // automática, "atrás" reaplicaba el scroll guardado de otra sección sobre una página más
+  // corta y provocaba el mismo problema. Mientras la carta está montada, el scroll lo maneja
+  // el efecto de arriba.
+  useEffect(() => {
+    const anterior = window.history.scrollRestoration
+    window.history.scrollRestoration = 'manual'
+    return () => {
+      window.history.scrollRestoration = anterior
+    }
+  }, [])
 
   const { categorias, cargando: cargandoCategorias, error: errorCategorias } = useCategorias({
     soloActivas: true,
