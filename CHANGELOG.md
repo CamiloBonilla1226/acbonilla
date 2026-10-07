@@ -458,3 +458,9 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 ## 2026-09-29 (26)
 - **Se quitó el banner de Inicio** (el de `piano-bar-banner.png` agregado en la entrada (24)): se eliminó la imagen de `Carta.jsx` y sus estilos `.seccion-inicio__banner`. El archivo `public/piano-bar-banner.png` se conserva en la carpeta por si se quiere reutilizar.
 - Verificación: `npm run build` y `npm run lint`.
+
+## 2026-10-07
+- **Corrección: el nav inferior (Inicio/Menú/Carrito) no respondía al tacto cerca del borde inferior de la pantalla**, reportado en Android. `.nav-inferior` reservaba espacio para el gesto del sistema solo con `padding-bottom: env(safe-area-inset-bottom, 0px)`, pero varios navegadores Android con navegación por gestos reportan ese valor en `0` aunque el borde físico siga reservado para el gesto de "ir a inicio" — el tap nunca llegaba a la página porque el sistema operativo lo interceptaba antes.
+  - `index.css`: se cambió a `padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--espacio-3))`, así se respeta el valor real cuando el navegador sí lo reporta (iOS con notch) y se garantiza un mínimo de 16px de aire en los demás casos, alejando los botones del borde exacto.
+  - Se ajustó `--alto-nav-inferior` de 64px a 72px para reflejar la nueva altura mínima del nav y que el espacio reservado para el contenido y el toast siga siendo suficiente.
+- Verificación: `npm run build` (148 módulos, sin errores). No se pudo probar en un dispositivo Android real desde esta sesión; pendiente de confirmación del usuario tras el próximo deploy.

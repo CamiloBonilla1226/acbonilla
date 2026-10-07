@@ -1567,7 +1567,9 @@ p {
 
 /* --- Carta de domicilios: shell de pestañas (Inicio / Menú / Carrito) --- */
 :root {
-  --alto-nav-inferior: 64px;
+  /* Incluye el mínimo de --espacio-3 que ahora garantiza el padding-bottom de .nav-inferior
+     (ver ahí el porqué) aunque el dispositivo no reporte safe-area-inset-bottom. */
+  --alto-nav-inferior: 72px;
 }
 
 /* Mientras NavInferior está montado (solo en la carta de domicilios), empuja el toast
@@ -1628,7 +1630,13 @@ body.body--con-nav-inferior .toast-contenedor {
   display: flex;
   background: var(--color-fondo);
   border-top: 1px solid var(--color-borde);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* No basta con env(safe-area-inset-bottom): en varios Android con navegación por gestos
+     ese valor llega en 0 aunque el borde inferior siga reservado para el gesto de "ir a
+     inicio" del sistema, así que un tap ahí nunca llegaba a llegar a los botones (pedido:
+     "cuando presiono muy abajo no me permite" cambiar de sección). Con max(), se respeta el
+     safe area real cuando el navegador sí lo reporta (iOS) y se garantiza igual un mínimo de
+     aire en los demás casos. */
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--espacio-3));
 }
 
 .nav-inferior__item {
