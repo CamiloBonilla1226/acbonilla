@@ -16,11 +16,13 @@ const SELECTOR_NAV = '.nav-inferior'
 // del límite, salvo que el gesto arranque sobre el nav inferior). Se ignora si el gesto
 // domina en vertical (para no pelear con el scroll normal de la página) o si empieza sobre
 // un contenedor con scroll horizontal propio.
-export function useSwipeNavegacion({ onSwipeIzquierda, onSwipeDerecha }) {
+// `selectorIgnorar` reemplaza la lista de zonas donde el gesto no cuenta (el panel admin usa
+// la suya, ver AdminLayout.jsx).
+export function useSwipeNavegacion({ onSwipeIzquierda, onSwipeDerecha, selectorIgnorar = SELECTOR_SCROLL_INTERNO }) {
   const inicio = useRef(null)
 
   const onTouchStart = (evento) => {
-    if (evento.target.closest?.(SELECTOR_SCROLL_INTERNO)) {
+    if (evento.target.closest?.(selectorIgnorar)) {
       inicio.current = null
       return
     }

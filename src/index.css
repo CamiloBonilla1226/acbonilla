@@ -1600,6 +1600,15 @@ body.body--con-nav-inferior .toast-contenedor {
   flex-direction: column;
 }
 
+/* Mismo criterio que .carta-zona-swipe, para el swipe entre secciones del panel admin
+   (AdminLayout.jsx): ocupa toda la pantalla y deja lo horizontal a la página. */
+.admin-zona-swipe {
+  touch-action: pan-y pinch-zoom;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .header-negocio {
   position: sticky;
   top: 0;

@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { negocioConfig } from '../../config/negocio.config'
+import { seccionesAdminVisibles } from '../../lib/seccionesAdmin'
 
 export function AdminNav() {
-  const { esDueno, puedeProductos, puedeCategorias, puedeAdiciones, cerrarSesion } = useAuth()
+  const auth = useAuth()
+  const { cerrarSesion } = auth
   const [abierto, setAbierto] = useState(false)
 
   // Cierra el panel con Escape, y evita el scroll del fondo mientras está abierto: son
@@ -57,37 +59,11 @@ export function AdminNav() {
         </div>
 
         <div className="admin-drawer__enlaces">
-          <NavLink to="/admin" end className={claseEnlace} onClick={cerrar}>
-            Inicio
-          </NavLink>
-          <NavLink to="/admin/pedidos" className={claseEnlace} onClick={cerrar}>
-            Pedidos
-          </NavLink>
-          {puedeProductos && (
-            <NavLink to="/admin/productos" className={claseEnlace} onClick={cerrar}>
-              Productos
+          {seccionesAdminVisibles(auth).map(({ ruta, etiqueta }) => (
+            <NavLink key={ruta} to={ruta} end={ruta === '/admin'} className={claseEnlace} onClick={cerrar}>
+              {etiqueta}
             </NavLink>
-          )}
-          {puedeCategorias && (
-            <NavLink to="/admin/categorias" className={claseEnlace} onClick={cerrar}>
-              Categorías
-            </NavLink>
-          )}
-          {puedeAdiciones && (
-            <NavLink to="/admin/adiciones" className={claseEnlace} onClick={cerrar}>
-              Adiciones
-            </NavLink>
-          )}
-          {esDueno && (
-            <NavLink to="/admin/usuarios" className={claseEnlace} onClick={cerrar}>
-              Usuarios
-            </NavLink>
-          )}
-          {esDueno && (
-            <NavLink to="/admin/negocio" className={claseEnlace} onClick={cerrar}>
-              Negocio
-            </NavLink>
-          )}
+          ))}
         </div>
 
         <div className="admin-drawer__pie">
