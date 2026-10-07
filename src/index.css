@@ -1592,6 +1592,12 @@ body.body--con-nav-inferior .toast-contenedor {
    touch-action se evalúa solo hasta el contenedor con scroll más cercano. */
 .carta-zona-swipe {
   touch-action: pan-y pinch-zoom;
+  /* Ocupa todo el alto de #root (flex, min-height 100svh) aunque el contenido sea corto,
+     para que el swipe funcione también en el espacio vacío bajo una lista con pocos
+     productos. <main> (.pagina-carta, flex: 1) se estira dentro. */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .header-negocio {

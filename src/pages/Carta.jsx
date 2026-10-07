@@ -145,12 +145,13 @@ export function Carta() {
 
   return (
     <>
+      {/* El swipe se escucha en este contenedor, que ocupa toda la pantalla (encabezado,
+          contenido, espacio vacío debajo de una lista corta y nav inferior): el gesto debe
+          funcionar en cualquier parte. Si solo cubriera el contenido, en una categoría con
+          pocos productos el dedo caía en el vacío de abajo y el swipe no hacía nada. */}
+      <div className="carta-zona-swipe" onTouchStart={swipe.onTouchStart} onTouchEnd={swipe.onTouchEnd}>
       <HeaderNegocio />
 
-      {/* El swipe se escucha en este contenedor, no solo en <main>, para que un gesto que
-          arranca sobre el nav inferior (posición fija, pero DOM-hermano de <main>) también
-          cambie de sección — antes solo funcionaba si el dedo tocaba primero el contenido. */}
-      <div className="carta-zona-swipe" onTouchStart={swipe.onTouchStart} onTouchEnd={swipe.onTouchEnd}>
       <main className="contenedor pagina-carta pagina-carta--tabs">
         <section hidden={seccion !== 'inicio'} className="seccion-inicio">
           <img src="/imagenprueba.png" alt={negocioConfig.nombre} className="seccion-inicio__logo" />
