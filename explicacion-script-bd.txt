@@ -947,6 +947,14 @@ productos para los empleados (sección 3). Las políticas exigen el rol
 "dueño" también en el USING (no solo en el WITH CHECK), para que borrar
 filas esté igual de protegido que crearlas.
 
+ESTADO: el paso 1 YA SE CORRIÓ (2026-10-07), dentro de una transacción
+(begin/commit) y con "on conflict do nothing" en la copia inicial — así,
+si algo fallaba no quedaba nada a medias, y volver a correr la copia no
+duplica filas. Verificado después: los 6 productos que tenían
+categoria_id quedaron con su fila en productos_categorias, y un visitante
+sin sesión no puede ejecutar reemplazar_categorias_productos (responde
+"permission denied", código 42501).
+
 PASO 2 — SCRIPT SQL (correrlo DESPUÉS de que el código nuevo esté
 desplegado y probado; antes, la versión vieja de la app todavía lee esta
 columna):
