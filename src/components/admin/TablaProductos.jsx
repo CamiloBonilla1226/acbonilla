@@ -40,14 +40,23 @@ export function TablaProductos({
           <li
             key={producto.id}
             className={`tarjeta producto-admin-item producto-admin-item--clicable${
-              seleccionado ? ' producto-admin-item--seleccionado' : ''
-            }`}
+              modoSeleccion ? ' producto-admin-item--modo-seleccion' : ''
+            }${seleccionado ? ' producto-admin-item--seleccionado' : ''}`}
             aria-selected={modoSeleccion ? seleccionado : undefined}
             {...presion(producto.id)}
             onClick={() => (modoSeleccion ? onAlternarSeleccion(producto.id) : onEditar(producto))}
           >
             <div className="producto-admin-item__imagen">
               <ImagenProducto src={producto.imagen_url} alt={producto.nombre} />
+              {modoSeleccion && (
+                <span className="producto-admin-item__marca" aria-hidden="true">
+                  {seleccionado && (
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 12.5l4 4L18 8" />
+                    </svg>
+                  )}
+                </span>
+              )}
             </div>
             <div className="producto-admin-item__info">
               <strong className="producto-admin-item__nombre" title={producto.nombre}>

@@ -1145,53 +1145,178 @@ p {
   pointer-events: none;
 }
 
-/* Seleccionada: solo un borde resaltado, sin cambiar nada del diseño de la tarjeta. */
+/* --- Modo selección de Productos (acciones masivas) ---
+   La tarjeta conserva su diseño: la selección se ve con un borde y una marca circular
+   sobre la esquina de la imagen (vacía en modo selección, con ✓ al seleccionarla). */
+.producto-admin-item__imagen {
+  position: relative;
+}
+
+.producto-admin-item__marca {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.28);
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+/* Seleccionada: círculo blanco relleno con ✓ oscuro — se distingue igual sobre fotos
+   oscuras (ej. un logo negro) que claras, gracias a la sombra. */
+.producto-admin-item--seleccionado .producto-admin-item__marca {
+  background: #fff;
+  color: #18181b;
+  transform: scale(1.1);
+}
+
 .producto-admin-item--seleccionado {
   outline: 2px solid var(--color-acento);
   outline-offset: -2px;
 }
 
-/* Barra de acciones masivas: pegada al borde inferior mientras se recorre la lista. */
+/* Mientras se selecciona, el interruptor y "Eliminar" de cada tarjeta se atenúan y no
+   responden: tocar cualquier parte de la tarjeta solo la marca o desmarca. */
+.producto-admin-item--modo-seleccion .producto-admin-item__acciones {
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+/* Barra flotante de acciones: tarjeta oscura sobre la lista, con aire a los lados y abajo
+   (respeta la zona del gesto de inicio del celular). */
 .acciones-masivas {
-  position: sticky;
-  bottom: 0;
-  z-index: 20;
-  margin: var(--espacio-3) calc(var(--espacio-3) * -1) 0;
-  padding: 12px var(--espacio-3) calc(12px + env(safe-area-inset-bottom, 0px));
+  position: fixed;
+  left: 50%;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  width: min(calc(100% - 24px), calc(var(--ancho-contenido) - 16px));
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
-  gap: var(--espacio-2);
-  background: var(--color-fondo);
-  border-top: 1px solid var(--color-borde);
-  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.08);
+  gap: 6px;
+  padding: 8px 8px 6px;
+  background: #18181b;
+  color: #fff;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.18);
+  animation: acciones-masivas-entrada 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+@keyframes acciones-masivas-entrada {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 24px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 .acciones-masivas__encabezado {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: var(--espacio-1) var(--espacio-3);
+  gap: var(--espacio-2);
+  min-height: 36px;
 }
 
-.acciones-masivas__enlace {
-  background: none;
-  border: none;
+.acciones-masivas__cerrar {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+}
+
+.acciones-masivas__contador {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.acciones-masivas__todos {
+  flex: 0 0 auto;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  color: #fff;
   font: inherit;
-  font-size: 0.85rem;
-  color: var(--color-acento);
-  text-decoration: underline;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
 }
 
 .acciones-masivas__botones {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--espacio-2);
+  gap: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.acciones-masivas__botones .boton {
-  padding-inline: var(--espacio-1);
+.acciones-masivas__accion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 56px;
+  padding: 6px 2px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.acciones-masivas__accion:active:not(:disabled),
+.acciones-masivas__cerrar:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.acciones-masivas__accion--peligro {
+  color: #ff8a80;
+}
+
+.acciones-masivas button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.acciones-masivas--ocupada .acciones-masivas__contador::after {
+  content: ' · aplicando…';
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+@media (hover: hover) {
+  .acciones-masivas__accion:hover:not(:disabled),
+  .acciones-masivas__cerrar:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Con la barra flotando, el toast sube por encima de ella. */
+body:has(.acciones-masivas) .toast-contenedor {
+  bottom: calc(160px + env(safe-area-inset-bottom, 0px));
 }
 
 /* Casillas de categorías (formulario de producto y cambio masivo). */
@@ -2402,7 +2527,25 @@ body.admin .producto-admin-item--seleccionado {
 }
 
 body.admin .acciones-masivas {
-  border-top-color: var(--admin-borde);
+  border-radius: 20px;
+}
+
+body.admin .acciones-masivas__cerrar {
+  border-radius: 50%;
+}
+
+body.admin .acciones-masivas__todos {
+  border-radius: 999px;
+}
+
+body.admin .acciones-masivas__accion {
+  border-radius: 12px;
+}
+
+/* Espacio extra al final para que la barra flotante no tape el último producto. Doble clase
+   para ganarle a la regla general de padding de las páginas admin, que va más abajo. */
+body.admin .admin-productos.admin-productos--seleccionando {
+  padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px));
 }
 
 body.admin .producto-admin-item__etiqueta {
