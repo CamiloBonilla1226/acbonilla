@@ -24,12 +24,21 @@ function precioEfectivo(producto, variante) {
 // cualquier adición, y todas son siempre opcionales (no hay grupos ni obligatoriedad).
 // Las variantes, en cambio, son propias de este producto (`useVariantesProducto`) y la
 // elección es obligatoria: cambian el precio final en vez de sumarse.
-export function OpcionesProducto({ producto, adiciones = [], onConfirmar, onCancelar }) {
+// `itemInicial`: una línea del carrito (ver useCarrito.js) para editarla. El panel arranca con
+// su variante, adiciones y cantidad, y el botón dice "Actualizar" en vez de "Agregar".
+export function OpcionesProducto({ producto, adiciones = [], itemInicial = null, onConfirmar, onCancelar }) {
   const { variantes } = useVariantesProducto(producto.id, { soloDisponibles: true })
-  const [seleccionadas, setSeleccionadas] = useState([])
-  const [varianteSeleccionada, setVarianteSeleccionada] = useState(null)
-  const [cantidad, setCantidad] = useState(1)
+  // Las adiciones elegidas se guardan con la forma de la tabla (`precio`), ver opcionesElegidas.
+  const [seleccionadas, setSeleccionadas] = useState(() =>
+    (itemInicial?.opcionesElegidas ?? []).map((o) => ({ id: o.id, nombre: o.nombre, precio: o.precio_extra }))
+  )
+  // Se guarda el id y no el objeto: las variantes llegan después (consulta aparte), y así la
+  // variante de la línea que se edita queda marcada apenas cargan.
+  const [varianteId, setVarianteId] = useState(itemInicial?.varianteId ?? null)
+  const varianteSeleccionada = variantes.find((variante) => variante.id === varianteId) ?? null
+  const [cantidad, setCantidad] = useState(itemInicial?.cantidad ?? 1)
   const swipe = useSwipeParaCerrar(onCancelar)
+  const editando = Boolean(itemInicial)
 
   const tieneVariantes = variantes.length > 0
   const faltaElegirVariante = tieneVariantes && !varianteSeleccionada
@@ -89,7 +98,7 @@ export function OpcionesProducto({ producto, adiciones = [], onConfirmar, onCanc
                   type="radio"
                   name="variante-producto"
                   checked={varianteSeleccionada?.id === variante.id}
-                  onChange={() => setVarianteSeleccionada(variante)}
+                  onChange={() => setVarianteId(variante.id)}
                 />
                 <span>{variante.nombre}</span>
                 <span className="texto-suave">{formatoPrecio.format(variante.precio)}</span>
@@ -123,7 +132,9 @@ export function OpcionesProducto({ producto, adiciones = [], onConfirmar, onCanc
             disabled={faltaElegirVariante}
             onClick={() => onConfirmar(cantidad, opcionesElegidas, varianteSeleccionada)}
           >
-            {faltaElegirVariante ? 'Elige una opción' : `Agregar · ${formatoPrecio.format(subtotal)}`}
+            {faltaElegirVariante
+              ? 'Elige una opción'
+              : `${editando ? 'Actualizar' : 'Agregar'} · ${formatoPrecio.format(subtotal)}`}
           </button>
         </div>
       </div>

@@ -55,6 +55,8 @@ export function useCarrito() {
           itemId,
           productoId: producto.id,
           nombre: producto.nombre,
+          imagenUrl: producto.imagen_url ?? null,
+          varianteId: variante?.id ?? null,
           varianteNombre: variante?.nombre ?? null,
           precioBase,
           cantidad,
@@ -88,6 +90,47 @@ export function useCarrito() {
     )
   }, [])
 
+  // Editar una línea desde el carrito (cambiar variante, adiciones o cantidad): la línea queda
+  // en su mismo lugar con la nueva elección. Si la nueva elección es idéntica a otra línea que
+  // ya existía, se suman en esa otra (misma regla de agrupación que agregarProducto).
+  const reemplazarItem = useCallback((itemIdAnterior, producto, opcionesElegidas = [], cantidad = 1, variante = null) => {
+    const itemId = construirItemId(producto.id, variante?.id, opcionesElegidas)
+    const precioBase = precioEfectivo(producto, variante)
+
+    setItems((actuales) => {
+      const anterior = actuales.find((item) => item.itemId === itemIdAnterior)
+      if (!anterior) return actuales
+      const otra = itemId !== itemIdAnterior ? actuales.find((item) => item.itemId === itemId) : null
+
+      if (otra) {
+        const nuevaCantidad = otra.cantidad + cantidad
+        return actuales
+          .filter((item) => item.itemId !== itemIdAnterior)
+          .map((item) =>
+            item.itemId === itemId
+              ? { ...item, cantidad: nuevaCantidad, subtotal: calcularSubtotal(precioBase, opcionesElegidas, nuevaCantidad) }
+              : item
+          )
+      }
+
+      return actuales.map((item) =>
+        item.itemId === itemIdAnterior
+          ? {
+              ...item,
+              itemId,
+              imagenUrl: producto.imagen_url ?? null,
+              varianteId: variante?.id ?? null,
+              varianteNombre: variante?.nombre ?? null,
+              precioBase,
+              cantidad,
+              opcionesElegidas,
+              subtotal: calcularSubtotal(precioBase, opcionesElegidas, cantidad),
+            }
+          : item
+      )
+    })
+  }, [])
+
   const vaciarCarrito = useCallback(() => setItems([]), [])
 
   const total = useMemo(() => items.reduce((suma, item) => suma + item.subtotal, 0), [items])
@@ -100,6 +143,7 @@ export function useCarrito() {
     agregarProducto,
     quitarItem,
     cambiarCantidad,
+    reemplazarItem,
     vaciarCarrito,
   }
 }

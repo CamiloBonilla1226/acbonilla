@@ -736,9 +736,15 @@ body.admin .superposicion__panel::before {
   flex-direction: column;
 }
 
+/* Ficha de un producto en el carrito: foto a la izquierda (ocupa las dos filas), nombre,
+   variante (en una etiqueta), adiciones y precio por unidad en el centro, subtotal a la
+   derecha, y abajo la cantidad + "Modificar". Toda la ficha abre el detalle para editarla. */
 .carrito__item {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 64px 1fr auto;
+  grid-template-areas:
+    'imagen info precio'
+    'imagen pie pie';
   align-items: start;
   column-gap: var(--espacio-3);
   row-gap: var(--espacio-2);
@@ -746,11 +752,56 @@ body.admin .superposicion__panel::before {
   border-bottom: 1px solid var(--color-borde);
 }
 
+.carrito__item--editable {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.carrito__item--editable:active {
+  background: var(--color-secundario);
+}
+
+.carrito__item-imagen {
+  grid-area: imagen;
+  width: 64px;
+  background: var(--color-secundario);
+}
+
+.carrito__item-variante {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 1px 6px;
+  border: 1px solid var(--color-borde);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.carrito__item-pie {
+  grid-area: pie;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-2);
+}
+
+.carrito__editar {
+  padding: 6px 0;
+  border: none;
+  background: none;
+  color: var(--color-texto-suave);
+  font: inherit;
+  font-size: 0.82rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
 .carrito__item:first-child {
   border-top: 1px solid var(--color-borde);
 }
 
 .carrito__item-info {
+  grid-area: info;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -767,16 +818,16 @@ body.admin .superposicion__panel::before {
 }
 
 .carrito__item-precio {
+  grid-area: precio;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .carrito__cantidad {
-  grid-column: 1 / -1;
   display: inline-flex;
   align-items: center;
-  justify-self: start;
   border: 1px solid var(--color-borde);
+  background: var(--color-fondo);
 }
 
 .carrito__cantidad button {

@@ -37,6 +37,8 @@ export function Carta() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null)
   const [busqueda, setBusqueda] = useState('')
   const [productoSeleccionado, setProductoSeleccionado] = useState(null)
+  // Línea del carrito que se está modificando en el detalle (null = agregar uno nuevo).
+  const [itemEditando, setItemEditando] = useState(null)
 
   // Al cambiar de sección o de categoría el alto de la página cambia de golpe (ej. de la
   // lista larga del Menú a Inicio). Si se conservaba el scroll, la página quedaba desplazada
@@ -86,7 +88,10 @@ export function Carta() {
   const ofertas = useMemo(() => (ofertaActiva ? [ofertaActiva] : []), [ofertaActiva])
 
   // "Atrás" del celular cierra el detalle del producto en vez de salir de la página.
-  useCerrarConAtras(Boolean(productoSeleccionado), () => setProductoSeleccionado(null))
+  useCerrarConAtras(Boolean(productoSeleccionado), () => {
+    setProductoSeleccionado(null)
+    setItemEditando(null)
+  })
 
   const carrito = useCarrito()
   const mostrarToast = useToast()
@@ -151,10 +156,30 @@ export function Carta() {
     }
   }
 
-  const confirmarOpciones = (cantidad, opcionesElegidas, variante) => {
-    carrito.agregarProducto(productoSeleccionado, opcionesElegidas, cantidad, variante)
+  // Tocar una línea del carrito abre el mismo detalle del producto con lo que eligió el cliente
+  // (variante, adiciones, cantidad) para modificarlo. Si el producto ya no está en la carta
+  // (agotado u oculto después de agregarlo), la línea no se puede editar.
+  const editarItemCarrito = (item) => {
+    const producto = productosVisibles.find((p) => p.id === item.productoId)
+    if (!producto) return
+    setItemEditando(item)
+    setProductoSeleccionado(producto)
+  }
+
+  const cerrarDetalle = () => {
     setProductoSeleccionado(null)
-    mostrarToast('Agregado al carrito')
+    setItemEditando(null)
+  }
+
+  const confirmarOpciones = (cantidad, opcionesElegidas, variante) => {
+    if (itemEditando) {
+      carrito.reemplazarItem(itemEditando.itemId, productoSeleccionado, opcionesElegidas, cantidad, variante)
+      mostrarToast('Producto actualizado')
+    } else {
+      carrito.agregarProducto(productoSeleccionado, opcionesElegidas, cantidad, variante)
+      mostrarToast('Agregado al carrito')
+    }
+    cerrarDetalle()
   }
 
   return (
@@ -215,6 +240,8 @@ export function Carta() {
             onIrACheckout={() => setSeccion('checkout')}
             onAbrirDetalle={setProductoSeleccionado}
             onAgregarRapido={agregarRapido}
+            onEditarItem={editarItemCarrito}
+            puedeEditar={(item) => productosVisibles.some((p) => p.id === item.productoId)}
             onVerMenu={() => setSeccion('menu')}
           />
         </section>
@@ -246,13 +273,15 @@ export function Carta() {
           className="superposicion"
           role="dialog"
           aria-modal="true"
-          onClick={alSoltarFondo(() => setProductoSeleccionado(null))}
+          onClick={alSoltarFondo(cerrarDetalle)}
         >
           <OpcionesProducto
+            key={itemEditando?.itemId ?? productoSeleccionado.id}
             producto={productoSeleccionado}
             adiciones={adiciones}
+            itemInicial={itemEditando}
             onConfirmar={confirmarOpciones}
-            onCancelar={() => setProductoSeleccionado(null)}
+            onCancelar={cerrarDetalle}
           />
         </div>
       )}

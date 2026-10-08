@@ -1,4 +1,5 @@
 import { CarruselDestacados } from '../menu/CarruselDestacados'
+import { ImagenProducto } from '../menu/ImagenProducto'
 import { evaluarOfertas, formatoPrecio } from '../../lib/tiposOferta'
 
 // Barra por cada oferta activa con una meta de compra (ej. domicilio gratis desde $X, ver
@@ -36,6 +37,9 @@ function ProgresoOfertas({ ofertas, total }) {
 // `recomendados` (ver productosRecomendados): con el carrito vacío ocupan la pantalla como
 // sugerencia para empezar; con productos, van en un carrusel debajo del total para sumar más
 // sin volver al Menú. `onAbrirDetalle`/`onAgregarRapido` son los mismos del Menú.
+// Cada línea muestra foto, variante, adiciones y precio por unidad; tocarla (o "Modificar")
+// llama a `onEditarItem`, que abre el detalle del producto con esa elección para cambiar la
+// variante, las adiciones o la cantidad. `puedeEditar` dice si el producto sigue en la carta.
 export function Carrito({
   items,
   total,
@@ -46,6 +50,8 @@ export function Carrito({
   onIrACheckout,
   onAbrirDetalle,
   onAgregarRapido,
+  onEditarItem,
+  puedeEditar = () => false,
   onVerMenu,
 }) {
   const carrusel = (props) => (
@@ -93,40 +99,67 @@ export function Carrito({
 
       <ul className="carrito__lista">
         {items.map((item) => {
-          const detalle = [item.varianteNombre, ...item.opcionesElegidas.map((o) => o.nombre)].filter(Boolean).join(', ')
+          const adicionesTexto = item.opcionesElegidas.map((o) => o.nombre).join(', ')
+          const editable = puedeEditar(item)
+          const precioUnidad = item.subtotal / item.cantidad
           return (
-            <li key={item.itemId} className="carrito__item">
+            <li
+              key={item.itemId}
+              className={`carrito__item${editable ? ' carrito__item--editable' : ''}`}
+              {...(editable && {
+                role: 'button',
+                tabIndex: 0,
+                'aria-label': `Modificar ${item.nombre}`,
+                onClick: () => onEditarItem(item),
+                onKeyDown: (evento) => evento.key === 'Enter' && evento.target === evento.currentTarget && onEditarItem(item),
+              })}
+            >
+              <div className="carrito__item-imagen">
+                <ImagenProducto src={item.imagenUrl} alt="" relacionAspecto="1 / 1" />
+              </div>
               <div className="carrito__item-info">
                 <span className="carrito__item-nombre">{item.nombre}</span>
-                {detalle && <span className="texto-suave carrito__item-detalle">{detalle}</span>}
+                {item.varianteNombre && <span className="carrito__item-variante">{item.varianteNombre}</span>}
+                {adicionesTexto && <span className="texto-suave carrito__item-detalle">+ {adicionesTexto}</span>}
+                {item.cantidad > 1 && (
+                  <span className="texto-suave carrito__item-detalle">{formatoPrecio.format(precioUnidad)} c/u</span>
+                )}
               </div>
               <span className="carrito__item-precio">{formatoPrecio.format(item.subtotal)}</span>
-              {/* Con 1 unidad, el "−" se vuelve una papelera: quita la línea (antes había un
-                  botón "Quitar" aparte; se quitó para dejar la fila más limpia). */}
-              <div className="carrito__cantidad">
-                {item.cantidad === 1 ? (
-                  <button type="button" aria-label={`Quitar ${item.nombre}`} onClick={() => onQuitar(item.itemId)}>
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
-                      <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
-                    </svg>
-                  </button>
-                ) : (
+              {/* Los controles de abajo no abren el detalle al tocarlos (stopPropagation). */}
+              <div className="carrito__item-pie" onClick={(evento) => evento.stopPropagation()}>
+                {/* Con 1 unidad, el "−" se vuelve una papelera: quita la línea (antes había un
+                    botón "Quitar" aparte; se quitó para dejar la fila más limpia). */}
+                <div className="carrito__cantidad">
+                  {item.cantidad === 1 ? (
+                    <button type="button" aria-label={`Quitar ${item.nombre}`} onClick={() => onQuitar(item.itemId)}>
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                        <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
+                      </svg>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      aria-label={`Restar uno de ${item.nombre}`}
+                      onClick={() => onCambiarCantidad(item.itemId, item.cantidad - 1)}
+                    >
+                      −
+                    </button>
+                  )}
+                  <span aria-label="Cantidad">{item.cantidad}</span>
                   <button
                     type="button"
-                    aria-label={`Restar uno de ${item.nombre}`}
-                    onClick={() => onCambiarCantidad(item.itemId, item.cantidad - 1)}
+                    aria-label={`Sumar uno de ${item.nombre}`}
+                    onClick={() => onCambiarCantidad(item.itemId, item.cantidad + 1)}
                   >
-                    −
+                    +
+                  </button>
+                </div>
+                {editable && (
+                  <button type="button" className="carrito__editar" onClick={() => onEditarItem(item)}>
+                    {item.varianteNombre ? 'Cambiar opción' : 'Modificar'}
                   </button>
                 )}
-                <span aria-label="Cantidad">{item.cantidad}</span>
-                <button
-                  type="button"
-                  aria-label={`Sumar uno de ${item.nombre}`}
-                  onClick={() => onCambiarCantidad(item.itemId, item.cantidad + 1)}
-                >
-                  +
-                </button>
               </div>
             </li>
           )
