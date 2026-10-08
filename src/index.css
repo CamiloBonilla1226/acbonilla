@@ -504,6 +504,48 @@ p {
   padding: var(--espacio-3);
 }
 
+/* Barrita de agarre arriba de cada panel (móvil): indica de dónde se arrastra hacia abajo
+   para cerrarlo — solo esa franja superior cierra, ver useSwipeParaCerrar.js. */
+.superposicion__panel::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 4px;
+  margin: calc(var(--espacio-1) * -1) auto var(--espacio-3);
+  background: var(--color-borde);
+}
+
+/* En el detalle de producto de la carta la foto ocupa la parte de arriba: la barrita va
+   superpuesta sobre la imagen (blanca con sombra) en vez de empujar el contenido. */
+.opciones-producto {
+  position: relative;
+}
+
+.opciones-producto::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 1;
+  width: 40px;
+  height: 4px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+@media (min-width: 640px) {
+  .superposicion__panel::before,
+  .opciones-producto::before {
+    display: none;
+  }
+}
+
+body.admin .superposicion__panel::before {
+  border-radius: 2px;
+  background: #d4d4d8;
+}
+
 .superposicion__cerrar {
   background: transparent;
   border: none;
@@ -3069,9 +3111,25 @@ body.admin .admin-login__boton {
   font-size: 0.88rem;
 }
 
-.admin-ofertas__resumen {
-  margin: var(--espacio-3) 0 var(--espacio-2);
-  font-size: 0.85rem;
+.admin-ofertas__grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+  margin-top: var(--espacio-4);
+}
+
+.admin-ofertas__titulo {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+.admin-ofertas__grupo .admin-crear {
+  align-self: flex-start;
+  margin: 0;
 }
 
 .oferta-admin-item--en-inicio {

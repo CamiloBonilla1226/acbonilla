@@ -1118,17 +1118,47 @@ vieja de la app todavía lee y escribe esta columna):
 
     alter table negocio_config drop column oferta;
 
-TIPOS DE OFERTA (definidos en el código, src/lib/tiposOferta.js):
-- informativa: solo muestra título y subtítulo en Inicio.
-- domicilio_gratis: configuracion {"monto_minimo": número}. En el
-  carrito aparece una barra que se va llenando con el total del pedido
-  ("Te faltan $X para el domicilio gratis"); al llegar al monto, el
-  mensaje de WhatsApp incluye la línea "Oferta aplicada: Domicilio
-  gratis (compras desde $X)". La app no cobra domicilio por sí misma:
-  la oferta es un aviso al cliente y al negocio, que la respeta al
-  coordinar la entrega.
-Agregar un tipo nuevo = agregarlo en ese archivo con sus campos y su
-comportamiento; no requiere cambios en la base de datos.
+TIPOS DE OFERTA (comportamiento en el código, src/lib/tiposOferta.js):
+- informativa: las ofertas que crea el dueño. Solo tienen título y
+  descripción (columna subtitulo) y solo se muestran en Inicio.
+- domicilio_gratis: OFERTA FIJA DEL SISTEMA (cambio del 2026-10-08,
+  pedido del dueño). Siempre existe una por negocio: el panel la crea
+  sola (inactiva, con $70.000) si el negocio no la tiene, y no se puede
+  eliminar, solo activar/desactivar y mostrar en Inicio. Lo único que el
+  dueño configura es el monto: configuracion {"monto_minimo": número}.
+  El título y la descripción de su tarjeta se arman solos con ese monto
+  ("Domicilio gratis" / "Compras desde $X") para que nunca queden
+  desactualizados. En el carrito aparece una barra que se va llenando
+  con el total del pedido ("Te faltan $X para el domicilio gratis"); al
+  llegar al monto, el mensaje de WhatsApp incluye la línea "Oferta
+  aplicada: Domicilio gratis (compras desde $X)". La app no cobra
+  domicilio por sí misma: la oferta es un aviso al cliente y al negocio,
+  que la respeta al coordinar la entrega.
+El dueño ya no elige tipo al crear una oferta (la primera versión del
+2026-10-08 tenía un selector de tipo; se quitó a pedido del dueño).
+
+REFUERZO OPCIONAL (2026-10-08) — una sola oferta de domicilio gratis por
+negocio. El código ya evita crear una segunda, pero con este índice lo
+garantiza la base de datos. Si en pruebas quedaron varias, la primera
+parte deja la más antigua como la de domicilio y convierte las demás en
+informativas (no borra nada):
+
+    begin;
+
+    update ofertas o
+    set tipo = 'informativa', configuracion = '{}'::jsonb
+    where o.tipo = 'domicilio_gratis'
+      and exists (
+        select 1 from ofertas o2
+        where o2.negocio_id = o.negocio_id
+          and o2.tipo = 'domicilio_gratis'
+          and (o2.creado_en, o2.id) < (o.creado_en, o.id)
+      );
+
+    create unique index ofertas_un_domicilio_gratis
+    on ofertas(negocio_id) where tipo = 'domicilio_gratis';
+
+    commit;
 
 CONSECUENCIA EN EL CÓDIGO:
 - Nueva sección /admin/ofertas (solo dueño). /admin/negocio ya no tiene

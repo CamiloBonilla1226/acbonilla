@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AdminNav } from '../../components/admin/AdminNav'
 import { TablaOfertas } from '../../components/admin/TablaOfertas'
 import { FormularioOferta } from '../../components/admin/FormularioOferta'
+import { FormularioDomicilioGratis } from '../../components/admin/FormularioDomicilioGratis'
 import { useOfertas } from '../../hooks/useOfertas'
 import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
 import { alSoltarFondo } from '../../lib/superposicion'
@@ -9,28 +10,48 @@ import { useToast } from '../../hooks/useToast'
 import { useConfirmacion } from '../../hooks/useConfirmacion'
 import { mensajeAmigablePostgres } from '../../lib/erroresAmigables'
 
+// Modal abierto: 'nueva', 'domicilio' o una oferta del dueño (editar).
 export function Ofertas() {
-  const { ofertas, cargando, error, crearOferta, actualizarOferta, eliminarOferta, cambiarActiva, ponerEnInicio } =
-    useOfertas()
+  const {
+    ofertaDomicilio,
+    otrasOfertas,
+    cargando,
+    error,
+    crearOferta,
+    actualizarOferta,
+    configurarDomicilio,
+    eliminarOferta,
+    cambiarActiva,
+    ponerEnInicio,
+  } = useOfertas()
 
-  const [ofertaEnEdicion, setOfertaEnEdicion] = useState(null) // objeto o 'nueva'
-  const cerrarModal = () => setOfertaEnEdicion(null)
+  const [modal, setModal] = useState(null)
+  const cerrarModal = () => setModal(null)
   const swipe = useSwipeParaCerrar(cerrarModal)
   const mostrarToast = useToast()
   const confirmar = useConfirmacion()
 
-  const avisar = (resultado, exito, error) =>
+  const avisar = (resultado, exito, mensajeError) =>
     mostrarToast(
-      resultado.exito ? exito : mensajeAmigablePostgres(resultado.error, error),
+      resultado.exito ? exito : mensajeAmigablePostgres(resultado.error, mensajeError),
       resultado.exito ? 'exito' : 'error'
     )
 
   const guardarOferta = async (datos) => {
-    const esNueva = ofertaEnEdicion === 'nueva'
-    const resultado = esNueva ? await crearOferta(datos) : await actualizarOferta(ofertaEnEdicion.id, datos)
+    const esNueva = modal === 'nueva'
+    const resultado = esNueva ? await crearOferta(datos) : await actualizarOferta(modal.id, datos)
     if (resultado.exito) {
-      setOfertaEnEdicion(null)
+      setModal(null)
       mostrarToast(esNueva ? 'Oferta creada' : 'Oferta actualizada')
+    }
+    return resultado
+  }
+
+  const guardarDomicilio = async (monto) => {
+    const resultado = await configurarDomicilio(ofertaDomicilio.id, monto)
+    if (resultado.exito) {
+      setModal(null)
+      mostrarToast('Monto del domicilio gratis actualizado')
     }
     return resultado
   }
@@ -42,15 +63,12 @@ export function Ofertas() {
     avisar(await eliminarOferta(oferta.id), 'Oferta eliminada', 'No se pudo eliminar la oferta.')
   }
 
-  const alternarActiva = async (id, valor) => {
-    avisar(await cambiarActiva(id, valor), valor ? 'Oferta activada' : 'Oferta desactivada', 'No se pudo cambiar la oferta.')
+  const acciones = {
+    onCambiarActiva: async (id, valor) =>
+      avisar(await cambiarActiva(id, valor), valor ? 'Oferta activada' : 'Oferta desactivada', 'No se pudo cambiar la oferta.'),
+    onPonerEnInicio: async (id) =>
+      avisar(await ponerEnInicio(id), 'Ahora se muestra en Inicio', 'No se pudo cambiar la oferta de Inicio.'),
   }
-
-  const mostrarEnInicio = async (id) => {
-    avisar(await ponerEnInicio(id), 'Ahora se muestra en Inicio', 'No se pudo cambiar la oferta de Inicio.')
-  }
-
-  const activas = ofertas.filter((oferta) => oferta.activa).length
 
   return (
     <>
@@ -61,34 +79,43 @@ export function Ofertas() {
           Puedes tener varias ofertas activas al mismo tiempo; en la carta, Inicio muestra solo la marcada con ★.
         </p>
 
-        <button type="button" className="admin-crear admin-crear--boton" onClick={() => setOfertaEnEdicion('nueva')}>
-          <span className="admin-crear__icono" aria-hidden="true">
-            +
-          </span>
-          Nueva oferta
-        </button>
-
         {cargando && <p className="texto-suave">Cargando ofertas…</p>}
         {error && <p className="campo__error">No se pudieron cargar las ofertas.</p>}
         {!cargando && !error && (
           <>
-            {ofertas.length > 0 && (
-              <p className="texto-suave admin-ofertas__resumen">
-                {ofertas.length} oferta{ofertas.length === 1 ? '' : 's'} · {activas} activa{activas === 1 ? '' : 's'}
-              </p>
-            )}
-            <TablaOfertas
-              ofertas={ofertas}
-              onEditar={setOfertaEnEdicion}
-              onEliminar={confirmarEliminar}
-              onCambiarActiva={alternarActiva}
-              onPonerEnInicio={mostrarEnInicio}
-            />
+            <section className="admin-ofertas__grupo">
+              <h2 className="admin-ofertas__titulo">Domicilio gratis</h2>
+              <TablaOfertas
+                ofertas={ofertaDomicilio ? [ofertaDomicilio] : []}
+                fija
+                detalle="Toca para cambiar el monto"
+                vacio="Preparando la oferta de domicilio gratis…"
+                onEditar={() => setModal('domicilio')}
+                {...acciones}
+              />
+            </section>
+
+            <section className="admin-ofertas__grupo">
+              <h2 className="admin-ofertas__titulo">Tus ofertas</h2>
+              <button type="button" className="admin-crear admin-crear--boton" onClick={() => setModal('nueva')}>
+                <span className="admin-crear__icono" aria-hidden="true">
+                  +
+                </span>
+                Nueva oferta
+              </button>
+              <TablaOfertas
+                ofertas={otrasOfertas}
+                vacio="Todavía no has creado ofertas. Solo necesitan un título y una descripción."
+                onEditar={setModal}
+                onEliminar={confirmarEliminar}
+                {...acciones}
+              />
+            </section>
           </>
         )}
       </main>
 
-      {ofertaEnEdicion && (
+      {modal && (
         <div className="superposicion" role="dialog" aria-modal="true" onClick={alSoltarFondo(cerrarModal)}>
           <div
             className="superposicion__panel"
@@ -100,12 +127,21 @@ export function Ofertas() {
             <button type="button" className="superposicion__cerrar-x" onClick={cerrarModal} aria-label="Cerrar">
               ×
             </button>
-            <h2>{ofertaEnEdicion === 'nueva' ? 'Nueva oferta' : 'Editar oferta'}</h2>
-            <FormularioOferta
-              ofertaInicial={ofertaEnEdicion === 'nueva' ? null : ofertaEnEdicion}
-              onGuardar={guardarOferta}
-              onCancelar={cerrarModal}
-            />
+            {modal === 'domicilio' ? (
+              <>
+                <h2>Domicilio gratis</h2>
+                <FormularioDomicilioGratis oferta={ofertaDomicilio} onGuardar={guardarDomicilio} onCancelar={cerrarModal} />
+              </>
+            ) : (
+              <>
+                <h2>{modal === 'nueva' ? 'Nueva oferta' : 'Editar oferta'}</h2>
+                <FormularioOferta
+                  ofertaInicial={modal === 'nueva' ? null : modal}
+                  onGuardar={guardarOferta}
+                  onCancelar={cerrarModal}
+                />
+              </>
+            )}
           </div>
         </div>
       )}
