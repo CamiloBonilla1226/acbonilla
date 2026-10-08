@@ -378,6 +378,8 @@ HISTORIAL DE CAMBIOS SOBRE ESTA TABLA:
 - Las categorías pasaron a la tabla productos_categorias (sección 16);
   categoria_id queda obsoleta y se borra. Se agregó unique (id,
   negocio_id) para las llaves compuestas de esa tabla.
+- Se agregaron precio_carta_fisica y precio_oferta_carta_fisica
+  (opcionales: precio distinto en la carta física), ver sección 18.
 
 
 6. TABLA adiciones (MODELO FINAL — catálogo plano por negocio)
@@ -1201,6 +1203,80 @@ CONSECUENCIA EN EL CÓDIGO:
 - La carta lee las ofertas activas y usa solo una (ofertaActiva): para
   la tarjeta de Inicio y para el carrito y WhatsApp. Sin oferta activa
   no hay tarjeta ni barra.
+
+
+18. PRECIO DISTINTO EN LA CARTA FÍSICA (productos y variantes_producto)
+--------------------------------------------------------------------
+QUÉ CAMBIA (2026-10-08, pedido del dueño): un producto puede tener un
+precio distinto para consumir en el local (carta física) que para
+domicilios. Ej. un litro de aguardiente a $50.000 en domicilio y a
+$80.000 en el local. Es OPCIONAL: por defecto ambas cartas usan el mismo
+precio.
+
+COLUMNAS NUEVAS:
+- productos.precio_carta_fisica: precio en la carta física. NULL (el
+  valor por defecto) = la carta física usa productos.precio y
+  productos.precio_oferta, igual que domicilios.
+- productos.precio_oferta_carta_fisica: precio con descuento en la carta
+  física (opcional). Solo tiene sentido si precio_carta_fisica tiene
+  valor: lo exige un check.
+- variantes_producto.precio_carta_fisica: precio de esa variante en la
+  carta física. NULL = mismo precio que domicilios. (Las variantes no
+  tienen precio de oferta, ni en domicilios ni en el local.)
+
+Ambas cartas siguen teniendo la opción de descuento: domicilios con
+precio_oferta y la carta física con precio_oferta_carta_fisica.
+
+POR QUÉ COLUMNAS NULLABLE Y NO "COPIAR EL PRECIO": si se copiara el
+precio de domicilios en precio_carta_fisica, al cambiar después el precio
+de domicilios la carta física quedaría con el viejo sin que nadie lo
+note. Con NULL = "el mismo", solo se separan los productos que el dueño
+decidió separar.
+
+RLS: no cambia. Son columnas de tablas que ya tienen sus políticas
+(lectura pública y escritura del negocio, secciones 5, 11 y 15).
+
+SCRIPT SQL (correrlo ANTES de desplegar el código nuevo: la app nueva
+pide estas columnas al cargar los productos y sin ellas falla; la app
+actual sigue funcionando con ellas porque solo se agregan):
+
+    begin;
+
+    alter table productos
+      add column precio_carta_fisica numeric,
+      add column precio_oferta_carta_fisica numeric;
+
+    alter table productos
+      add constraint chk_precio_carta_fisica
+        check (precio_carta_fisica is null or precio_carta_fisica >= 0),
+      add constraint chk_oferta_carta_fisica
+        check (
+          precio_oferta_carta_fisica is null
+          or (precio_carta_fisica is not null and precio_oferta_carta_fisica >= 0)
+        );
+
+    alter table variantes_producto
+      add column precio_carta_fisica numeric
+        check (precio_carta_fisica is null or precio_carta_fisica >= 0);
+
+    commit;
+
+ESTADO: pendiente de que el dueño lo corra en Supabase.
+
+CONSECUENCIA EN EL CÓDIGO:
+- Formulario de producto: switch "Precio diferente en la carta física"
+  (apagado por defecto = mismo precio). Al encenderlo se copian los
+  precios de domicilios como punto de partida y aparecen dos bloques,
+  Domicilios y Carta física, cada uno con precio y precio con descuento.
+  Con variantes, cada fila tiene precio de domicilios y de carta física
+  (vacío = mismo precio). Apagarlo y guardar vuelve a dejar NULL.
+- Carta física (lista y detalle): usa lib/preciosCartaFisica.js para
+  mostrar el precio del local. La carta de domicilios, el carrito y los
+  pedidos no cambian (siguen con precio / precio_oferta).
+- useProductos.js trae variantes_producto(precio, precio_carta_fisica,
+  disponible) y guarda precio_carta_fisica de cada variante.
+- Lista de productos del admin: etiqueta "Local $X" en los que tienen
+  precio distinto.
 
 
 RESUMEN GENERAL

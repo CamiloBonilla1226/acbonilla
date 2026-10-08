@@ -1794,6 +1794,85 @@ body:has(.acciones-masivas) .toast-contenedor {
   padding: var(--espacio-1) var(--espacio-2);
 }
 
+/* Variante con precio distinto en la carta física: nombre arriba a lo ancho y debajo los dos
+   precios (domicilios | carta física) + "Quitar". */
+.gestion-opciones__form-opcion--dos-precios {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 52px;
+}
+
+.gestion-opciones__form-opcion--dos-precios input[type='text'] {
+  grid-column: 1 / -1;
+}
+
+.gestion-opciones__form-opcion--dos-precios input {
+  min-width: 0;
+}
+
+/* Encabezado de las dos columnas de precio (sin él, con los campos llenos no se sabe cuál es
+   cuál). Mismas columnas que la fila; la última queda vacía bajo "Quitar". */
+.gestion-opciones__columnas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 52px;
+  gap: var(--espacio-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+/* Precios del producto: un bloque (domicilios) o dos (domicilios | carta física) cuando el
+   producto tiene precio distinto en el local; lado a lado desde 480px. */
+.precios-carta {
+  display: grid;
+  gap: var(--espacio-3);
+}
+
+@media (min-width: 480px) {
+  .precios-carta:not(.precios-carta--uno) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.precios-carta__grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-3);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.precios-carta:not(.precios-carta--uno) .precios-carta__grupo {
+  padding: var(--espacio-3);
+  border: 1px solid var(--color-borde);
+}
+
+.precios-carta__titulo {
+  padding: 0 var(--espacio-1);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.precios-carta__interruptor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-1);
+}
+
+.precios-carta__interruptor .texto-suave {
+  font-size: 0.8rem;
+}
+
+body.admin .precios-carta:not(.precios-carta--uno) .precios-carta__grupo {
+  border-color: var(--admin-borde);
+  border-radius: var(--admin-radio);
+}
+
 /* Usuarios admin: lista de tarjetas colapsadas (nombre + número), cada una se expande al
    tocarla para mostrar los permisos y "Eliminar" — evita una tabla ancha con muchas
    columnas de interruptores visibles todo el tiempo. */

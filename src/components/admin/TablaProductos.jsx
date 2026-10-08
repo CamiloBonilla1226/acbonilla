@@ -1,6 +1,7 @@
 import { Interruptor } from './Interruptor'
 import { ImagenProducto } from '../menu/ImagenProducto'
 import { precioMinimo, variantesDisponibles } from '../../lib/variantes'
+import { preciosCartaFisica, tienePrecioCartaFisica, varianteCartaFisica } from '../../lib/preciosCartaFisica'
 import { useMantenerPresionado } from '../../hooks/useMantenerPresionado'
 
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
@@ -34,6 +35,7 @@ export function TablaProductos({
     <ul className="lista-productos-admin">
       {productos.map((producto) => {
         const variantes = variantesDisponibles(producto)
+        const fisica = preciosCartaFisica(producto)
         const seleccionado = seleccionados.has(producto.id)
         const nombresCategorias = producto.categorias.map((categoria) => categoria.nombre).join(' · ')
         return (
@@ -71,6 +73,15 @@ export function TablaProductos({
                   : formatoPrecio.format(producto.precio_oferta ?? producto.precio)}
               </span>
               <span className="producto-admin-item__etiquetas">
+                {/* Precio distinto en la carta física (ver lib/preciosCartaFisica.js). */}
+                {tienePrecioCartaFisica(producto, variantes) && (
+                  <span className="producto-admin-item__etiqueta">
+                    Local{' '}
+                    {variantes.length > 0
+                      ? `desde ${formatoPrecio.format(precioMinimo(variantes.map(varianteCartaFisica)))}`
+                      : formatoPrecio.format(fisica.precioOferta ?? fisica.precio)}
+                  </span>
+                )}
                 {producto.destacado && <span className="producto-admin-item__etiqueta">★ Destacado</span>}
                 {!producto.disponible && (
                   <span className="producto-admin-item__etiqueta producto-admin-item__etiqueta--agotado">

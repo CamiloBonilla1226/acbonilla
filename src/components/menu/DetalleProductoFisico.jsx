@@ -4,6 +4,7 @@ import { PrecioProducto } from '../promociones/BadgeOferta'
 import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
 import { useVariantesProducto } from '../../hooks/useVariantesProducto'
 import { precioMinimo } from '../../lib/variantes'
+import { preciosCartaFisica, varianteCartaFisica } from '../../lib/preciosCartaFisica'
 
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -18,7 +19,10 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
 // variantes son solo informativas aquí, sin selector: no hay carrito que arme un pedido.
 export function DetalleProductoFisico({ producto, adiciones, onCerrar }) {
   const swipe = useSwipeParaCerrar(onCerrar)
-  const { variantes } = useVariantesProducto(producto.id, { soloDisponibles: true })
+  const { variantes: variantesBase } = useVariantesProducto(producto.id, { soloDisponibles: true })
+  // Precios de la carta física (pueden ser distintos a domicilios, ver lib/preciosCartaFisica.js).
+  const variantes = variantesBase.map(varianteCartaFisica)
+  const { precio, precioOferta } = preciosCartaFisica(producto)
 
   return (
     <div
@@ -38,7 +42,7 @@ export function DetalleProductoFisico({ producto, adiciones, onCerrar }) {
           {variantes.length > 0 ? (
             <span className="precio-producto">Desde {formatoPrecio.format(precioMinimo(variantes))}</span>
           ) : (
-            <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
+            <PrecioProducto precio={precio} precioOferta={precioOferta} />
           )}
         </div>
 

@@ -1,5 +1,6 @@
 import { PrecioProducto } from '../promociones/BadgeOferta'
 import { precioMinimo, variantesDisponibles } from '../../lib/variantes'
+import { preciosCartaFisica, varianteCartaFisica } from '../../lib/preciosCartaFisica'
 
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -11,6 +12,8 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
 // punteada — precio). `.lista-menu` es una grilla de 2 columnas (ver index.css): la
 // columna de precio se ajusta al precio más ancho de TODA la lista, así que todos los
 // precios empiezan exactamente en el mismo punto sin importar cuánto varíe el nombre.
+// Los precios son los de la carta física (pueden ser distintos a domicilios, ver
+// lib/preciosCartaFisica.js).
 export function ListaProductosFisica({ productos, onSeleccionar }) {
   if (productos.length === 0) return null
 
@@ -18,7 +21,8 @@ export function ListaProductosFisica({ productos, onSeleccionar }) {
     <ul className="lista-menu">
       {productos.map((producto) => {
         const agotado = !producto.disponible
-        const variantes = variantesDisponibles(producto)
+        const variantes = variantesDisponibles(producto).map(varianteCartaFisica)
+        const { precio, precioOferta } = preciosCartaFisica(producto)
         return (
           <li
             key={producto.id}
@@ -44,7 +48,7 @@ export function ListaProductosFisica({ productos, onSeleccionar }) {
               {variantes.length > 0 ? (
                 `Desde ${formatoPrecio.format(precioMinimo(variantes))}`
               ) : (
-                <PrecioProducto precio={producto.precio} precioOferta={producto.precio_oferta} />
+                <PrecioProducto precio={precio} precioOferta={precioOferta} />
               )}
             </span>
           </li>
