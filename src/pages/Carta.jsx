@@ -22,6 +22,7 @@ import { useCerrarConAtras } from '../hooks/useCerrarConAtras'
 import { useSeccionesConHistorial } from '../hooks/useSeccionesConHistorial'
 import { alSoltarFondo } from '../lib/superposicion'
 import {
+  categoriasConProductos,
   filtrarProductosVisibles,
   productoEnCategoria,
   productosDestacados,
@@ -60,7 +61,11 @@ export function Carta() {
     }
   }, [])
 
-  const { categorias, cargando: cargandoCategorias, error: errorCategorias } = useCategorias({
+  const {
+    categorias: categoriasCargadas,
+    cargando: cargandoCategorias,
+    error: errorCategorias,
+  } = useCategorias({
     soloActivas: true,
     soloVisibleDomicilios: true,
   })
@@ -69,7 +74,15 @@ export function Carta() {
     cargando: cargandoProductos,
     error: errorProductos,
   } = useProductos({ soloDisponibles: true, soloVisibleDomicilios: true })
-  const productosVisibles = filtrarProductosVisibles(productosCargados, 'visible_domicilios')
+  const productosVisibles = useMemo(
+    () => filtrarProductosVisibles(productosCargados, 'visible_domicilios'),
+    [productosCargados]
+  )
+  // Solo las categorías con productos: ni el filtro ni el swipe del Menú pasan por una vacía.
+  const categorias = useMemo(
+    () => categoriasConProductos(categoriasCargadas, productosVisibles),
+    [categoriasCargadas, productosVisibles]
+  )
   const destacados = useMemo(() => productosDestacados(productosVisibles), [productosVisibles])
 
   const productosMenu = useMemo(() => {

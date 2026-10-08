@@ -18,6 +18,15 @@ export function productoEnCategoria(producto, categoriaId) {
   return (producto.categorias ?? []).some((categoria) => categoria.id === categoriaId)
 }
 
+// Categorías que tienen al menos un producto visible en esa carta. Las cartas públicas solo
+// muestran estas: una categoría vacía (o cuyos productos están agotados u ocultos en esa
+// carta) no aparece, para que el cliente nunca entre a una categoría sin nada.
+export function categoriasConProductos(categorias, productosVisibles) {
+  return categorias.filter((categoria) =>
+    productosVisibles.some((producto) => productoEnCategoria(producto, categoria.id))
+  )
+}
+
 // Productos marcados manualmente como destacados desde el admin (ver FormularioProducto.jsx),
 // para el carrusel de Inicio de la carta de domicilios. `max` limita a 5 por defecto porque
 // esa es la cantidad de tarjetas que pide el diseño del carrusel.

@@ -300,6 +300,9 @@ p {
 .carta-fisica {
   flex: 1;
   padding-bottom: var(--espacio-6);
+  /* El swipe a los lados cambia de categoría (ver CartaFisica.jsx): el navegador se queda
+     con el scroll vertical y el zoom; lo horizontal queda para la página. */
+  touch-action: pan-y pinch-zoom;
 }
 
 .carta-fisica__logo {
@@ -378,12 +381,17 @@ p {
   cursor: pointer;
 }
 
+/* Pestañas de categorías: chips rectos que ocupan el ancho con scroll horizontal (de borde a
+   borde, sin cortarse en el margen). La activa va rellena en negro; cada una muestra cuántos
+   productos tiene. */
 .carta-fisica__pestanas {
   display: flex;
-  gap: var(--espacio-4);
+  gap: var(--espacio-2);
+  padding: var(--espacio-1) var(--espacio-3) var(--espacio-3);
   overflow-x: auto;
   scrollbar-width: none;
   overscroll-behavior-x: contain;
+  scroll-padding-inline: var(--espacio-3);
 }
 
 .carta-fisica__pestanas::-webkit-scrollbar {
@@ -392,22 +400,43 @@ p {
 
 .carta-fisica__pestana {
   flex: 0 0 auto;
-  padding: var(--espacio-2) 0 10px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: none;
-  color: var(--color-texto-suave);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--color-borde);
+  background: var(--color-fondo);
+  color: var(--color-texto);
   font: inherit;
   font-size: 0.9rem;
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.carta-fisica__pestana-cantidad {
+  min-width: 20px;
+  padding: 1px 5px;
+  background: var(--color-secundario);
+  color: var(--color-texto-suave);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: center;
 }
 
 .carta-fisica__pestana--activa {
-  color: var(--color-texto);
+  border-color: var(--color-primario);
+  background: var(--color-primario);
+  color: var(--color-fondo);
   font-weight: 600;
-  border-bottom-color: var(--color-acento);
+}
+
+.carta-fisica__pestana--activa .carta-fisica__pestana-cantidad {
+  background: color-mix(in srgb, var(--color-fondo) 20%, transparent);
+  color: var(--color-fondo);
 }
 
 .carta-fisica__contenido {
@@ -421,21 +450,63 @@ p {
 
 .carta-fisica__seccion {
   padding-top: var(--espacio-4);
+  animation: carta-fisica-entrar 0.2s ease;
 }
 
-/* La última sección ocupa al menos la pantalla bajo la barra fija: así al tocar la pestaña de
-   una sección del final, la página alcanza a subirla hasta arriba en vez de quedarse corta. */
-.carta-fisica__seccion:last-child {
-  min-height: calc(100svh - 140px);
+@keyframes carta-fisica-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carta-fisica__seccion {
+    animation: none;
+  }
+}
+
+.carta-fisica__seccion-encabezado {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding-bottom: var(--espacio-2);
+  border-bottom: 1px solid var(--color-texto);
 }
 
 .carta-fisica__seccion-titulo {
-  margin: 0 0 var(--espacio-1);
-  font-size: 0.78rem;
+  margin: 0;
+  font-size: 1.35rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-texto-suave);
+  letter-spacing: -0.01em;
+}
+
+.carta-fisica__seccion-encabezado .texto-suave {
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+/* Atajo al final de cada categoría para pasar a la siguiente sin volver arriba. */
+.carta-fisica__siguiente {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: var(--espacio-4);
+  padding: var(--espacio-3);
+  border: 1px solid var(--color-borde);
+  background: none;
+  color: var(--color-texto);
+  font: inherit;
+  cursor: pointer;
+}
+
+.carta-fisica__siguiente > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  font-weight: 600;
 }
 
 .carta-fisica__adiciones {
