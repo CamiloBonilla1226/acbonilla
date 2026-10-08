@@ -1108,6 +1108,11 @@ actual sigue funcionando porque no se borra nada):
 
     commit;
 
+ESTADO: el paso 1 YA SE CORRIÓ (2026-10-08). Verificado después: la
+oferta que había en negocio_config ("Combos estrella") quedó en ofertas
+activa y en Inicio, y un visitante sin sesión no puede ejecutar
+poner_oferta_en_inicio (responde "permission denied", código 42501).
+
 PASO 2 — SCRIPT SQL (DESPUÉS de desplegar y probar; antes, la versión
 vieja de la app todavía lee y escribe esta columna):
 
