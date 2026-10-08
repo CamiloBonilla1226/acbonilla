@@ -154,9 +154,6 @@ export function CartaFisica() {
                   onClick={() => irASeccion(indice)}
                 >
                   {item.nombre}
-                  <span className="carta-fisica__pestana-cantidad">
-                    {item.id === SECCION_ADICIONES ? adiciones.length : item.productos.length}
-                  </span>
                 </button>
               )
             })}

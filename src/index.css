@@ -417,26 +417,11 @@ p {
   -webkit-tap-highlight-color: transparent;
 }
 
-.carta-fisica__pestana-cantidad {
-  min-width: 20px;
-  padding: 1px 5px;
-  background: var(--color-secundario);
-  color: var(--color-texto-suave);
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-align: center;
-}
-
 .carta-fisica__pestana--activa {
   border-color: var(--color-primario);
   background: var(--color-primario);
   color: var(--color-fondo);
   font-weight: 600;
-}
-
-.carta-fisica__pestana--activa .carta-fisica__pestana-cantidad {
-  background: color-mix(in srgb, var(--color-fondo) 20%, transparent);
-  color: var(--color-fondo);
 }
 
 .carta-fisica__contenido {
