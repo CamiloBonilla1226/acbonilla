@@ -557,6 +557,8 @@ ESTADO ACTUAL DE LAS POLÍTICAS (ya con todo corregido):
 - productos_categorias: lectura pública total; escritura del dueño del
   negocio y de los empleados con puede_productos (vía app_metadata) — ver
   sección 16.
+- ofertas: lectura pública solo de las activas; el dueño lee todas las
+  suyas y es el único que escribe (vía app_metadata) — ver sección 17.
 - pedidos: inserción pública (el cliente crea su pedido sin login);
   lectura y actualización de estado solo del admin de ese negocio.
 - usuarios_admin: lectura para cualquier admin de su propio negocio;
@@ -976,6 +978,159 @@ CONSECUENCIA EN EL CÓDIGO:
   y aplican las reglas de visibilidad de arriba.
 - useCategorias.js: "eliminar categoría" cuenta los productos en
   productos_categorias; "desactivar" ya no toca los productos.
+
+
+17. TABLA ofertas (sección propia de ofertas en el panel)
+--------------------------------------------------------------------
+QUÉ ES: el catálogo de ofertas de cada negocio. Antes había UNA sola
+oferta guardada como JSON en la columna negocio_config.oferta (tabla
+negocio_config: descripción, dirección, horario, redes y oferta del
+negocio, que se edita en /admin/negocio — no estaba documentada en este
+archivo). Ahora cada oferta es una fila y tiene su propia sección en el
+panel (/admin/ofertas): crear, editar, eliminar, activar y desactivar.
+
+PARA QUÉ: tener varias ofertas preparadas, activar varias a la vez y
+elegir cuál se ve en la tarjeta de Inicio de la carta. Además, cada
+oferta puede tener un TIPO con comportamiento propio programado en el
+código (ver "TIPOS DE OFERTA" abajo), como "domicilio gratis desde $X".
+
+CÓMO FUNCIONA CADA CAMPO:
+- id, negocio_id: como en el resto de tablas.
+- titulo: texto principal de la tarjeta de Inicio (obligatorio, máximo
+  38 caracteres — el diseño de la tarjeta no admite más).
+- subtitulo: texto secundario opcional (máximo 22 caracteres).
+- tipo: qué hace la oferta además de mostrarse. 'informativa' (solo se
+  muestra) o 'domicilio_gratis'. Es texto libre a propósito, sin check
+  de valores: los tipos se definen en el código (src/lib/tiposOferta.js)
+  y agregar uno nuevo no requiere tocar la base de datos.
+- configuracion: JSON con los parámetros del tipo que elige el dueño.
+  Ej. domicilio_gratis → {"monto_minimo": 70000}.
+- activa: si la oferta está vigente. Varias pueden estar activas: todas
+  aplican su comportamiento (ej. la barra de domicilio gratis del
+  carrito y la línea en el mensaje de WhatsApp).
+- en_inicio: cuál de las activas se muestra en la tarjeta de Inicio.
+- creado_en / actualizado_en.
+
+REGLAS QUE GARANTIZA LA BASE DE DATOS:
+- Solo UNA oferta en Inicio por negocio: índice único parcial
+  ofertas_una_en_inicio sobre (negocio_id) donde en_inicio = true.
+- Una oferta en Inicio tiene que estar activa: check
+  (not en_inicio or activa). Al desactivarla, el panel le quita también
+  en_inicio.
+- Largo de título y subtítulo: checks de 38 y 22 caracteres.
+
+FUNCIÓN poner_oferta_en_inicio(oferta): quita en_inicio a la que lo
+tuviera y se lo pone a la elegida, en una sola transacción (son dos
+UPDATE separados porque el índice único se revisa fila por fila: con uno
+solo podía chocar en medio del cambio). SECURITY INVOKER, igual que la
+función de la sección 16: respeta el RLS de quien la llama.
+
+RLS:
+- Lectura pública solo de las ofertas ACTIVAS: una oferta en borrador o
+  apagada no se le muestra a nadie fuera del panel.
+- El dueño del negocio lee todas las suyas y es el único que escribe
+  (mismo patrón app_metadata, con el rol en USING y en WITH CHECK). Los
+  empleados no gestionan ofertas, igual que la pantalla Negocio.
+
+PASO 1 — SCRIPT SQL (correrlo ANTES de desplegar el código nuevo; la app
+actual sigue funcionando porque no se borra nada):
+
+    begin;
+
+    create table ofertas (
+      id             uuid primary key default gen_random_uuid(),
+      negocio_id     uuid not null references negocios(id) on delete cascade,
+      titulo         text not null check (char_length(titulo) between 1 and 38),
+      subtitulo      text check (subtitulo is null or char_length(subtitulo) <= 22),
+      tipo           text not null default 'informativa',
+      configuracion  jsonb not null default '{}'::jsonb,
+      activa         boolean not null default false,
+      en_inicio      boolean not null default false,
+      creado_en      timestamptz not null default now(),
+      actualizado_en timestamptz not null default now(),
+      constraint ofertas_en_inicio_activa check (not en_inicio or activa)
+    );
+
+    create index idx_ofertas_negocio on ofertas(negocio_id);
+    create unique index ofertas_una_en_inicio on ofertas(negocio_id) where en_inicio;
+
+    alter table ofertas enable row level security;
+
+    create policy "lectura publica de ofertas activas"
+    on ofertas for select
+    using (activa = true);
+
+    create policy "dueño gestiona ofertas de su negocio"
+    on ofertas for all to authenticated
+    using (
+      negocio_id = (auth.jwt() -> 'app_metadata' ->> 'negocio_id')::uuid
+      and (auth.jwt() -> 'app_metadata' ->> 'rol') = 'dueño'
+    )
+    with check (
+      negocio_id = (auth.jwt() -> 'app_metadata' ->> 'negocio_id')::uuid
+      and (auth.jwt() -> 'app_metadata' ->> 'rol') = 'dueño'
+    );
+
+    create or replace function poner_oferta_en_inicio(p_oferta uuid)
+    returns void
+    language plpgsql
+    security invoker
+    set search_path = public
+    as $$
+    declare
+      v_negocio uuid;
+    begin
+      select negocio_id into v_negocio from ofertas where id = p_oferta;
+      if v_negocio is null then
+        raise exception 'La oferta no existe.';
+      end if;
+
+      update ofertas set en_inicio = false, actualizado_en = now()
+      where negocio_id = v_negocio and en_inicio and id <> p_oferta;
+
+      update ofertas set en_inicio = true, activa = true, actualizado_en = now()
+      where id = p_oferta;
+    end;
+    $$;
+
+    revoke execute on function poner_oferta_en_inicio(uuid) from public, anon;
+    grant execute on function poner_oferta_en_inicio(uuid) to authenticated;
+
+    -- Copia la oferta que hoy vive en negocio_config.oferta (si tiene título).
+    insert into ofertas (negocio_id, titulo, subtitulo, activa, en_inicio)
+    select negocio_id,
+           left(trim(oferta ->> 'titulo'), 38),
+           nullif(left(trim(coalesce(oferta ->> 'subtitulo', '')), 22), ''),
+           coalesce((oferta ->> 'activa')::boolean, false),
+           coalesce((oferta ->> 'activa')::boolean, false)
+    from negocio_config
+    where coalesce(trim(oferta ->> 'titulo'), '') <> '';
+
+    commit;
+
+PASO 2 — SCRIPT SQL (DESPUÉS de desplegar y probar; antes, la versión
+vieja de la app todavía lee y escribe esta columna):
+
+    alter table negocio_config drop column oferta;
+
+TIPOS DE OFERTA (definidos en el código, src/lib/tiposOferta.js):
+- informativa: solo muestra título y subtítulo en Inicio.
+- domicilio_gratis: configuracion {"monto_minimo": número}. En el
+  carrito aparece una barra que se va llenando con el total del pedido
+  ("Te faltan $X para el domicilio gratis"); al llegar al monto, el
+  mensaje de WhatsApp incluye la línea "Oferta aplicada: Domicilio
+  gratis (compras desde $X)". La app no cobra domicilio por sí misma:
+  la oferta es un aviso al cliente y al negocio, que la respeta al
+  coordinar la entrega.
+Agregar un tipo nuevo = agregarlo en ese archivo con sus campos y su
+comportamiento; no requiere cambios en la base de datos.
+
+CONSECUENCIA EN EL CÓDIGO:
+- Nueva sección /admin/ofertas (solo dueño). /admin/negocio ya no tiene
+  la tarjeta de oferta.
+- useNegocioConfig.js deja de leer/escribir negocio_config.oferta.
+- La carta lee las ofertas activas: la de en_inicio para la tarjeta, y
+  todas para los comportamientos del carrito y de WhatsApp.
 
 
 RESUMEN GENERAL

@@ -8,6 +8,7 @@ const SECCIONES = [
   { ruta: '/admin/productos', etiqueta: 'Productos', visible: (auth) => auth.puedeProductos },
   { ruta: '/admin/categorias', etiqueta: 'Categorías', visible: (auth) => auth.puedeCategorias },
   { ruta: '/admin/adiciones', etiqueta: 'Adiciones', visible: (auth) => auth.puedeAdiciones },
+  { ruta: '/admin/ofertas', etiqueta: 'Ofertas', visible: (auth) => auth.esDueno },
   { ruta: '/admin/usuarios', etiqueta: 'Usuarios', visible: (auth) => auth.esDueno },
   { ruta: '/admin/negocio', etiqueta: 'Negocio', visible: (auth) => auth.esDueno },
 ]

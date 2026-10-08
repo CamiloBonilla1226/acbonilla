@@ -704,6 +704,51 @@ p {
   padding: 0;
 }
 
+/* Barra de progreso de una oferta con meta de compra (ej. domicilio gratis desde $X). */
+.progreso-ofertas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+  margin-bottom: var(--espacio-3);
+}
+
+.progreso-oferta {
+  padding: 12px var(--espacio-3);
+  border: 1px solid var(--color-borde);
+  background: var(--color-secundario);
+}
+
+.progreso-oferta__mensaje {
+  margin: 0 0 var(--espacio-2);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.progreso-oferta__pista {
+  height: 8px;
+  background: var(--color-borde);
+  overflow: hidden;
+}
+
+.progreso-oferta__relleno {
+  display: block;
+  height: 100%;
+  background: var(--color-primario);
+  transition: width 0.35s ease;
+}
+
+.progreso-oferta--completa {
+  border-color: var(--color-exito);
+}
+
+.progreso-oferta--completa .progreso-oferta__mensaje {
+  color: var(--color-exito);
+}
+
+.progreso-oferta--completa .progreso-oferta__relleno {
+  background: var(--color-exito);
+}
+
 .carrito__total {
   display: flex;
   justify-content: space-between;
@@ -922,6 +967,7 @@ p {
 .admin-productos,
 .admin-categorias,
 .admin-adiciones,
+.admin-ofertas,
 .admin-usuarios,
 .admin-negocio {
   padding-block: var(--espacio-4) var(--espacio-6);
@@ -2696,6 +2742,7 @@ body.admin .admin-pedidos,
 body.admin .admin-productos,
 body.admin .admin-categorias,
 body.admin .admin-adiciones,
+body.admin .admin-ofertas,
 body.admin .admin-usuarios,
 body.admin .admin-negocio {
   padding-block: var(--espacio-4) 72px;
@@ -2997,9 +3044,10 @@ body.admin .admin-login__boton {
 }
 
 
-/* Adiciones: mismo esquema que el producto pero sin imagen (info | acciones), con el mismo
-   alto mínimo para que todas las tarjetas queden idénticas. */
-.adicion-admin-item {
+/* Adiciones y ofertas: mismo esquema que el producto pero sin imagen (info | acciones), con
+   el mismo alto mínimo para que todas las tarjetas queden idénticas. */
+.adicion-admin-item,
+.oferta-admin-item {
   padding: var(--espacio-3);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -3009,9 +3057,97 @@ body.admin .admin-login__boton {
   transition: box-shadow 0.15s ease;
 }
 
-.adicion-admin-item:hover {
+.adicion-admin-item:hover,
+.oferta-admin-item:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   border-color: #d9d9df;
+}
+
+/* --- Ofertas (panel) --- */
+.admin-ofertas__ayuda {
+  margin: calc(var(--espacio-2) * -1) 0 var(--espacio-3);
+  font-size: 0.88rem;
+}
+
+.admin-ofertas__resumen {
+  margin: var(--espacio-3) 0 var(--espacio-2);
+  font-size: 0.85rem;
+}
+
+.oferta-admin-item--en-inicio {
+  outline: 2px solid var(--color-acento);
+  outline-offset: -2px;
+}
+
+.oferta-admin-item__tipo {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.oferta-admin-item__en-inicio {
+  background: var(--color-acento);
+  border-color: var(--color-acento);
+  color: #fff;
+}
+
+.oferta-admin-item__inicio {
+  padding: 6px 10px;
+  border: 1px solid var(--color-borde);
+  background: transparent;
+  color: var(--color-texto);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.formulario-oferta__vista-previa {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+  padding: var(--espacio-3);
+  background: var(--color-secundario);
+}
+
+.formulario-oferta__vista-previa .tarjeta-oferta {
+  pointer-events: none;
+}
+
+.formulario-oferta__rotulo {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+.formulario-oferta__vacia {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.formulario-oferta__ayuda {
+  font-size: 0.8rem;
+}
+
+body.admin .oferta-admin-item--en-inicio {
+  outline-color: var(--admin-acento);
+}
+
+body.admin .oferta-admin-item__en-inicio {
+  background: var(--admin-acento);
+  color: #fff;
+}
+
+body.admin .oferta-admin-item__inicio {
+  border-color: var(--admin-borde);
+  border-radius: 999px;
+}
+
+body.admin .formulario-oferta__vista-previa {
+  border-radius: var(--admin-radio);
+  background: #f4f4f5;
 }
 
 /* =====================================================================================

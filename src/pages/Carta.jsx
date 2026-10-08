@@ -14,6 +14,7 @@ import { Checkout } from '../components/carrito/Checkout'
 import { useCategorias } from '../hooks/useCategorias'
 import { useProductos } from '../hooks/useProductos'
 import { useAdiciones } from '../hooks/useAdiciones'
+import { useOfertas } from '../hooks/useOfertas'
 import { useCarrito } from '../hooks/useCarrito'
 import { useToast } from '../hooks/useToast'
 import { useSwipeNavegacion } from '../hooks/useSwipeNavegacion'
@@ -74,6 +75,9 @@ export function Carta() {
   }, [productosVisibles, categoriaSeleccionada, busqueda])
 
   const { adiciones } = useAdiciones({ soloDisponibles: true, soloVisibleDomicilios: true })
+  // Todas las activas aplican su comportamiento (barra del carrito, línea en WhatsApp);
+  // solo la marcada "En Inicio" se muestra en la tarjeta.
+  const { ofertas, ofertaEnInicio } = useOfertas({ soloActivas: true })
 
   // "Atrás" del celular cierra el detalle del producto en vez de salir de la página.
   useCerrarConAtras(Boolean(productoSeleccionado), () => setProductoSeleccionado(null))
@@ -155,7 +159,7 @@ export function Carta() {
       <main className="contenedor pagina-carta pagina-carta--tabs">
         <section hidden={seccion !== 'inicio'} className="seccion-inicio">
           <img src="/imagenprueba.png" alt={negocioConfig.nombre} className="seccion-inicio__logo" />
-          <TarjetaOferta onClick={() => setSeccion('menu')} />
+          <TarjetaOferta oferta={ofertaEnInicio} onClick={() => setSeccion('menu')} />
           <CarruselDestacados productos={destacados} onAbrirDetalle={setProductoSeleccionado} />
           <SobreNosotros />
         </section>
@@ -194,6 +198,7 @@ export function Carta() {
           <Carrito
             items={carrito.items}
             total={carrito.total}
+            ofertas={ofertas}
             onQuitar={carrito.quitarItem}
             onCambiarCantidad={carrito.cambiarCantidad}
             onIrACheckout={() => setSeccion('checkout')}
@@ -205,6 +210,7 @@ export function Carta() {
             <Checkout
               items={carrito.items}
               total={carrito.total}
+              ofertas={ofertas}
               onPedidoConfirmado={() => {
                 carrito.vaciarCarrito()
                 setSeccion('inicio', { reemplazar: true })

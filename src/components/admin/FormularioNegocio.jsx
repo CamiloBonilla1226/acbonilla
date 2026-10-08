@@ -4,8 +4,6 @@ import { DIAS_ORDEN_SEMANA, ETIQUETA_DIA } from '../../lib/horario'
 import { mensajeAmigablePostgres } from '../../lib/erroresAmigables'
 
 const DIAS_FORMULARIO = DIAS_ORDEN_SEMANA
-const OFERTA_TITULO_MAX = 38
-const OFERTA_SUBTITULO_MAX = 22
 
 function horarioVacio() {
   return Object.fromEntries(DIAS_FORMULARIO.map((dia) => [dia, { cerrado: true, abre: '10:00', cierra: '22:00' }]))
@@ -22,11 +20,6 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
     instagram: configuracion?.redes_sociales?.instagram ?? '',
     facebook: configuracion?.redes_sociales?.facebook ?? '',
     whatsapp: configuracion?.redes_sociales?.whatsapp ?? '',
-  })
-  const [oferta, setOferta] = useState({
-    activa: configuracion?.oferta?.activa ?? false,
-    titulo: configuracion?.oferta?.titulo ?? '',
-    subtitulo: configuracion?.oferta?.subtitulo ?? '',
   })
   const [horario, setHorario] = useState(() => {
     const base = horarioVacio()
@@ -51,11 +44,6 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
       instagram: configuracion.redes_sociales?.instagram ?? '',
       facebook: configuracion.redes_sociales?.facebook ?? '',
       whatsapp: configuracion.redes_sociales?.whatsapp ?? '',
-    })
-    setOferta({
-      activa: configuracion.oferta?.activa ?? false,
-      titulo: configuracion.oferta?.titulo ?? '',
-      subtitulo: configuracion.oferta?.subtitulo ?? '',
     })
     const base = horarioVacio()
     for (const dia of DIAS_FORMULARIO) {
@@ -93,11 +81,6 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
         whatsapp: redes.whatsapp.trim(),
       },
       horario: horarioFinal,
-      oferta: {
-        activa: oferta.activa,
-        titulo: oferta.titulo.trim(),
-        subtitulo: oferta.subtitulo.trim(),
-      },
     })
 
     setGuardando(false)
@@ -167,53 +150,6 @@ export function FormularioNegocio({ configuracion, onGuardar }) {
             placeholder="https://wa.me/573001234567"
           />
         </label>
-      </section>
-
-      <section className="tarjeta negocio-seccion">
-        <header className="negocio-seccion__encabezado negocio-seccion__encabezado--fila">
-          <div>
-            <h2>Tarjeta de oferta</h2>
-            <p>{oferta.activa ? 'Se muestra en Inicio.' : 'No se muestra en Inicio.'}</p>
-          </div>
-          <Interruptor
-            activo={oferta.activa}
-            etiqueta=""
-            onCambiar={(valor) => setOferta((actual) => ({ ...actual, activa: valor }))}
-          />
-        </header>
-
-        {oferta.activa && (
-          <>
-            <label className="campo">
-              <span>
-                Título <em className="negocio-seccion__contador">{oferta.titulo.length}/{OFERTA_TITULO_MAX}</em>
-              </span>
-              <input
-                type="text"
-                value={oferta.titulo}
-                onChange={(e) => setOferta((actual) => ({ ...actual, titulo: e.target.value }))}
-                maxLength={OFERTA_TITULO_MAX}
-                placeholder="Ej. Gira la ruleta y gana un descuento en tu compra"
-              />
-            </label>
-
-            <label className="campo">
-              <span>
-                Subtítulo (opcional){' '}
-                <em className="negocio-seccion__contador">
-                  {oferta.subtitulo.length}/{OFERTA_SUBTITULO_MAX}
-                </em>
-              </span>
-              <input
-                type="text"
-                value={oferta.subtitulo}
-                onChange={(e) => setOferta((actual) => ({ ...actual, subtitulo: e.target.value }))}
-                maxLength={OFERTA_SUBTITULO_MAX}
-                placeholder="Ej. Compras desde $70.000"
-              />
-            </label>
-          </>
-        )}
       </section>
 
       <section className="tarjeta negocio-seccion">

@@ -1,15 +1,10 @@
-import { useNegocioConfig } from '../../hooks/useNegocioConfig'
-
-// Ficha fija de "oferta destacada" en Inicio, entre el logo y el carrusel. El diseño
-// (ícono, borde, tipografía) es el mismo para todos los negocios; el único texto que se
-// muestra es el que el dueño escribe en /admin/negocio (ver FormularioNegocio.jsx), sin
-// ningún rótulo fijo agregado. Si el dueño la desactiva, o no le puso título, no se
-// renderiza nada. Al tocarla lleva al Menú (`onClick`, ver Carta.jsx).
-export function TarjetaOferta({ onClick }) {
-  const { config } = useNegocioConfig()
-  const oferta = config?.oferta
-
-  if (!oferta?.activa || !oferta?.titulo?.trim()) return null
+// Ficha de "oferta destacada" en Inicio, entre el logo y el carrusel: muestra la oferta
+// marcada "En Inicio" en /admin/ofertas (ver useOfertas.js). El diseño (ícono, borde,
+// tipografía) es el mismo para todos los negocios; el único texto es el título y subtítulo
+// que escribe el dueño. Sin oferta (o sin título) no se renderiza nada. Al tocarla lleva al
+// Menú (`onClick`, ver Carta.jsx). El formulario de ofertas la reutiliza como vista previa.
+export function TarjetaOferta({ oferta, onClick }) {
+  if (!oferta?.titulo?.trim()) return null
 
   return (
     <button type="button" className="tarjeta-oferta" onClick={onClick}>

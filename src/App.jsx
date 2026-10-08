@@ -11,6 +11,7 @@ import { Adiciones } from './pages/admin/Adiciones'
 import { Pedidos } from './pages/admin/Pedidos'
 import { Usuarios } from './pages/admin/Usuarios'
 import { Negocio } from './pages/admin/Negocio'
+import { Ofertas } from './pages/admin/Ofertas'
 import { AdminLayout } from './components/admin/AdminLayout'
 import { RutaProtegida } from './components/admin/RutaProtegida'
 import { AuthProvider } from './hooks/useAuth'
@@ -84,6 +85,14 @@ function App() {
                   element={
                     <RutaProtegida permiso="puedeAdiciones">
                       <Adiciones />
+                    </RutaProtegida>
+                  }
+                />
+                <Route
+                  path="/admin/ofertas"
+                  element={
+                    <RutaProtegida soloDueno>
+                      <Ofertas />
                     </RutaProtegida>
                   }
                 />

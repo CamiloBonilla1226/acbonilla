@@ -11,7 +11,7 @@ function validar({ nombre, telefono, direccion }) {
   return errores
 }
 
-export function Checkout({ items, total, onPedidoConfirmado }) {
+export function Checkout({ items, total, ofertas = [], onPedidoConfirmado }) {
   const { crearPedido } = usePedidos()
   const [datos, setDatos] = useState({ nombre: '', telefono: '', direccion: '' })
   const [errores, setErrores] = useState({})
@@ -57,7 +57,7 @@ export function Checkout({ items, total, onPedidoConfirmado }) {
       return
     }
 
-    const mensaje = construirMensajePedido({ items, total, cliente: datos })
+    const mensaje = construirMensajePedido({ items, total, cliente: datos, ofertas })
     const link = construirLinkWhatsApp(negocioConfig.whatsappContacto, mensaje)
     window.open(link, '_blank', 'noreferrer')
     onPedidoConfirmado()

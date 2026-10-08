@@ -5,7 +5,8 @@ import { negocioConfig } from '../config/negocio.config'
 // Tabla propia `negocio_config` (aparte de `negocios`, que administra el panel maestro:
 // activo, pago) para el contenido que el dueño edita libremente desde su panel: descripción,
 // dirección, horario, redes sociales. Lectura pública (sin login), escritura solo para el
-// dueño de este negocio_id — ver políticas RLS documentadas en CHANGELOG.md.
+// dueño de este negocio_id — ver políticas RLS documentadas en CHANGELOG.md. Las ofertas ya no
+// viven aquí (columna `oferta`, obsoleta): tienen su propia tabla, ver useOfertas.js.
 export function useNegocioConfig() {
   const [config, setConfig] = useState(null)
   const [cargando, setCargando] = useState(true)
@@ -17,7 +18,7 @@ export function useNegocioConfig() {
 
     const { data, error: errorConsulta } = await supabase
       .from('negocio_config')
-      .select('descripcion, direccion, horario, redes_sociales, oferta')
+      .select('descripcion, direccion, horario, redes_sociales')
       .eq('negocio_id', negocioConfig.negocioId)
       .maybeSingle()
 
