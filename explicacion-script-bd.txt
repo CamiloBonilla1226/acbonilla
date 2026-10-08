@@ -1261,7 +1261,10 @@ actual sigue funcionando con ellas porque solo se agregan):
 
     commit;
 
-ESTADO: pendiente de que el dueño lo corra en Supabase.
+ESTADO: YA SE CORRIÓ (2026-10-08). Verificado después: las tres
+columnas responden en la API, incluida la consulta completa de productos
+con variantes_producto(precio, precio_carta_fisica, disponible) que usa
+la app.
 
 CONSECUENCIA EN EL CÓDIGO:
 - Formulario de producto: switch "Precio diferente en la carta física"
