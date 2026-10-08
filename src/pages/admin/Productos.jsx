@@ -159,6 +159,7 @@ export function Productos() {
             <TablaProductos
               productos={productosFiltrados}
               seleccionados={seleccionVisible}
+              onMantenerPresionado={(id) => setSeleccion((actual) => new Set(actual).add(id))}
               onAlternarSeleccion={alternarSeleccion}
               onEditar={setModal}
               onEliminar={confirmarEliminar}

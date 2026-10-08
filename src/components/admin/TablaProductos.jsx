@@ -1,6 +1,7 @@
 import { Interruptor } from './Interruptor'
 import { ImagenProducto } from '../menu/ImagenProducto'
 import { precioMinimo, variantesDisponibles } from '../../lib/variantes'
+import { useMantenerPresionado } from '../../hooks/useMantenerPresionado'
 
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -8,17 +9,21 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
   maximumFractionDigits: 0,
 })
 
-// `seleccionados` (Set de ids) + `onAlternarSeleccion`: casilla por producto para las
-// acciones masivas de Productos.jsx. Mientras haya al menos uno seleccionado, tocar una
-// tarjeta la marca o desmarca en vez de abrir el editor (como en las apps de correo).
+// Selección para las acciones masivas de Productos.jsx: mantener presionado un producto lo
+// selecciona; mientras haya al menos uno seleccionado, tocar una tarjeta la marca o desmarca
+// en vez de abrir el editor (como en las apps de galería o de correo). La tarjeta conserva su
+// diseño; la selección solo se ve con un borde resaltado.
 export function TablaProductos({
   productos,
   seleccionados,
+  onMantenerPresionado,
   onAlternarSeleccion,
   onEditar,
   onEliminar,
   onToggleDisponible,
 }) {
+  const presion = useMantenerPresionado(onMantenerPresionado, { ignorar: '.producto-admin-item__acciones' })
+
   if (productos.length === 0) {
     return <p className="texto-suave">No hay productos para mostrar.</p>
   }
@@ -34,19 +39,13 @@ export function TablaProductos({
         return (
           <li
             key={producto.id}
-            className={`tarjeta producto-admin-item producto-admin-item--clicable producto-admin-item--seleccionable${
+            className={`tarjeta producto-admin-item producto-admin-item--clicable${
               seleccionado ? ' producto-admin-item--seleccionado' : ''
             }`}
+            aria-selected={modoSeleccion ? seleccionado : undefined}
+            {...presion(producto.id)}
             onClick={() => (modoSeleccion ? onAlternarSeleccion(producto.id) : onEditar(producto))}
           >
-            <label className="producto-admin-item__casilla" onClick={(evento) => evento.stopPropagation()}>
-              <input
-                type="checkbox"
-                checked={seleccionado}
-                onChange={() => onAlternarSeleccion(producto.id)}
-                aria-label={`Seleccionar ${producto.nombre}`}
-              />
-            </label>
             <div className="producto-admin-item__imagen">
               <ImagenProducto src={producto.imagen_url} alt={producto.nombre} />
             </div>

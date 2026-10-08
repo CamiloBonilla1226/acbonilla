@@ -1131,37 +1131,21 @@ p {
   gap: 2px;
 }
 
-/* Con casilla de selección (acciones masivas): una columna más al inicio, y la imagen un
-   poco más chica para que en un celular angosto el nombre siga teniendo espacio. */
-.producto-admin-item--seleccionable {
-  grid-template-columns: auto 56px minmax(0, 1fr) auto;
-  gap: var(--espacio-2) 10px;
+/* Se mantiene presionada la tarjeta para seleccionarla (acciones masivas, ver
+   useMantenerPresionado): sin esto el celular selecciona el texto o abre el menú de
+   "guardar imagen" en vez de dejar que la pulsación llegue a la tarjeta. */
+.producto-admin-item--clicable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-.producto-admin-item--seleccionable .producto-admin-item__imagen {
-  width: 56px;
-  height: 56px;
+.producto-admin-item--clicable img {
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 
-/* Área táctil amplia alrededor de la casilla (el checkbox nativo es muy chico para el dedo). */
-.producto-admin-item__casilla {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  align-self: stretch;
-  margin: calc(var(--espacio-3) * -1) 0 calc(var(--espacio-3) * -1) calc(var(--espacio-3) * -1);
-  padding: 0 4px 0 var(--espacio-3);
-  cursor: pointer;
-}
-
-.producto-admin-item__casilla input {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  accent-color: var(--color-acento);
-  cursor: pointer;
-}
-
+/* Seleccionada: solo un borde resaltado, sin cambiar nada del diseño de la tarjeta. */
 .producto-admin-item--seleccionado {
   outline: 2px solid var(--color-acento);
   outline-offset: -2px;
