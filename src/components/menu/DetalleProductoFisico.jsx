@@ -1,5 +1,4 @@
 import { ImagenProducto } from './ImagenProducto'
-import { ListaAdiciones } from './ListaAdiciones'
 import { PrecioProducto } from '../promociones/BadgeOferta'
 import { useSwipeParaCerrar } from '../../hooks/useSwipeParaCerrar'
 import { useVariantesProducto } from '../../hooks/useVariantesProducto'
@@ -12,21 +11,36 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
   maximumFractionDigits: 0,
 })
 
-// Vista de detalle de un producto en la carta física: solo lectura, sin cantidad ni
-// botón de agregar (esa carta no tiene carrito). Muestra las adiciones y las variantes
-// (tamaños, sabores) visibles en esta carta con ListaAdiciones en modo soloLectura — mismo
-// componente que usa OpcionesProducto para domicilios, sin duplicar el listado. Las
-// variantes son solo informativas aquí, sin selector: no hay carrito que arme un pedido.
+function ListaPrecios({ titulo, filas }) {
+  if (filas.length === 0) return null
+  return (
+    <section className="detalle-fisico__bloque">
+      <h3 className="detalle-fisico__bloque-titulo">{titulo}</h3>
+      <ul className="detalle-fisico__lista">
+        {filas.map((fila) => (
+          <li key={fila.id}>
+            <span>{fila.nombre}</span>
+            <span className={fila.suave ? 'texto-suave' : undefined}>{fila.precio}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+// Detalle de un producto en la carta física: solo lectura, sin cantidad ni botón de agregar
+// (esa carta no tiene carrito). Foto, nombre, descripción y precio del local; debajo, las
+// variantes con su precio (es el precio final, no un extra) y las adiciones disponibles
+// (esas sí se suman: "+ $X"). Precios de la carta física, ver lib/preciosCartaFisica.js.
 export function DetalleProductoFisico({ producto, adiciones, onCerrar }) {
   const swipe = useSwipeParaCerrar(onCerrar)
   const { variantes: variantesBase } = useVariantesProducto(producto.id, { soloDisponibles: true })
-  // Precios de la carta física (pueden ser distintos a domicilios, ver lib/preciosCartaFisica.js).
   const variantes = variantesBase.map(varianteCartaFisica)
   const { precio, precioOferta } = preciosCartaFisica(producto)
 
   return (
     <div
-      className="opciones-producto"
+      className="opciones-producto detalle-fisico"
       style={swipe.estilo}
       onTouchStart={swipe.onTouchStart}
       onTouchMove={swipe.onTouchMove}
@@ -37,20 +51,32 @@ export function DetalleProductoFisico({ producto, adiciones, onCerrar }) {
       <div className="opciones-producto__contenido detalle-fisico__contenido">
         <div className="detalle-fisico__intro">
           <h2 className="opciones-producto__nombre">{producto.nombre}</h2>
-          {producto.descripcion && <p className="texto-suave">{producto.descripcion}</p>}
-
-          {variantes.length > 0 ? (
-            <span className="precio-producto">Desde {formatoPrecio.format(precioMinimo(variantes))}</span>
-          ) : (
-            <PrecioProducto precio={precio} precioOferta={precioOferta} />
-          )}
+          {producto.descripcion && <p className="texto-suave detalle-fisico__descripcion">{producto.descripcion}</p>}
+          <div className="detalle-fisico__precio">
+            {variantes.length > 0 ? (
+              <span className="precio-producto">Desde {formatoPrecio.format(precioMinimo(variantes))}</span>
+            ) : (
+              <PrecioProducto precio={precio} precioOferta={precioOferta} />
+            )}
+          </div>
         </div>
 
-        <ListaAdiciones adiciones={variantes} soloLectura titulo="Variantes" />
-        <ListaAdiciones adiciones={adiciones} soloLectura titulo="Adiciones disponibles" />
+        <ListaPrecios
+          titulo="Opciones"
+          filas={variantes.map((v) => ({ id: v.id, nombre: v.nombre, precio: formatoPrecio.format(v.precio) }))}
+        />
+        <ListaPrecios
+          titulo="Adiciones"
+          filas={adiciones.map((a) => ({
+            id: a.id,
+            nombre: a.nombre,
+            precio: a.precio > 0 ? `+ ${formatoPrecio.format(a.precio)}` : 'Sin costo',
+            suave: true,
+          }))}
+        />
 
         <div className="opciones-producto__acciones">
-          <button type="button" className="boton" onClick={onCerrar}>
+          <button type="button" className="boton boton--secundario" onClick={onCerrar}>
             Cerrar
           </button>
         </div>

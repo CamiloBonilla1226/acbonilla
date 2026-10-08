@@ -237,15 +237,6 @@ p {
   text-decoration: none;
 }
 
-.creditos {
-  font-size: 0.8rem;
-  opacity: 0.75;
-}
-
-.creditos__enlace {
-  color: inherit;
-}
-
 /* --- Inicio --- */
 .pagina-inicio {
   flex: 1;
@@ -302,79 +293,276 @@ p {
   color: var(--color-fondo);
 }
 
-/* --- Carta física (QR en mesa): estilo "menú impreso", solo lectura, sin carrito.
-   Todas las reglas van bajo .carta-fisica para no afectar la carta de domicilios, con la
-   que comparte .pagina-carta y .filtro-categorias. */
-.carta-fisica__encabezado {
-  text-align: center;
-  padding-block: var(--espacio-1) var(--espacio-4);
+/* --- Carta física (QR en mesa): solo lectura, sin carrito. Una sola página por secciones
+   (una por categoría), con barra fija de buscador + pestañas que siguen el scroll. Las
+   reglas van bajo .carta-fisica / .producto-fisica / .detalle-fisico para no afectar la
+   carta de domicilios. Mismo lenguaje que el resto: esquinas rectas, blanco y negro. */
+.carta-fisica {
+  flex: 1;
+  padding-bottom: var(--espacio-6);
 }
 
-.carta-fisica__kicker {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--color-texto-suave);
+.carta-fisica__logo {
+  display: block;
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  background: #000;
+}
+
+.carta-fisica__marca {
+  padding-block: var(--espacio-3) var(--espacio-2);
 }
 
 .carta-fisica__titulo {
-  margin: var(--espacio-1) 0 var(--espacio-3);
-  font-size: 1.6rem;
-  letter-spacing: 0.01em;
-}
-
-.carta-fisica__linea {
-  display: inline-block;
-  width: 48px;
-  height: 2px;
-  background: var(--color-acento);
-}
-
-.carta-fisica .filtro-categorias {
-  justify-content: center;
-  flex-wrap: wrap;
-  overflow-x: visible;
-  border-bottom: none;
-  padding-bottom: 0;
-  margin-bottom: var(--espacio-4);
-}
-
-.carta-fisica .filtro-categorias__item {
-  border: none;
-  border-bottom: 2px solid transparent;
-  padding: var(--espacio-1) var(--espacio-2);
-  background: transparent;
-  font-size: 0.78rem;
+  margin: 0;
+  font-size: 1.45rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.carta-fisica__subtitulo {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--color-texto-suave);
 }
 
-.carta-fisica .filtro-categorias__item--activo {
+/* Barra fija: buscador y pestañas de secciones. */
+.carta-fisica__barra {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding-top: var(--espacio-2);
+  background: var(--color-fondo);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.carta-fisica__buscador {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-2);
+  padding: 0 var(--espacio-3);
+  height: 42px;
+  margin-bottom: var(--espacio-1);
+  background: var(--color-secundario);
+  color: var(--color-texto-suave);
+}
+
+.carta-fisica__buscador input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
   background: transparent;
   color: var(--color-texto);
+  font: inherit;
+  font-size: 16px; /* 16px evita el zoom automático de iOS al enfocar */
+  outline: none;
+}
+
+.carta-fisica__buscador input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.carta-fisica__limpiar {
+  padding: 0 var(--espacio-1);
+  border: none;
+  background: none;
+  color: var(--color-texto-suave);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.carta-fisica__pestanas {
+  display: flex;
+  gap: var(--espacio-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.carta-fisica__pestanas::-webkit-scrollbar {
+  display: none;
+}
+
+.carta-fisica__pestana {
+  flex: 0 0 auto;
+  padding: var(--espacio-2) 0 10px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--color-texto-suave);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.carta-fisica__pestana--activa {
+  color: var(--color-texto);
+  font-weight: 600;
   border-bottom-color: var(--color-acento);
 }
 
 .carta-fisica__contenido {
-  max-width: 480px;
-  margin-inline: auto;
+  max-width: 720px;
 }
 
-.carta-fisica__vacio {
+.carta-fisica__aviso {
   text-align: center;
-  padding-block: var(--espacio-4);
+  padding-block: var(--espacio-5);
+}
+
+.carta-fisica__seccion {
+  padding-top: var(--espacio-4);
+}
+
+/* La última sección ocupa al menos la pantalla bajo la barra fija: así al tocar la pestaña de
+   una sección del final, la página alcanza a subirla hasta arriba en vez de quedarse corta. */
+.carta-fisica__seccion:last-child {
+  min-height: calc(100svh - 140px);
+}
+
+.carta-fisica__seccion-titulo {
+  margin: 0 0 var(--espacio-1);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+.carta-fisica__adiciones {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.carta-fisica__adiciones li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+/* Fila de producto: foto | nombre, descripción (2 líneas) y precio. */
+.productos-fisica {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.productos-fisica li + li .producto-fisica {
+  border-top: 1px solid var(--color-borde);
+}
+
+.producto-fisica {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.producto-fisica:active {
+  background: var(--color-secundario);
+}
+
+.producto-fisica__imagen {
+  flex: 0 0 76px;
+  width: 76px;
+  background: var(--color-secundario);
+}
+
+.producto-fisica__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.producto-fisica__nombre {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.producto-fisica__descripcion {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--color-texto-suave);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.producto-fisica__precio {
+  margin-top: 2px;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 /* --- Detalle de producto de la carta física --- */
 .detalle-fisico__intro {
-  text-align: center;
   padding-bottom: var(--espacio-3);
-  margin-bottom: var(--espacio-1);
   border-bottom: 1px solid var(--color-borde);
+}
+
+.detalle-fisico__descripcion {
+  margin: var(--espacio-1) 0 0;
+  line-height: 1.45;
+}
+
+.detalle-fisico__precio {
+  margin-top: var(--espacio-2);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.detalle-fisico__bloque {
+  padding-top: var(--espacio-3);
+}
+
+.detalle-fisico__bloque-titulo {
+  margin: 0 0 var(--espacio-1);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+.detalle-fisico__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.detalle-fisico__lista li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.detalle-fisico__lista li:last-child {
+  border-bottom: none;
 }
 
 .grid-productos {
@@ -601,78 +789,6 @@ body.admin .superposicion__panel::before {
   align-items: center;
   gap: var(--espacio-2);
   padding: var(--espacio-1) 0;
-}
-
-.opcion-item--solo-lectura {
-  justify-content: space-between;
-}
-
-/* --- "Fila de menú": patrón nombre — línea punteada — precio, estilo carta impresa.
-   Usado en la carta física (ListaProductosFisica.jsx y ListaAdiciones.jsx en modo
-   soloLectura) — nunca en domicilios, que usa checkboxes (.opcion-item) para armar el
-   pedido.
-   `.lista-menu` es una grilla CSS de 2 columnas: la segunda (el precio) se ajusta al
-   ancho del precio MÁS ANCHO de toda la lista, así que en todas las filas el precio
-   empieza exactamente en el mismo punto, sin importar cuánto varíe el nombre — antes,
-   con flexbox por fila, cada precio quedaba a una distancia distinta del borde según el
-   largo de su propio nombre, y se veía desalineado. Cada `.fila-menu` (li o div) es
-   `display: contents` para que sus dos hijos (`__etiqueta` y `__precio`) sean ellos
-   mismos las dos celdas de la grilla, compartidas por todas las filas. */
-.lista-menu {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  column-gap: var(--espacio-3);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.fila-menu {
-  display: contents;
-}
-
-.fila-menu[role='button'] {
-  cursor: pointer;
-}
-
-.fila-menu__etiqueta {
-  display: flex;
-  align-items: baseline;
-  gap: var(--espacio-2);
-  min-width: 0;
-  padding: var(--espacio-2) 0;
-}
-
-.fila-menu__nombre {
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.fila-menu__leader {
-  flex: 1 1 auto;
-  min-width: var(--espacio-4);
-  border-bottom: 1px dotted var(--color-borde);
-  margin-bottom: 5px;
-}
-
-.fila-menu__precio {
-  display: flex;
-  align-items: baseline;
-  padding: var(--espacio-2) 0;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.fila-menu[role='button']:hover > *,
-.fila-menu[role='button']:focus-visible > * {
-  background: var(--color-secundario);
-}
-
-.fila-menu[role='button']:focus-visible > * {
-  outline: 1px solid var(--color-acento);
-  outline-offset: -1px;
 }
 
 .opciones-producto__cantidad {
