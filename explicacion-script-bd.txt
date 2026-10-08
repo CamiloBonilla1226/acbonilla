@@ -285,6 +285,14 @@ por visible_carta_fisica = true (además de activo = true).
 HISTORIAL DE CAMBIOS SOBRE ESTA TABLA:
 - Se le agregó la columna activo, protegida con un trigger (ver arriba).
 - Se le agregaron visible_domicilios y visible_carta_fisica (ver arriba).
+- 2026-09-29: el trigger de arriba se QUITÓ (el dueño corrió un drop
+  trigger) porque desactivar una categoría pasó a desactivar en cascada
+  sus productos desde el panel. Ver CHANGELOG 2026-09-29 (3).
+- 2026-10-07: los productos ya no tienen una sola categoría
+  (productos.categoria_id) sino varias, en la tabla productos_categorias
+  (sección 16). Desactivar una categoría ya no desactiva sus productos:
+  solo la oculta. Se agregó unique (id, negocio_id) para las llaves
+  compuestas de esa tabla.
 
 
 5. TABLA productos
@@ -293,7 +301,10 @@ QUÉ ES: el catálogo de productos que vende cada negocio.
 
 CÓMO FUNCIONA CADA CAMPO:
 - negocio_id: a qué negocio pertenece el producto.
-- categoria_id: en qué categoría está (on delete set null).
+- categoria_id: en qué categoría está (on delete set null). OBSOLETA
+  desde 2026-10-07: un producto puede estar en varias categorías y eso
+  vive en la tabla productos_categorias (sección 16). La columna se borra
+  en el paso 2 de esa sección.
 - nombre / descripcion: información visible del producto.
 - precio: el precio normal. Puede quedar vacío (null) SOLO si
   tiene_variantes = true — ver "CAMBIO — variantes" abajo.
@@ -364,6 +375,9 @@ HISTORIAL DE CAMBIOS SOBRE ESTA TABLA:
 - Se le agregaron visible_domicilios y visible_carta_fisica.
 - Se agregó tiene_variantes y precio pasó a ser opcional (ver arriba).
 - Se agregó destacado (ver arriba), para el carrusel de Inicio.
+- Las categorías pasaron a la tabla productos_categorias (sección 16);
+  categoria_id queda obsoleta y se borra. Se agregó unique (id,
+  negocio_id) para las llaves compuestas de esa tabla.
 
 
 6. TABLA adiciones (MODELO FINAL — catálogo plano por negocio)
@@ -540,6 +554,9 @@ ESTADO ACTUAL DE LAS POLÍTICAS (ya con todo corregido):
   del negocio (vía app_metadata).
 - adiciones: lectura pública total; escritura solo del dueño del negocio
   (vía app_metadata) — ver sección 14 para el detalle completo.
+- productos_categorias: lectura pública total; escritura del dueño del
+  negocio y de los empleados con puede_productos (vía app_metadata) — ver
+  sección 16.
 - pedidos: inserción pública (el cliente crea su pedido sin login);
   lectura y actualización de estado solo del admin de ese negocio.
 - usuarios_admin: lectura para cualquier admin de su propio negocio;
@@ -774,6 +791,183 @@ CONSECUENCIA EN EL CÓDIGO:
 - El carrito y el pedido (tabla pedidos, campo productos_detalle) deben
   guardar qué variante se eligió por cada producto del pedido, igual que
   ya guardan qué adiciones se marcaron.
+
+
+16. TABLA productos_categorias (un producto en varias categorías)
+--------------------------------------------------------------------
+QUÉ ES: tabla intermedia (relación "muchos a muchos") entre productos y
+categorias. Cada fila dice "este producto pertenece a esta categoría".
+Reemplaza a la antigua columna productos.categoria_id, que solo permitía
+UNA categoría por producto.
+
+PARA QUÉ: que un mismo producto aparezca en varias categorías a la vez
+(ej. un aguardiente en "Alcohol" y en "Combos") sin duplicarlo, y que
+desde el panel se pueda agregar, cambiar o quitar la categoría de muchos
+productos al mismo tiempo.
+
+CÓMO FUNCIONA CADA CAMPO:
+- producto_id: el producto (on delete cascade: si se borra el producto,
+  se borran sus filas aquí).
+- categoria_id: la categoría (on delete cascade: si se borra la
+  categoría, el producto simplemente deja de estar en ella).
+- negocio_id: a qué negocio pertenece la fila — mismo patrón de RLS que
+  el resto de tablas.
+- creado_en: fecha de creación.
+- primary key (producto_id, categoria_id): un producto no puede estar dos
+  veces en la misma categoría.
+
+INTEGRIDAD ENTRE NEGOCIOS: las llaves foráneas son COMPUESTAS
+(producto_id, negocio_id) → productos(id, negocio_id) y
+(categoria_id, negocio_id) → categorias(id, negocio_id). Así la propia
+base de datos garantiza que el producto, la categoría y la fila sean del
+MISMO negocio — nadie puede meter un producto suyo en una categoría de
+otro negocio, aunque manipule la petición. Para eso se agregó un
+unique (id, negocio_id) en productos y en categorias (no cambia nada de
+los datos: id ya es único por sí solo).
+
+REGLAS DE VISIBILIDAD EN LA CARTA (decididas con el dueño):
+- Dentro de una categoría se muestran los productos que tienen fila aquí
+  con esa categoría.
+- En "Todas", un producto aparece si al menos UNA de sus categorías está
+  activa y visible en esa carta, o si no tiene ninguna categoría. Si una
+  categoría se desactiva u oculta, el producto deja de salir dentro de
+  ella pero sigue en sus otras categorías activas.
+- Desactivar una categoría YA NO desactiva sus productos en cascada (eso
+  era lo de 2026-09-29): ahora solo la oculta; al reactivarla todo vuelve
+  como estaba.
+
+FUNCIÓN reemplazar_categorias_productos(productos[], categorias[]):
+deja a cada producto de la lista con EXACTAMENTE las categorías de la
+lista (borra las que tenía e inserta las nuevas) en una sola transacción:
+si algo falla, no queda ningún producto sin categorías a medias. Se usa
+al editar un producto y en la acción masiva "Cambiar categoría". Es
+SECURITY INVOKER (el valor por defecto): corre con los permisos de quien
+la llama, así que el RLS de abajo se sigue aplicando igual que si se
+hiciera desde el panel. Solo la puede ejecutar un usuario autenticado.
+
+PASO 1 — SCRIPT SQL (correrlo ANTES de desplegar el código nuevo; la app
+actual sigue funcionando porque no se borra nada todavía):
+
+    -- Restricciones para las llaves compuestas (id ya es único).
+    alter table productos  add constraint productos_id_negocio_key  unique (id, negocio_id);
+    alter table categorias add constraint categorias_id_negocio_key unique (id, negocio_id);
+
+    create table productos_categorias (
+      producto_id  uuid not null,
+      categoria_id uuid not null,
+      negocio_id   uuid not null references negocios(id) on delete cascade,
+      creado_en    timestamptz not null default now(),
+      primary key (producto_id, categoria_id),
+      foreign key (producto_id, negocio_id)
+        references productos(id, negocio_id) on delete cascade,
+      foreign key (categoria_id, negocio_id)
+        references categorias(id, negocio_id) on delete cascade
+    );
+
+    create index idx_productos_categorias_categoria on productos_categorias(categoria_id);
+    create index idx_productos_categorias_negocio on productos_categorias(negocio_id);
+
+    alter table productos_categorias enable row level security;
+
+    create policy "lectura publica de productos_categorias"
+    on productos_categorias for select
+    using (true);
+
+    create policy "dueño gestiona productos_categorias de su negocio"
+    on productos_categorias for all to authenticated
+    using (
+      negocio_id = (auth.jwt() -> 'app_metadata' ->> 'negocio_id')::uuid
+      and (auth.jwt() -> 'app_metadata' ->> 'rol') = 'dueño'
+    )
+    with check (
+      negocio_id = (auth.jwt() -> 'app_metadata' ->> 'negocio_id')::uuid
+      and (auth.jwt() -> 'app_metadata' ->> 'rol') = 'dueño'
+    );
+
+    create policy "Empleados con permiso gestionan productos_categorias"
+    on productos_categorias for all to authenticated
+    using (
+      negocio_id = (auth.jwt() -> 'app_metadata' ->> 'negocio_id')::uuid
+      and exists (
+        select 1 from usuarios_admin ua
+        where ua.negocio_id = productos_categorias.negocio_id
+          and ua.numero = split_part(auth.jwt() ->> 'email', '.', 1)
+          and ua.activo = true and ua.puede_productos = true
+      )
+    )
+    with check (
+      negocio_id = (auth.jwt() -> 'app_metadata' ->> 'negocio_id')::uuid
+      and exists (
+        select 1 from usuarios_admin ua
+        where ua.negocio_id = productos_categorias.negocio_id
+          and ua.numero = split_part(auth.jwt() ->> 'email', '.', 1)
+          and ua.activo = true and ua.puede_productos = true
+      )
+    );
+
+    -- Copia la categoría actual de cada producto a la tabla nueva.
+    insert into productos_categorias (producto_id, categoria_id, negocio_id)
+    select id, categoria_id, negocio_id
+    from productos
+    where categoria_id is not null;
+
+    create or replace function reemplazar_categorias_productos(
+      p_productos uuid[],
+      p_categorias uuid[]
+    )
+    returns void
+    language plpgsql
+    security invoker
+    set search_path = public
+    as $$
+    begin
+      delete from productos_categorias where producto_id = any(p_productos);
+
+      insert into productos_categorias (producto_id, categoria_id, negocio_id)
+      select distinct p.id, c.id, p.negocio_id
+      from productos p
+      cross join unnest(p_categorias) as c(id)
+      where p.id = any(p_productos);
+    end;
+    $$;
+
+    revoke execute on function reemplazar_categorias_productos(uuid[], uuid[]) from public, anon;
+    grant execute on function reemplazar_categorias_productos(uuid[], uuid[]) to authenticated;
+
+    -- Por si el trigger viejo que bloqueaba desactivar categorías con
+    -- productos (sección 4) siguiera existiendo: lee productos.categoria_id,
+    -- que se borra en el paso 2.
+    drop trigger if exists trg_bloquear_desactivar_categoria on categorias;
+    drop function if exists bloquear_desactivar_categoria_con_productos();
+
+Se creó CON sus políticas de RLS desde el momento de creación (lección de
+la sección 12), con el mismo patrón app_metadata para el dueño y el mismo
+patrón de permisos granulares (puede_productos) que ya usa la tabla
+productos para los empleados (sección 3). Las políticas exigen el rol
+"dueño" también en el USING (no solo en el WITH CHECK), para que borrar
+filas esté igual de protegido que crearlas.
+
+PASO 2 — SCRIPT SQL (correrlo DESPUÉS de que el código nuevo esté
+desplegado y probado; antes, la versión vieja de la app todavía lee esta
+columna):
+
+    alter table productos drop column categoria_id;
+
+Si Postgres se niega porque algún objeto depende de la columna, el error
+dice cuál es — revisarlo antes de forzar nada (no usar "cascade" a
+ciegas).
+
+CONSECUENCIA EN EL CÓDIGO:
+- useProductos.js trae las categorías de cada producto con
+  productos_categorias(categoria:categorias(...)) y las deja en
+  producto.categorias (arreglo). Crear/editar un producto guarda sus
+  categorías; además hay acciones masivas (activar, desactivar, eliminar,
+  agregar/cambiar/quitar categorías) sobre varios productos a la vez.
+- Formulario de producto: casillas para elegir una o varias categorías.
+- Carta pública y carta física: filtran por categoría con la tabla nueva
+  y aplican las reglas de visibilidad de arriba.
+- useCategorias.js: "eliminar categoría" cuenta los productos en
+  productos_categorias; "desactivar" ya no toca los productos.
 
 
 RESUMEN GENERAL

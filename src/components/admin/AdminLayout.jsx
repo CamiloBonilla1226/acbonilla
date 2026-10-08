@@ -7,12 +7,14 @@ import { seccionesAdminVisibles } from '../../lib/seccionesAdmin'
 // Donde un swipe horizontal no debe cambiar de sección: modales y confirmaciones (ahí
 // deslizar ya sirve para cerrarlos, ver useSwipeParaCerrar), el menú lateral abierto,
 // campos de texto (arrastrar ahí selecciona o mueve el cursor) y controles con scroll
-// horizontal propio (filtros segmentados).
+// horizontal propio (filtros segmentados). Tampoco en la barra de acciones masivas de
+// Productos: cambiar de sección ahí perdería la selección por un roce del dedo.
 const SELECTOR_IGNORAR_ADMIN = [
   '.superposicion',
   '.admin-drawer',
   '.admin-drawer__fondo',
   '.filtros-admin__segmentos',
+  '.acciones-masivas',
   'input',
   'textarea',
   'select',

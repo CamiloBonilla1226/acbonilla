@@ -9,7 +9,7 @@ import { useProductos } from '../hooks/useProductos'
 import { useAdiciones } from '../hooks/useAdiciones'
 import { useCerrarConAtras } from '../hooks/useCerrarConAtras'
 import { alSoltarFondo } from '../lib/superposicion'
-import { filtrarProductosVisibles } from '../lib/productosVisibles'
+import { filtrarProductosVisibles, productoEnCategoria } from '../lib/productosVisibles'
 import { Creditos } from '../components/layout/Creditos'
 
 // Pestaña fija que se agrega al final del filtro de categorías (no es una categoría real
@@ -32,12 +32,11 @@ export function CartaFisica() {
     productos: productosCargados,
     cargando: cargandoProductos,
     error: errorProductos,
-  } = useProductos({
-    categoriaId: mostrandoAdiciones ? null : categoriaActivaId,
-    soloDisponibles: true,
-    soloVisibleCartaFisica: true,
-  })
-  const productos = filtrarProductosVisibles(productosCargados, 'visible_carta_fisica')
+  } = useProductos({ soloDisponibles: true, soloVisibleCartaFisica: true })
+  // Un producto puede estar en varias categorías: se filtra aquí en vez de en la consulta.
+  const productos = filtrarProductosVisibles(productosCargados, 'visible_carta_fisica').filter(
+    (producto) => !categoriaActivaId || mostrandoAdiciones || productoEnCategoria(producto, categoriaActivaId)
+  )
   const { adiciones } = useAdiciones({ soloDisponibles: true, soloVisibleCartaFisica: true })
 
   const [productoSeleccionado, setProductoSeleccionado] = useState(null)

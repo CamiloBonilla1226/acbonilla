@@ -20,7 +20,7 @@ import { useSwipeNavegacion } from '../hooks/useSwipeNavegacion'
 import { useCerrarConAtras } from '../hooks/useCerrarConAtras'
 import { useSeccionesConHistorial } from '../hooks/useSeccionesConHistorial'
 import { alSoltarFondo } from '../lib/superposicion'
-import { filtrarProductosVisibles, productosDestacados } from '../lib/productosVisibles'
+import { filtrarProductosVisibles, productoEnCategoria, productosDestacados } from '../lib/productosVisibles'
 import { variantesDisponibles } from '../lib/variantes'
 import { normalizarTexto } from '../lib/texto'
 
@@ -67,7 +67,7 @@ export function Carta() {
   const productosMenu = useMemo(() => {
     const textoBuscado = normalizarTexto(busqueda)
     return productosVisibles.filter((producto) => {
-      const coincideCategoria = !categoriaSeleccionada || producto.categoria_id === categoriaSeleccionada
+      const coincideCategoria = !categoriaSeleccionada || productoEnCategoria(producto, categoriaSeleccionada)
       const coincideBusqueda = !textoBuscado || normalizarTexto(producto.nombre).includes(textoBuscado)
       return coincideCategoria && coincideBusqueda
     })

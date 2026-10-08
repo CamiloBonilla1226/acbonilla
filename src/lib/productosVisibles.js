@@ -1,15 +1,21 @@
-// Oculta productos cuya categoría fue desactivada o no es visible en la carta indicada
-// (ver `activo`/`visible_domicilios`/`visible_carta_fisica` en categorias), aunque no se
-// esté filtrando la carta por esa categoría puntual. La visibilidad de la categoría manda
-// primero: si la categoría no aparece en esa carta, sus productos tampoco, aunque el
-// producto sí esté marcado como visible ahí. Un producto sin categoría (categoria_id null
-// → `categoria` viene null en el embed de Supabase) siempre se muestra.
+// Un producto puede estar en varias categorías (tabla productos_categorias; useProductos.js
+// las deja en `producto.categorias`). Reglas de visibilidad en las cartas públicas:
+// - Dentro de una categoría puntual aparece si está en esa categoría (productoEnCategoria).
+// - En general ("Todas") aparece si al menos una de sus categorías está activa y visible en
+//   esa carta, o si no tiene ninguna categoría. Una categoría desactivada u oculta solo deja
+//   de mostrarlo dentro de ella: sigue saliendo en sus otras categorías.
 export function filtrarProductosVisibles(productos, campoVisibilidad) {
-  return productos.filter(
-    (producto) =>
-      !producto.categoria ||
-      (producto.categoria.activo !== false && producto.categoria[campoVisibilidad] !== false)
-  )
+  return productos.filter((producto) => {
+    const categorias = producto.categorias ?? []
+    return (
+      categorias.length === 0 ||
+      categorias.some((categoria) => categoria.activo !== false && categoria[campoVisibilidad] !== false)
+    )
+  })
+}
+
+export function productoEnCategoria(producto, categoriaId) {
+  return (producto.categorias ?? []).some((categoria) => categoria.id === categoriaId)
 }
 
 // Productos marcados manualmente como destacados desde el admin (ver FormularioProducto.jsx),

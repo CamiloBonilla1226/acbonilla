@@ -1131,6 +1131,140 @@ p {
   gap: 2px;
 }
 
+/* Con casilla de selección (acciones masivas): una columna más al inicio, y la imagen un
+   poco más chica para que en un celular angosto el nombre siga teniendo espacio. */
+.producto-admin-item--seleccionable {
+  grid-template-columns: auto 56px minmax(0, 1fr) auto;
+  gap: var(--espacio-2) 10px;
+}
+
+.producto-admin-item--seleccionable .producto-admin-item__imagen {
+  width: 56px;
+  height: 56px;
+}
+
+/* Área táctil amplia alrededor de la casilla (el checkbox nativo es muy chico para el dedo). */
+.producto-admin-item__casilla {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  margin: calc(var(--espacio-3) * -1) 0 calc(var(--espacio-3) * -1) calc(var(--espacio-3) * -1);
+  padding: 0 4px 0 var(--espacio-3);
+  cursor: pointer;
+}
+
+.producto-admin-item__casilla input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--color-acento);
+  cursor: pointer;
+}
+
+.producto-admin-item--seleccionado {
+  outline: 2px solid var(--color-acento);
+  outline-offset: -2px;
+}
+
+/* Barra de acciones masivas: pegada al borde inferior mientras se recorre la lista. */
+.acciones-masivas {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  margin: var(--espacio-3) calc(var(--espacio-3) * -1) 0;
+  padding: 12px var(--espacio-3) calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+  background: var(--color-fondo);
+  border-top: 1px solid var(--color-borde);
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.acciones-masivas__encabezado {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--espacio-1) var(--espacio-3);
+}
+
+.acciones-masivas__enlace {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--color-acento);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.acciones-masivas__botones {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--espacio-2);
+}
+
+.acciones-masivas__botones .boton {
+  padding-inline: var(--espacio-1);
+}
+
+/* Casillas de categorías (formulario de producto y cambio masivo). */
+.selector-categorias {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espacio-2);
+}
+
+.selector-categorias__titulo {
+  padding: 0;
+  margin-bottom: var(--espacio-2);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.selector-categorias__opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espacio-2);
+}
+
+.selector-categorias__opcion {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-borde);
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.selector-categorias__opcion input {
+  margin: 0;
+  accent-color: var(--color-acento);
+}
+
+.selector-categorias__opcion--marcada {
+  border-color: var(--color-acento);
+  font-weight: 600;
+}
+
+.selector-categorias__nota {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--color-texto-suave);
+}
+
+.formulario-categorias-masivo__ayuda {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
 .producto-admin-item__acciones {
   display: flex;
   flex-direction: column;
@@ -2267,6 +2401,24 @@ body.admin .categoria-admin-item:hover {
 
 body.admin .producto-admin-item__imagen {
   border-radius: 10px;
+}
+
+body.admin .selector-categorias__opcion {
+  border-radius: 999px;
+  border-color: var(--admin-borde);
+}
+
+body.admin .selector-categorias__opcion--marcada {
+  border-color: var(--admin-acento);
+  background: #f4f4f5;
+}
+
+body.admin .producto-admin-item--seleccionado {
+  outline-color: var(--admin-acento);
+}
+
+body.admin .acciones-masivas {
+  border-top-color: var(--admin-borde);
 }
 
 body.admin .producto-admin-item__etiqueta {

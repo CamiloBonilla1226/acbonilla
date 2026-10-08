@@ -15,6 +15,11 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
 export function ProductoListaItem({ producto, onAbrirDetalle, onAgregarRapido }) {
   const agotado = !producto.disponible
   const variantes = variantesDisponibles(producto)
+  // Solo las categorías en las que el cliente puede encontrarlo en esta carta (domicilios).
+  const nombresCategorias = producto.categorias
+    .filter((categoria) => categoria.activo !== false && categoria.visible_domicilios !== false)
+    .map((categoria) => categoria.nombre)
+    .join(' · ')
 
   return (
     <article
@@ -30,8 +35,8 @@ export function ProductoListaItem({ producto, onAbrirDetalle, onAgregarRapido })
 
       <div className="producto-lista-item__info">
         <strong className="producto-lista-item__nombre">{producto.nombre}</strong>
-        {producto.categoria?.nombre && (
-          <span className="texto-suave producto-lista-item__categoria">{producto.categoria.nombre}</span>
+        {nombresCategorias && (
+          <span className="texto-suave producto-lista-item__categoria">{nombresCategorias}</span>
         )}
         <div className="producto-lista-item__pie">
           {variantes.length > 0 ? (

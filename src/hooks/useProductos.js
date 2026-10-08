@@ -2,14 +2,13 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { negocioConfig } from '../config/negocio.config'
 
-// Trae cada producto con su categoría. Las adiciones (grupos_opciones/opciones) ya no
-// pertenecen a un producto puntual, sino al negocio completo (ver useAdiciones.js), así
-// que no se anidan aquí — se cargan aparte y aplican a cualquier producto por igual.
-// `categoria.activo`/`visible_domicilios`/`visible_carta_fisica` viajan junto con el
-// resto: las cartas públicas los usan para ocultar productos de una categoría
-// desactivada o no visible en esa carta, aunque no se esté filtrando por ella (ver
-// Carta.jsx/CartaFisica.jsx); no se puede filtrar directo en esta consulta porque un join
-// `!inner` excluiría también a los productos sin categoría (categoria_id null).
+// Trae cada producto con sus categorías (un producto puede estar en varias, a través de la
+// tabla productos_categorias — ver explicacion-script-bd.txt, sección 16). Las adiciones no
+// se anidan aquí: son del negocio completo (ver useAdiciones.js).
+// `activo`/`visible_domicilios`/`visible_carta_fisica` de cada categoría viajan junto con el
+// resto: las cartas públicas los usan para decidir dónde se muestra el producto (ver
+// lib/productosVisibles.js); no se filtra en la consulta porque un join `!inner` excluiría
+// también a los productos sin categoría.
 // `variantes_producto(precio, disponible)` trae solo lo necesario para que la carta
 // pública sepa, sin una consulta aparte por producto, si debe mostrar "Desde $X" en la
 // tarjeta y forzar el modal de selección obligatoria antes de agregar al carrito (ver
@@ -17,9 +16,42 @@ import { negocioConfig } from '../config/negocio.config'
 // useVariantesProducto.js cuando el modal ya está abierto.
 const SELECT_PRODUCTO_COMPLETO = `
   *,
-  categoria:categorias(id, nombre, activo, visible_domicilios, visible_carta_fisica),
+  productos_categorias(categoria:categorias(id, nombre, activo, visible_domicilios, visible_carta_fisica)),
   variantes_producto(precio, disponible)
 `
+
+// Aplana productos_categorias → `producto.categorias` (arreglo de categorías, por nombre).
+function normalizarProducto({ productos_categorias: enlaces, ...producto }) {
+  const categorias = (enlaces ?? [])
+    .map((enlace) => enlace.categoria)
+    .filter(Boolean)
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
+  return { ...producto, categorias }
+}
+
+const filasEnlace = (productoIds, categoriaIds) =>
+  productoIds.flatMap((productoId) =>
+    categoriaIds.map((categoriaId) => ({
+      producto_id: productoId,
+      categoria_id: categoriaId,
+      negocio_id: negocioConfig.negocioId,
+    }))
+  )
+
+// Un update/delete que RLS no deja hacer no devuelve error: simplemente afecta 0 filas.
+// Para las acciones masivas se pide de vuelta lo afectado y se compara, así el panel avisa
+// en vez de mostrar un "listo" falso.
+function verificarAfectados(data, esperados) {
+  const afectados = data?.length ?? 0
+  if (afectados < esperados) {
+    return new Error(
+      afectados === 0
+        ? 'No tienes permiso para hacer este cambio.'
+        : `Solo se pudieron actualizar ${afectados} de ${esperados} productos.`
+    )
+  }
+  return null
+}
 
 // Inserta las filas de variantes de un producto (nombre + precio, orden = posición en la
 // lista). Se usa tanto al crear como al editar; en ambos casos el llamador decide qué hacer
@@ -37,7 +69,6 @@ async function insertarVariantes(productoId, variantes) {
 }
 
 export function useProductos({
-  categoriaId,
   soloDisponibles = false,
   soloVisibleDomicilios = false,
   soloVisibleCartaFisica = false,
@@ -56,9 +87,6 @@ export function useProductos({
       .eq('negocio_id', negocioConfig.negocioId)
       .order('nombre', { ascending: true })
 
-    if (categoriaId) {
-      consulta = consulta.eq('categoria_id', categoriaId)
-    }
     if (soloDisponibles) {
       consulta = consulta.eq('disponible', true)
     }
@@ -75,10 +103,10 @@ export function useProductos({
       setError(errorConsulta)
       setProductos([])
     } else {
-      setProductos(data)
+      setProductos(data.map(normalizarProducto))
     }
     setCargando(false)
-  }, [categoriaId, soloDisponibles, soloVisibleDomicilios, soloVisibleCartaFisica])
+  }, [soloDisponibles, soloVisibleDomicilios, soloVisibleCartaFisica])
 
   useEffect(() => {
     recargar()
@@ -87,8 +115,9 @@ export function useProductos({
   // `variantes`: cuando el producto tiene variantes (switch encendido en el formulario), la
   // lista completa de {nombre, precio} a guardar en variantes_producto, en la misma acción
   // de crear — para el panel se siente como un solo "Crear producto", no dos pasos.
+  // `categoriaIds`: categorías a las que pertenece (productos_categorias).
   const crearProducto = useCallback(
-    async (producto, variantes = []) => {
+    async (producto, variantes = [], categoriaIds = []) => {
       const nombreLimpio = producto.nombre?.trim() ?? ''
       if (!nombreLimpio) {
         return { exito: false, error: new Error('El nombre es obligatorio.') }
@@ -124,6 +153,17 @@ export function useProductos({
         }
       }
 
+      if (categoriaIds.length > 0) {
+        const { error: errorCategorias } = await supabase
+          .from('productos_categorias')
+          .insert(filasEnlace([data.id], categoriaIds))
+        if (errorCategorias) {
+          // Mismo rollback: borrar el producto se lleva en cascada sus variantes.
+          await supabase.from('productos').delete().eq('id', data.id)
+          return { exito: false, error: errorCategorias }
+        }
+      }
+
       await recargar(true)
       return { exito: true, producto: data }
     },
@@ -133,8 +173,9 @@ export function useProductos({
   // `variantes`: `null` deja intactas las variantes existentes (no se tocó esa parte del
   // formulario); un arreglo (aunque esté vacío) reemplaza por completo las variantes del
   // producto — se borran todas las anteriores y se insertan las que llegaron.
+  // `categoriaIds`: igual — `null` no toca las categorías; un arreglo las reemplaza.
   const actualizarProducto = useCallback(
-    async (id, cambiosOriginales, variantes = null) => {
+    async (id, cambiosOriginales, variantes = null, categoriaIds = null) => {
       let cambios = cambiosOriginales
 
       if (cambios.nombre !== undefined) {
@@ -172,8 +213,86 @@ export function useProductos({
         }
       }
 
+      if (categoriaIds !== null) {
+        const { error: errorCategorias } = await supabase.rpc('reemplazar_categorias_productos', {
+          p_productos: [id],
+          p_categorias: categoriaIds,
+        })
+        if (errorCategorias) return { exito: false, error: errorCategorias }
+      }
+
       await recargar(true)
       return { exito: true }
+    },
+    [recargar]
+  )
+
+  // --- Acciones masivas (varios productos seleccionados en el panel) ---
+
+  const cambiarDisponibleVarios = useCallback(
+    async (ids, valor) => {
+      const { data, error: errorActualizar } = await supabase
+        .from('productos')
+        .update({ disponible: valor })
+        .in('id', ids)
+        .select('id')
+
+      const error = errorActualizar ?? verificarAfectados(data, ids.length)
+      await recargar(true)
+      return { exito: !error, error }
+    },
+    [recargar]
+  )
+
+  const eliminarVarios = useCallback(
+    async (ids) => {
+      const { data, error: errorEliminar } = await supabase.from('productos').delete().in('id', ids).select('id')
+
+      const error = errorEliminar ?? verificarAfectados(data, ids.length)
+      await recargar(true)
+      return { exito: !error, error }
+    },
+    [recargar]
+  )
+
+  // Suma las categorías sin tocar las que ya tenían; las que ya estaban se ignoran.
+  const agregarCategoriasVarios = useCallback(
+    async (ids, categoriaIds) => {
+      const { error } = await supabase
+        .from('productos_categorias')
+        .upsert(filasEnlace(ids, categoriaIds), { onConflict: 'producto_id,categoria_id', ignoreDuplicates: true })
+
+      await recargar(true)
+      return { exito: !error, error }
+    },
+    [recargar]
+  )
+
+  // Deja a cada producto con exactamente estas categorías (vacío = sin categoría), en una
+  // sola transacción del lado de la base de datos.
+  const reemplazarCategoriasVarios = useCallback(
+    async (ids, categoriaIds) => {
+      const { error } = await supabase.rpc('reemplazar_categorias_productos', {
+        p_productos: ids,
+        p_categorias: categoriaIds,
+      })
+
+      await recargar(true)
+      return { exito: !error, error }
+    },
+    [recargar]
+  )
+
+  const quitarCategoriasVarios = useCallback(
+    async (ids, categoriaIds) => {
+      const { error } = await supabase
+        .from('productos_categorias')
+        .delete()
+        .in('producto_id', ids)
+        .in('categoria_id', categoriaIds)
+
+      await recargar(true)
+      return { exito: !error, error }
     },
     [recargar]
   )
@@ -210,5 +329,10 @@ export function useProductos({
     actualizarProducto,
     eliminarProducto,
     toggleDisponible,
+    cambiarDisponibleVarios,
+    eliminarVarios,
+    agregarCategoriasVarios,
+    reemplazarCategoriasVarios,
+    quitarCategoriasVarios,
   }
 }

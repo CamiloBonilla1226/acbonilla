@@ -44,13 +44,6 @@ export function Categorias() {
   }
 
   const cambiarActivo = async (id, valor) => {
-    if (!valor) {
-      const confirmado = await confirmar(
-        'Al desactivar esta categoría, los productos que le pertenecen también se desactivarán. ¿Quieres continuar?'
-      )
-      if (!confirmado) return
-    }
-
     const { exito, error: errorActualizar } = await toggleActivo(id, valor)
     mostrarToast(
       exito

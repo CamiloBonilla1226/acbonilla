@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ImagenProducto } from '../menu/ImagenProducto'
 import { Interruptor } from './Interruptor'
+import { SelectorCategorias } from './SelectorCategorias'
 import { subirImagenProducto } from '../../lib/storage'
 import { negocioConfig } from '../../config/negocio.config'
 import { useVariantesProducto } from '../../hooks/useVariantesProducto'
@@ -12,7 +13,7 @@ const VARIANTE_VACIA = { nombre: '', precio: '' }
 const VACIO = {
   nombre: '',
   descripcion: '',
-  categoria_id: '',
+  categoria_ids: [],
   precio: '',
   precio_oferta: '',
   imagen_url: '',
@@ -34,7 +35,7 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
       ? {
           nombre: productoInicial.nombre,
           descripcion: productoInicial.descripcion ?? '',
-          categoria_id: productoInicial.categoria_id ?? '',
+          categoria_ids: productoInicial.categorias.map((categoria) => categoria.id),
           precio: productoInicial.precio ?? '',
           precio_oferta: productoInicial.precio_oferta ?? '',
           imagen_url: productoInicial.imagen_url ?? '',
@@ -134,7 +135,6 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
       {
         nombre: valores.nombre.trim(),
         descripcion: valores.descripcion.trim() || null,
-        categoria_id: valores.categoria_id || null,
         precio: tieneVariantes ? null : Number(valores.precio),
         precio_oferta: tieneVariantes || valores.precio_oferta === '' ? null : Number(valores.precio_oferta),
         imagen_url: valores.imagen_url.trim() || null,
@@ -144,7 +144,8 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
         destacado: valores.destacado,
         tiene_variantes: tieneVariantes,
       },
-      tieneVariantes ? variantesValidas : []
+      tieneVariantes ? variantesValidas : [],
+      valores.categoria_ids
     )
 
     setGuardando(false)
@@ -165,17 +166,12 @@ export function FormularioProducto({ categorias, productoInicial, onGuardar, onC
         <input type="text" value={valores.descripcion} onChange={actualizar('descripcion')} maxLength={200} />
       </label>
 
-      <label className="campo">
-        <span>Categoría</span>
-        <select value={valores.categoria_id} onChange={actualizar('categoria_id')}>
-          <option value="">Sin categoría</option>
-          {categorias.map((categoria) => (
-            <option key={categoria.id} value={categoria.id}>
-              {categoria.nombre}
-            </option>
-          ))}
-        </select>
-      </label>
+      <SelectorCategorias
+        titulo="Categorías (puedes marcar varias)"
+        categorias={categorias}
+        seleccionadas={valores.categoria_ids}
+        onCambiar={(categoria_ids) => setValores((actual) => ({ ...actual, categoria_ids }))}
+      />
 
       <Interruptor activo={tieneVariantes} etiqueta="¿Tiene variantes?" onCambiar={setTieneVariantes} />
 

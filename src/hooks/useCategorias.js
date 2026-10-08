@@ -116,14 +116,12 @@ export function useCategorias({
 
   const eliminarCategoria = useCallback(
     async (id) => {
-      // Se verifica desde el cliente en vez de depender de una restricción de clave foránea
-      // en la base de datos, porque el modelo documentado en contexto-proyecto-base.md no
-      // define el comportamiento on delete de productos.categoria_id. Si más adelante se
-      // agrega esa restricción a nivel de base de datos, esta verificación sigue siendo una
-      // capa extra que da un mensaje de error entendible en vez de un código de Postgres.
+      // En la base de datos, borrar la categoría solo quitaría sus filas de
+      // productos_categorias (on delete cascade). Se bloquea desde aquí para que no se pierda
+      // por accidente la organización de productos que todavía la usan.
       const { count, error: errorConteo } = await supabase
-        .from('productos')
-        .select('id', { count: 'exact', head: true })
+        .from('productos_categorias')
+        .select('producto_id', { count: 'exact', head: true })
         .eq('categoria_id', id)
 
       if (errorConteo) return { exito: false, error: errorConteo }
@@ -147,26 +145,9 @@ export function useCategorias({
 
   const toggleActivo = useCallback(
     async (id, valor) => {
-      // Desactivar una categoría desactiva en cascada sus productos (pedido explícito del
-      // negocio: una categoría desactivada no debería dejar productos "sueltos" visibles en
-      // la carta). Se hace primero, antes de tocar la categoría, para que si esto falla no
-      // quede la categoría desactivada con productos todavía disponibles. Al ACTIVAR una
-      // categoría no se reactivan sus productos — el dueño pudo haber desactivado alguno a
-      // propósito por su cuenta, y no hay forma de distinguir ese caso.
-      if (!valor) {
-        const { error: errorProductos } = await supabase
-          .from('productos')
-          .update({ disponible: false })
-          .eq('categoria_id', id)
-
-        if (errorProductos) {
-          return {
-            exito: false,
-            error: new Error('No se pudieron desactivar los productos de esta categoría.'),
-          }
-        }
-      }
-
+      // Desactivar una categoría solo la oculta: sus productos no se tocan. Como un producto
+      // puede estar en varias categorías, deja de verse dentro de esta pero sigue en sus otras
+      // categorías activas (ver lib/productosVisibles.js). Al reactivarla todo vuelve igual.
       const { error: errorActualizar } = await supabase.from('categorias').update({ activo: valor }).eq('id', id)
 
       if (errorActualizar) {

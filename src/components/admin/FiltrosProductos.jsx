@@ -1,7 +1,11 @@
 import { FiltrosAdmin, GrupoFiltro } from './FiltrosAdmin'
 import { precioMinimo, variantesDisponibles } from '../../lib/variantes'
+import { productoEnCategoria } from '../../lib/productosVisibles'
+
+const SIN_CATEGORIA = '__sin__'
 
 export const FILTROS_PRODUCTOS_INICIALES = {
+  categoria: 'todas',
   estado: 'todos',
   carta: 'todas',
   destacados: 'todos',
@@ -17,6 +21,13 @@ function precioDe(producto) {
 
 export function aplicarFiltrosProductos(productos, filtros) {
   const filtrados = productos.filter((producto) => {
+    if (filtros.categoria === SIN_CATEGORIA && producto.categorias.length > 0) return false
+    if (
+      filtros.categoria !== 'todas' &&
+      filtros.categoria !== SIN_CATEGORIA &&
+      !productoEnCategoria(producto, filtros.categoria)
+    )
+      return false
     if (filtros.estado === 'activos' && !producto.disponible) return false
     if (filtros.estado === 'desactivados' && producto.disponible) return false
     if (filtros.carta === 'domicilios' && !producto.visible_domicilios) return false
@@ -30,7 +41,7 @@ export function aplicarFiltrosProductos(productos, filtros) {
   return filtrados
 }
 
-export function FiltrosProductos({ filtros, onCambiar, total, mostrados }) {
+export function FiltrosProductos({ filtros, onCambiar, total, mostrados, categorias }) {
   const cambiar = (clave) => (valor) => onCambiar({ ...filtros, [clave]: valor })
   const activos = Object.keys(FILTROS_PRODUCTOS_INICIALES).filter(
     (clave) => filtros[clave] !== FILTROS_PRODUCTOS_INICIALES[clave]
@@ -43,6 +54,16 @@ export function FiltrosProductos({ filtros, onCambiar, total, mostrados }) {
       activos={activos}
       onLimpiar={() => onCambiar(FILTROS_PRODUCTOS_INICIALES)}
     >
+      <GrupoFiltro
+        titulo="Categoría"
+        valor={filtros.categoria}
+        onCambiar={cambiar('categoria')}
+        opciones={[
+          { valor: 'todas', texto: 'Todas' },
+          ...categorias.map((categoria) => ({ valor: categoria.id, texto: categoria.nombre })),
+          { valor: SIN_CATEGORIA, texto: 'Sin categoría' },
+        ]}
+      />
       <GrupoFiltro
         titulo="Estado"
         valor={filtros.estado}
