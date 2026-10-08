@@ -1,3 +1,4 @@
+import { CarruselDestacados } from '../menu/CarruselDestacados'
 import { evaluarOfertas, formatoPrecio } from '../../lib/tiposOferta'
 
 // Barra por cada oferta activa con una meta de compra (ej. domicilio gratis desde $X, ver
@@ -31,9 +32,52 @@ function ProgresoOfertas({ ofertas, total }) {
   )
 }
 
-export function Carrito({ items, total, ofertas = [], onQuitar, onCambiarCantidad, onIrACheckout }) {
+// `recomendados` (ver productosRecomendados): con el carrito vacío ocupan la pantalla como
+// sugerencia para empezar; con productos, van en un carrusel debajo del total para sumar más
+// sin volver al Menú. `onAbrirDetalle`/`onAgregarRapido` son los mismos del Menú.
+export function Carrito({
+  items,
+  total,
+  ofertas = [],
+  recomendados = [],
+  onQuitar,
+  onCambiarCantidad,
+  onIrACheckout,
+  onAbrirDetalle,
+  onAgregarRapido,
+  onVerMenu,
+}) {
+  const carrusel = (props) => (
+    <CarruselDestacados
+      productos={recomendados}
+      onAbrirDetalle={onAbrirDetalle}
+      onAgregarRapido={onAgregarRapido}
+      variante="carrito"
+      {...props}
+    />
+  )
+
   if (items.length === 0) {
-    return <p className="texto-suave carrito__vacio">Tu carrito está vacío. Agrega productos desde la carta.</p>
+    return (
+      <div className="carrito carrito--vacio">
+        <div className="carrito__vacio">
+          <span className="carrito__vacio-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L20 8H6.2" />
+              <circle cx="9.5" cy="19.5" r="1.3" />
+              <circle cx="17" cy="19.5" r="1.3" />
+            </svg>
+          </span>
+          <strong>Tu carrito está vacío</strong>
+          <span className="texto-suave">Empieza con alguno de estos o explora toda la carta.</span>
+        </div>
+        <ProgresoOfertas ofertas={ofertas} total={total} />
+        {carrusel({ titulo: 'Te recomendamos', subtitulo: 'Toca + para agregar al carrito' })}
+        <button type="button" className="boton boton--secundario carrito__ver-menu" onClick={onVerMenu}>
+          Ver el menú completo
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -77,6 +121,8 @@ export function Carrito({ items, total, ofertas = [], onQuitar, onCambiarCantida
       <button type="button" className="boton carrito__checkout" onClick={onIrACheckout}>
         Continuar con el pedido
       </button>
+
+      {carrusel({ titulo: '¿Algo más?', subtitulo: 'Agrégalo a tu pedido sin salir del carrito' })}
     </div>
   )
 }

@@ -24,3 +24,29 @@ export function productoEnCategoria(producto, categoriaId) {
 export function productosDestacados(productos, max = 5) {
   return productos.filter((producto) => producto.destacado).slice(0, max)
 }
+
+const enOferta = (producto) => producto.precio_oferta != null && producto.precio_oferta < producto.precio
+
+// Recomendaciones del carrito (estrategia para subir el pedido): productos disponibles que
+// todavía no están en el carrito, primero los destacados, después los que tienen precio de
+// oferta y luego el resto (en el orden de la carta). Con productos en el carrito, entre
+// iguales van antes los de categorías que el cliente aún no tiene (ej. lleva cerveza → pasabocas,
+// hielo), para sugerir complementos en vez de más de lo mismo.
+export function productosRecomendados(productos, items, max = 10) {
+  const idsEnCarrito = new Set(items.map((item) => item.productoId))
+  const productosPorId = new Map(productos.map((producto) => [producto.id, producto]))
+  const categoriasEnCarrito = new Set(
+    items.flatMap((item) => (productosPorId.get(item.productoId)?.categorias ?? []).map((categoria) => categoria.id))
+  )
+  const complementa = (producto) =>
+    categoriasEnCarrito.size > 0 && !(producto.categorias ?? []).some((categoria) => categoriasEnCarrito.has(categoria.id))
+  const puntaje = (producto) =>
+    (producto.destacado ? 4 : 0) + (enOferta(producto) ? 2 : 0) + (complementa(producto) ? 1 : 0)
+
+  return productos
+    .filter((producto) => producto.disponible !== false && !idsEnCarrito.has(producto.id))
+    .map((producto, indice) => ({ producto, indice, puntaje: puntaje(producto) }))
+    .sort((a, b) => b.puntaje - a.puntaje || a.indice - b.indice)
+    .slice(0, max)
+    .map(({ producto }) => producto)
+}

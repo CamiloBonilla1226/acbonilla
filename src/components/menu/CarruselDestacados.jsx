@@ -13,9 +13,18 @@ const formatoPrecio = new Intl.NumberFormat('es-CO', {
 // Como se ven varias tarjetas a la vez (no una por "página"), el índice activo y el scroll
 // de los puntos de paginación se calculan con el ancho real de UNA tarjeta + su gap, no con
 // el ancho completo de la pista (que sería el de ~3 tarjetas y desincroniza los puntos).
-// Tocar la tarjeta abre el detalle del producto (ahí está el botón real de "Agregar"): no
-// hay un "+" propio en la tarjeta.
-export function CarruselDestacados({ productos, onAbrirDetalle }) {
+// Tocar la tarjeta abre el detalle del producto (ahí está el botón real de "Agregar"). En
+// Inicio no hay un "+" propio en la tarjeta; el carrito reutiliza el carrusel para sus
+// recomendaciones y ahí sí lo muestra (`onAgregarRapido`, mismo comportamiento que el "+" del
+// Menú). `titulo`, `subtitulo` y `variante` (clase modificadora) cambian el encabezado.
+export function CarruselDestacados({
+  productos,
+  onAbrirDetalle,
+  onAgregarRapido,
+  titulo = '¿Qué te vas a tomar hoy?',
+  subtitulo = 'Más pedidos',
+  variante,
+}) {
   const contenedorRef = useRef(null)
   const [indiceActivo, setIndiceActivo] = useState(0)
 
@@ -58,9 +67,9 @@ export function CarruselDestacados({ productos, onAbrirDetalle }) {
   }
 
   return (
-    <section className="carrusel-destacados">
-      <h2 className="carrusel-destacados__titulo">¿Qué te vas a tomar hoy?</h2>
-      <p className="texto-suave carrusel-destacados__subtitulo">Más pedidos</p>
+    <section className={`carrusel-destacados${variante ? ` carrusel-destacados--${variante}` : ''}`}>
+      <h2 className="carrusel-destacados__titulo">{titulo}</h2>
+      {subtitulo && <p className="texto-suave carrusel-destacados__subtitulo">{subtitulo}</p>}
       <div className="carrusel-destacados__pista" ref={contenedorRef} onScroll={alHacerScroll}>
         {productos.map((producto) => {
           const variantes = variantesDisponibles(producto)
@@ -73,7 +82,22 @@ export function CarruselDestacados({ productos, onAbrirDetalle }) {
               onClick={() => onAbrirDetalle(producto)}
               onKeyDown={(e) => e.key === 'Enter' && onAbrirDetalle(producto)}
             >
-              <ImagenProducto src={producto.imagen_url} alt={producto.nombre} relacionAspecto="1 / 1" />
+              <div className="carrusel-destacados__imagen">
+                <ImagenProducto src={producto.imagen_url} alt={producto.nombre} relacionAspecto="1 / 1" />
+                {onAgregarRapido && (
+                  <button
+                    type="button"
+                    className="carrusel-destacados__agregar"
+                    aria-label={`Agregar ${producto.nombre}`}
+                    onClick={(evento) => {
+                      evento.stopPropagation()
+                      onAgregarRapido(producto)
+                    }}
+                  >
+                    +
+                  </button>
+                )}
+              </div>
               <div className="carrusel-destacados__info">
                 <strong className="carrusel-destacados__nombre">{producto.nombre}</strong>
                 {/* Tarjeta angosta: se muestra un solo precio en una línea (sin el tachado de
@@ -97,7 +121,7 @@ export function CarruselDestacados({ productos, onAbrirDetalle }) {
             <button
               key={producto.id}
               type="button"
-              className={`carrusel-destacados__punto ${indice === indiceActivo ? 'carrusel-destacados__punto--activo' : ''}`}
+              className={`carrusel-destacados__punto ${indice === Math.min(indiceActivo, productos.length - 1) ?'carrusel-destacados__punto--activo' : ''}`}
               aria-label={`Ir a la tarjeta ${indice + 1}`}
               onClick={() => irATarjeta(indice)}
             />

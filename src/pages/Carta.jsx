@@ -21,7 +21,12 @@ import { useSwipeNavegacion } from '../hooks/useSwipeNavegacion'
 import { useCerrarConAtras } from '../hooks/useCerrarConAtras'
 import { useSeccionesConHistorial } from '../hooks/useSeccionesConHistorial'
 import { alSoltarFondo } from '../lib/superposicion'
-import { filtrarProductosVisibles, productoEnCategoria, productosDestacados } from '../lib/productosVisibles'
+import {
+  filtrarProductosVisibles,
+  productoEnCategoria,
+  productosDestacados,
+  productosRecomendados,
+} from '../lib/productosVisibles'
 import { variantesDisponibles } from '../lib/variantes'
 import { normalizarTexto } from '../lib/texto'
 
@@ -85,6 +90,10 @@ export function Carta() {
 
   const carrito = useCarrito()
   const mostrarToast = useToast()
+  const recomendados = useMemo(
+    () => productosRecomendados(productosVisibles, carrito.items),
+    [productosVisibles, carrito.items]
+  )
 
   // "Todas" (categoriaSeleccionada === null) cuenta como la primera posición, igual que ya
   // se ve en CategoriaFiltro. El swipe en Menú recorre esta lista antes de cambiar de
@@ -160,7 +169,7 @@ export function Carta() {
       <main className="contenedor pagina-carta pagina-carta--tabs">
         <section hidden={seccion !== 'inicio'} className="seccion-inicio">
           <img src="/imagenprueba.png" alt={negocioConfig.nombre} className="seccion-inicio__logo" />
-          <TarjetaOferta oferta={ofertaActiva}onClick={() => setSeccion('menu')} />
+          <TarjetaOferta oferta={ofertaActiva} onClick={() => setSeccion('menu')} />
           <CarruselDestacados productos={destacados} onAbrirDetalle={setProductoSeleccionado} />
           <SobreNosotros />
         </section>
@@ -200,9 +209,13 @@ export function Carta() {
             items={carrito.items}
             total={carrito.total}
             ofertas={ofertas}
+            recomendados={recomendados}
             onQuitar={carrito.quitarItem}
             onCambiarCantidad={carrito.cambiarCantidad}
             onIrACheckout={() => setSeccion('checkout')}
+            onAbrirDetalle={setProductoSeleccionado}
+            onAgregarRapido={agregarRapido}
+            onVerMenu={() => setSeccion('menu')}
           />
         </section>
 
