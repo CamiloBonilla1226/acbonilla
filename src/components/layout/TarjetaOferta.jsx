@@ -1,5 +1,5 @@
 // Ficha de "oferta destacada" en Inicio, entre el logo y el carrusel: muestra la oferta
-// marcada "En Inicio" en /admin/ofertas (ver useOfertas.js). El diseño (ícono, borde,
+// activa en /admin/ofertas (solo puede haber una, ver useOfertas.js). El diseño (ícono, borde,
 // tipografía) es el mismo para todos los negocios; el único texto es el título y subtítulo
 // que escribe el dueño. Sin oferta (o sin título) no se renderiza nada. Al tocarla lleva al
 // Menú (`onClick`, ver Carta.jsx). El formulario de ofertas la reutiliza como vista previa.

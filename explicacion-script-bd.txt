@@ -1005,10 +1005,13 @@ CÓMO FUNCIONA CADA CAMPO:
   y agregar uno nuevo no requiere tocar la base de datos.
 - configuracion: JSON con los parámetros del tipo que elige el dueño.
   Ej. domicilio_gratis → {"monto_minimo": 70000}.
-- activa: si la oferta está vigente. Varias pueden estar activas: todas
-  aplican su comportamiento (ej. la barra de domicilio gratis del
-  carrito y la línea en el mensaje de WhatsApp).
-- en_inicio: cuál de las activas se muestra en la tarjeta de Inicio.
+- activa: si la oferta está vigente. SOLO UNA puede estar activa por
+  negocio (cambio del 2026-10-08, pedido del dueño; antes podían ser
+  varias). La activa es la única que aplica su comportamiento (ej. la
+  barra de domicilio gratis del carrito y la línea en WhatsApp): si se
+  desactiva domicilio gratis, la barra desaparece.
+- en_inicio: se mantiene, pero ahora siempre coincide con la activa
+  (activar una la pone en Inicio). Ya no hay botón "Mostrar en Inicio".
 - creado_en / actualizado_en.
 
 REGLAS QUE GARANTIZA LA BASE DE DATOS:
@@ -1124,7 +1127,7 @@ TIPOS DE OFERTA (comportamiento en el código, src/lib/tiposOferta.js):
 - domicilio_gratis: OFERTA FIJA DEL SISTEMA (cambio del 2026-10-08,
   pedido del dueño). Siempre existe una por negocio: el panel la crea
   sola (inactiva, con $70.000) si el negocio no la tiene, y no se puede
-  eliminar, solo activar/desactivar y mostrar en Inicio. Lo único que el
+  eliminar, solo activar/desactivar. Lo único que el
   dueño configura es el monto: configuracion {"monto_minimo": número}.
   El título y la descripción de su tarjeta se arman solos con ese monto
   ("Domicilio gratis" / "Compras desde $X") para que nunca queden
@@ -1160,12 +1163,44 @@ informativas (no borra nada):
 
     commit;
 
+UNA SOLA OFERTA ACTIVA (2026-10-08) — sin cambio obligatorio en la base
+de datos. El panel (useOfertas.js) lo hace en dos pasos: primero
+desactiva (y quita de Inicio) las demás ofertas activas del negocio, y
+después llama a poner_oferta_en_inicio sobre la elegida, que la deja
+activa y en Inicio. Crear una oferta "activa" la inserta inactiva y
+luego la activa por ese mismo camino. La carta, además, solo usa UNA
+oferta aunque en la tabla queden varias activas de antes de esta regla
+(la que está en Inicio; si ninguna, la más reciente).
+
+REFUERZO OPCIONAL — que la base de datos garantice una sola activa. El
+orden del panel (primero apaga las otras, luego enciende) ya respeta este
+índice. La primera parte limpia los negocios que hoy tengan varias
+activas: deja la que está en Inicio (o la más reciente) y apaga el resto.
+
+    begin;
+
+    update ofertas o
+    set activa = false, en_inicio = false, actualizado_en = now()
+    where o.activa
+      and exists (
+        select 1 from ofertas o2
+        where o2.negocio_id = o.negocio_id
+          and o2.activa
+          and o2.id <> o.id
+          and (o2.en_inicio, o2.creado_en, o2.id) > (o.en_inicio, o.creado_en, o.id)
+      );
+
+    create unique index ofertas_una_activa on ofertas(negocio_id) where activa;
+
+    commit;
+
 CONSECUENCIA EN EL CÓDIGO:
 - Nueva sección /admin/ofertas (solo dueño). /admin/negocio ya no tiene
   la tarjeta de oferta.
 - useNegocioConfig.js deja de leer/escribir negocio_config.oferta.
-- La carta lee las ofertas activas: la de en_inicio para la tarjeta, y
-  todas para los comportamientos del carrito y de WhatsApp.
+- La carta lee las ofertas activas y usa solo una (ofertaActiva): para
+  la tarjeta de Inicio y para el carrito y WhatsApp. Sin oferta activa
+  no hay tarjeta ni barra.
 
 
 RESUMEN GENERAL

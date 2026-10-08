@@ -75,9 +75,10 @@ export function Carta() {
   }, [productosVisibles, categoriaSeleccionada, busqueda])
 
   const { adiciones } = useAdiciones({ soloDisponibles: true, soloVisibleDomicilios: true })
-  // Todas las activas aplican su comportamiento (barra del carrito, línea en WhatsApp);
-  // solo la marcada "En Inicio" se muestra en la tarjeta.
-  const { ofertas, ofertaEnInicio } = useOfertas({ soloActivas: true })
+  // Solo hay una oferta activa: se muestra en la tarjeta de Inicio y es la única que aplica su
+  // comportamiento (barra del carrito, línea en WhatsApp). Sin oferta activa no hay barra.
+  const { ofertaActiva } = useOfertas({ soloActivas: true })
+  const ofertas = useMemo(() => (ofertaActiva ? [ofertaActiva] : []), [ofertaActiva])
 
   // "Atrás" del celular cierra el detalle del producto en vez de salir de la página.
   useCerrarConAtras(Boolean(productoSeleccionado), () => setProductoSeleccionado(null))
@@ -159,7 +160,7 @@ export function Carta() {
       <main className="contenedor pagina-carta pagina-carta--tabs">
         <section hidden={seccion !== 'inicio'} className="seccion-inicio">
           <img src="/imagenprueba.png" alt={negocioConfig.nombre} className="seccion-inicio__logo" />
-          <TarjetaOferta oferta={ofertaEnInicio} onClick={() => setSeccion('menu')} />
+          <TarjetaOferta oferta={ofertaActiva}onClick={() => setSeccion('menu')} />
           <CarruselDestacados productos={destacados} onAbrirDetalle={setProductoSeleccionado} />
           <SobreNosotros />
         </section>

@@ -19,7 +19,8 @@ function VistaPrevia({ oferta }) {
 
 // Crear/editar una oferta del dueño: solo título y descripción (la descripción es el texto
 // pequeño de la tarjeta, columna `subtitulo`), con vista previa de la tarjeta de Inicio.
-export function FormularioOferta({ ofertaInicial, onGuardar, onCancelar }) {
+// `ofertaActiva`: la que está activa ahora, para avisar que crear esta activa la reemplaza.
+export function FormularioOferta({ ofertaInicial, ofertaActiva = null, onGuardar, onCancelar }) {
   const [valores, setValores] = useState({
     titulo: ofertaInicial?.titulo ?? '',
     subtitulo: ofertaInicial?.subtitulo ?? '',
@@ -79,11 +80,18 @@ export function FormularioOferta({ ofertaInicial, onGuardar, onCancelar }) {
       </label>
 
       {!ofertaInicial && (
-        <Interruptor
-          activo={valores.activa}
-          etiqueta={valores.activa ? 'Activa al crearla' : 'Guardar como inactiva'}
-          onCambiar={(activa) => setValores((actual) => ({ ...actual, activa }))}
-        />
+        <>
+          <Interruptor
+            activo={valores.activa}
+            etiqueta={valores.activa ? 'Activa al crearla' : 'Guardar como inactiva'}
+            onCambiar={(activa) => setValores((actual) => ({ ...actual, activa }))}
+          />
+          {valores.activa && ofertaActiva && (
+            <p className="texto-suave formulario-oferta__aviso">
+              Solo puede haber una oferta activa: "{ofertaActiva.titulo}" se desactivará.
+            </p>
+          )}
+        </>
       )}
 
       {error && <p className="campo__error">{error}</p>}

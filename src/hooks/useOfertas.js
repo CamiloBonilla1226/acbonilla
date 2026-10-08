@@ -21,9 +21,9 @@ function validarTextos({ titulo, subtitulo }) {
 
 const sinPermiso = (data, accion) => (data?.length ? null : new Error(`No tienes permiso para ${accion} esta oferta.`))
 
-// Ofertas del negocio (tabla ofertas, ver explicacion-script-bd.txt sección 17). Varias
-// pueden estar activas (todas aplican su comportamiento); solo una (`en_inicio`) se muestra en
-// la tarjeta de Inicio. "Domicilio gratis" es una oferta fija: en el panel se crea sola si el
+// Ofertas del negocio (tabla ofertas, ver explicacion-script-bd.txt sección 17). Solo una
+// puede estar activa a la vez: es la que se muestra en la tarjeta de Inicio (`en_inicio`) y la
+// única que aplica su comportamiento (barra del carrito, línea en WhatsApp). "Domicilio gratis" es una oferta fija: en el panel se crea sola si el
 // negocio todavía no la tiene, no se elimina y solo se le cambia el monto. Las demás las crea
 // el dueño, solo con título y descripción. Con `soloActivas` la usa la carta pública (el RLS
 // igual solo le deja leer las activas) y nunca crea nada.
@@ -90,33 +90,6 @@ export function useOfertas({ soloActivas = false } = {}) {
     [recargar]
   )
 
-  // Una oferta nueva activa queda en Inicio si todavía no hay ninguna ahí, para que al crear
-  // la primera no haya que hacer un paso extra.
-  const crearOferta = useCallback(
-    async ({ titulo, subtitulo, activa }) => {
-      const mensaje = validarTextos({ titulo, subtitulo })
-      if (mensaje) return { exito: false, error: new Error(mensaje) }
-
-      const { data, error: errorCrear } = await supabase
-        .from('ofertas')
-        .insert({
-          negocio_id: negocioConfig.negocioId,
-          titulo: titulo.trim(),
-          subtitulo: subtitulo?.trim() || null,
-          tipo: 'informativa',
-          activa,
-        })
-        .select()
-        .single()
-      if (errorCrear) return { exito: false, error: errorCrear }
-
-      if (data.activa && !ofertas.some((oferta) => oferta.en_inicio)) return ponerEnInicio(data.id)
-      await recargar(true)
-      return { exito: true }
-    },
-    [ofertas, ponerEnInicio, recargar]
-  )
-
   const actualizarOferta = useCallback(
     async (id, { titulo, subtitulo }) => {
       const mensaje = validarTextos({ titulo, subtitulo })
@@ -166,29 +139,78 @@ export function useOfertas({ soloActivas = false } = {}) {
     [ofertas, recargar]
   )
 
-  // Desactivar también la quita de Inicio (la base de datos no deja una oferta en Inicio
-  // sin estar activa). Activar la pone en Inicio solo si no hay ninguna ahí.
+  // Solo puede haber una oferta activa a la vez. Activar una desactiva primero las demás (en
+  // ese orden, para respetar los índices únicos de la sección 17) y luego la deja activa y en
+  // Inicio con la función poner_oferta_en_inicio. Desactivar también la quita de Inicio (la
+  // base de datos no deja una oferta en Inicio sin estar activa).
+  const activarOferta = useCallback(
+    async (id) => {
+      const { error: errorOtras } = await supabase
+        .from('ofertas')
+        .update({ activa: false, en_inicio: false, actualizado_en: ahora() })
+        .eq('negocio_id', negocioConfig.negocioId)
+        .eq('activa', true)
+        .neq('id', id)
+      if (errorOtras) {
+        await recargar(true)
+        return { exito: false, error: errorOtras }
+      }
+      return ponerEnInicio(id)
+    },
+    [ponerEnInicio, recargar]
+  )
+
   const cambiarActiva = useCallback(
     async (id, valor) => {
-      const cambios = valor ? { activa: true } : { activa: false, en_inicio: false }
+      if (valor) return activarOferta(id)
+
       const { error: errorActualizar } = await supabase
         .from('ofertas')
-        .update({ ...cambios, actualizado_en: ahora() })
+        .update({ activa: false, en_inicio: false, actualizado_en: ahora() })
         .eq('id', id)
-      if (errorActualizar) return { exito: false, error: errorActualizar }
+      await recargar(true)
+      return { exito: !errorActualizar, error: errorActualizar }
+    },
+    [activarOferta, recargar]
+  )
 
-      if (valor && !ofertas.some((oferta) => oferta.en_inicio && oferta.id !== id)) return ponerEnInicio(id)
+  // Se inserta inactiva y, si se pidió activa, se activa con activarOferta (que desactiva la
+  // que estuviera activa: solo puede haber una).
+  const crearOferta = useCallback(
+    async ({ titulo, subtitulo, activa }) => {
+      const mensaje = validarTextos({ titulo, subtitulo })
+      if (mensaje) return { exito: false, error: new Error(mensaje) }
+
+      const { data, error: errorCrear } = await supabase
+        .from('ofertas')
+        .insert({
+          negocio_id: negocioConfig.negocioId,
+          titulo: titulo.trim(),
+          subtitulo: subtitulo?.trim() || null,
+          tipo: 'informativa',
+          activa: false,
+        })
+        .select()
+        .single()
+      if (errorCrear) return { exito: false, error: errorCrear }
+
+      if (activa) return activarOferta(data.id)
       await recargar(true)
       return { exito: true }
     },
-    [ofertas, ponerEnInicio, recargar]
+    [activarOferta, recargar]
   )
+
+  // La única oferta activa. Si quedaron varias activas de antes de esta regla, manda la que está
+  // en Inicio (y si ninguna lo está, la más reciente), así la carta nunca aplica dos a la vez.
+  const activas = ofertas.filter((oferta) => oferta.activa)
+  const ofertaActiva = activas.find((oferta) => oferta.en_inicio) ?? activas[0] ?? null
 
   return {
     ofertas,
     ofertaDomicilio: ofertas.find(esDomicilio) ?? null,
     otrasOfertas: ofertas.filter((oferta) => !esDomicilio(oferta)),
-    ofertaEnInicio: ofertas.find((oferta) => oferta.en_inicio && oferta.activa) ?? null,
+    ofertaActiva,
     cargando,
     error,
     recargar,
@@ -197,6 +219,5 @@ export function useOfertas({ soloActivas = false } = {}) {
     configurarDomicilio,
     eliminarOferta,
     cambiarActiva,
-    ponerEnInicio,
   }
 }

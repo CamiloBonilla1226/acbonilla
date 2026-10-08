@@ -15,6 +15,7 @@ export function Ofertas() {
   const {
     ofertaDomicilio,
     otrasOfertas,
+    ofertaActiva,
     cargando,
     error,
     crearOferta,
@@ -22,7 +23,6 @@ export function Ofertas() {
     configurarDomicilio,
     eliminarOferta,
     cambiarActiva,
-    ponerEnInicio,
   } = useOfertas()
 
   const [modal, setModal] = useState(null)
@@ -39,10 +39,17 @@ export function Ofertas() {
 
   const guardarOferta = async (datos) => {
     const esNueva = modal === 'nueva'
+    const reemplazada = esNueva && datos.activa ? ofertaActiva : null
     const resultado = esNueva ? await crearOferta(datos) : await actualizarOferta(modal.id, datos)
     if (resultado.exito) {
       setModal(null)
-      mostrarToast(esNueva ? 'Oferta creada' : 'Oferta actualizada')
+      mostrarToast(
+        esNueva
+          ? reemplazada
+            ? `Oferta creada y activada; "${reemplazada.titulo}" se desactivó`
+            : 'Oferta creada'
+          : 'Oferta actualizada'
+      )
     }
     return resultado
   }
@@ -57,17 +64,23 @@ export function Ofertas() {
   }
 
   const confirmarEliminar = async (oferta) => {
-    const aviso = oferta.en_inicio ? ' Es la que se muestra en Inicio: la tarjeta dejará de verse.' : ''
+    const aviso = oferta.activa ? ' Es la oferta activa: la tarjeta de Inicio dejará de verse.' : ''
     const confirmado = await confirmar(`¿Eliminar la oferta "${oferta.titulo}"?${aviso}`)
     if (!confirmado) return
     avisar(await eliminarOferta(oferta.id), 'Oferta eliminada', 'No se pudo eliminar la oferta.')
   }
 
+  const hayOtraActiva = (id) => Boolean(ofertaActiva && ofertaActiva.id !== id)
+
   const acciones = {
-    onCambiarActiva: async (id, valor) =>
-      avisar(await cambiarActiva(id, valor), valor ? 'Oferta activada' : 'Oferta desactivada', 'No se pudo cambiar la oferta.'),
-    onPonerEnInicio: async (id) =>
-      avisar(await ponerEnInicio(id), 'Ahora se muestra en Inicio', 'No se pudo cambiar la oferta de Inicio.'),
+    onCambiarActiva: async (id, valor) => {
+      const reemplaza = valor && hayOtraActiva(id)
+      avisar(
+        await cambiarActiva(id, valor),
+        valor ? (reemplaza ? `Oferta activada; "${ofertaActiva.titulo}" se desactivó` : 'Oferta activada') : 'Oferta desactivada',
+        'No se pudo cambiar la oferta.'
+      )
+    },
   }
 
   return (
@@ -76,7 +89,8 @@ export function Ofertas() {
       <main className="contenedor admin-ofertas">
         <h1>Ofertas</h1>
         <p className="texto-suave admin-ofertas__ayuda">
-          Puedes tener varias ofertas activas al mismo tiempo; en la carta, Inicio muestra solo la marcada con ★.
+          Solo una oferta puede estar activa: es la que se muestra en Inicio y la única que se aplica a los
+          pedidos. Al activar otra, la anterior se desactiva sola.
         </p>
 
         {cargando && <p className="texto-suave">Cargando ofertas…</p>}
@@ -137,6 +151,7 @@ export function Ofertas() {
                 <h2>{modal === 'nueva' ? 'Nueva oferta' : 'Editar oferta'}</h2>
                 <FormularioOferta
                   ofertaInicial={modal === 'nueva' ? null : modal}
+                  ofertaActiva={ofertaActiva}
                   onGuardar={guardarOferta}
                   onCancelar={cerrarModal}
                 />
