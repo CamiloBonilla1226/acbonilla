@@ -570,4 +570,4 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
   - Total con "Total" en gris y el valor en negrita, sin la doble línea que había entre la lista y el total.
   - Carrito vacío: solo el ícono de línea, "Tu carrito está vacío" y un enlace "Ver el menú"; el carrusel "Te recomendamos" va debajo, sin subtítulo.
   - Carruseles del carrito más sobrios: título pequeño, sin subtítulo, tarjetas algo más angostas, precio en gris y el "+" blanco sobre la foto en vez de negro.
-- Verificación con Playwright (Edge emulando iPhone 13) contra el Supabase simulado: 16/16 en carrito y recomendaciones (incluye encabezado con la cantidad, "−" con 2 unidades y papelera con 1) y regresión de ofertas 13/13. Capturas revisadas. `npm run build` y `oxlint` sin errores nuevos.
+- Verificación con Playwright (Edge emulando iPhone 13) contra el Supabase simulado: 17/17 en carrito, recomendaciones y tarjeta de oferta (incluye encabezado con la cantidad, "−" con 2 unidades y papelera con 1) y regresión de ofertas 13/13. Capturas revisadas. `npm run build` y `oxlint` sin errores nuevos.
