@@ -608,3 +608,7 @@ Todas las decisiones técnicas relevantes y funcionalidades implementadas en el 
 
 ## 2026-10-08 (11)
 - **Carta física: las pestañas de categoría ya no muestran la cantidad de productos** (pedido del dueño). Se quitó el número de cada pestaña y su estilo (`.carta-fisica__pestana-cantidad`); el encabezado de la sección sigue diciendo "N productos".
+
+## 2026-10-11
+- **Se definió la arquitectura por negocio y su plan de trabajo** (`docs/plan-arquitectura-negocios.md`). Decisión del dueño: un código independiente por negocio con diseño 100 % propio, en un solo repositorio, con lógica (`packages/core`) y panel admin (`packages/admin`) compartidos por npm workspaces, y un proyecto de Vercel por negocio. El proyecto base actual pasa a ser la plantilla (`negocios/_plantilla`); no tiene ningún negocio real dentro. Se descartó tanto el modelo multitenant de un solo proyecto (un error de un negocio tumbaría a todos) como las copias totalmente independientes (cada corrección de lógica habría que repetirla en cada negocio). El plan lista 7 fases y deja anotados los pendientes de seguridad. Solo documentación: no se movió ni se cambió código.
+  - **Excepción a la regla de push inmediato a `main`**: la reorganización se hace en la rama `arquitectura-negocios` y se une a `main` solo en la Fase 6, junto con el cambio de Root Directory en Vercel, porque reorganizar carpetas rompería el deploy actual.
