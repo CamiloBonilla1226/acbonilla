@@ -44,6 +44,25 @@ acbonilla/
 - Anotar el inventario inicial: los 28 archivos que importan `negocio.config.js`.
 - **Terminado cuando:** la rama existe y las dos confirmaciones de Vercel están hechas.
 
+**Resultado de la Fase 0 (2026-10-12) — hecho en el repo, pendiente del dueño en Vercel**
+
+- Rama `arquitectura-negocios` creada a partir de `main` (`b0ada3a`).
+- **Línea base verificada:** `npm run build` pasa (159 módulos; JS 262 KB, CSS 58 KB) y `npm run lint` da 0 errores y 16 advertencias, todas de `react/only-export-components`. Una fase no puede dejar más advertencias que estas.
+- **Inventario de `negocio.config.js`:** el JS solo usa 3 campos, así que la Fase 2 es más mecánica de lo previsto.
+  - `negocioId` (33 usos): `lib/supabaseClient.js`, `hooks/useAdiciones`, `useAuth`, `useCategorias`, `useNegocioConfig`, `useOfertas`, `usePedidos`, `useProductos`, `useUsuariosAdmin`, `useVariantesProducto`, y `FormularioAdicion` y `FormularioProducto` (subida de imágenes por carpeta de negocio).
+  - `nombre` (9 usos): `AdminNav`, `Footer`, `HeaderNegocio`, `Nav`, `Carta`, `CartaFisica`, `Inicio`, `Dashboard`, `Login`.
+  - `whatsappContacto` (2 usos): `Checkout` y `Footer`.
+  - `marca` (colores y fuente) solo se lee en `App.jsx` (`useAplicarMarca`, que escribe variables CSS); `index.css` define los valores neutros de partida.
+  - Importan el archivo sin usar campos (solo comentarios o el import): `SobreNosotros`, `horario.js`, `phoneAuth.js` e `index.css`; no necesitan cambio de lógica.
+  - Fuera de `src/`: solo `.env.example` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`), que seguirán siendo compartidos por todos los negocios.
+- **Assets fijos de un negocio dentro del código:** `public/imagenprueba.png` (logo, referenciado desde `Carta.jsx` y `CartaFisica.jsx`) y `public/piano-bar-banner.png` (sin referencias en `src/`; sobrante). Pasan a `negocios/<slug>/public/` en la Fase 4.
+- **Observación para la Fase 2:** `phoneAuth.numeroACorreoInterno(numero, negocioId)` ya recibe el `negocioId` por parámetro, así que no depende de la configuración y se puede mover al núcleo tal cual. `supabaseClient.js` hoy mezcla dos cosas (crear el cliente con las variables de entorno y advertir del `negocioId` de ejemplo); en el núcleo conviene separarlas: el cliente va sin conocer al negocio, y la advertencia pasa al `NegocioProvider`.
+- **Pendiente del dueño, antes de la Fase 6** (no se puede verificar desde el repo):
+  1. En el proyecto de Vercel: Settings → General → Root Directory, confirmar que existe la opción "Include source files outside of the Root Directory in the Build Step" y que está activada.
+  2. Revisar los límites vigentes del plan de Vercel (cantidad de proyectos y dominios propios).
+  3. Decidir qué pasa con el deploy actual de `main`: o se convierte en la demo de `negocios/_plantilla` (Root Directory `negocios/_plantilla`), o se retira cuando exista el primer negocio real.
+  4. Tener claro si algún cliente va a exigir quedarse con su código.
+
 ### Fase 1 — Workspaces sin mover nada
 - Agregar un `package.json` raíz con `workspaces` y verificar que `npm install` y el build actual siguen funcionando.
 - **Riesgo:** bajo. **Terminado cuando:** build y lint iguales que antes.
